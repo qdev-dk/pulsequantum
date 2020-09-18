@@ -1,0 +1,16 @@
+trigger:
+    branches:
+      include:
+      - main
+      - release/*
+
+jobs:
+  - job: "pulsequantum_CI"
+    pool:
+      vmImage: 'windows-2019'
+
+    steps:
+      - template: CI/setup-environment.yml
+      - template: CI/run-codechecks-and-tests.yml
+      - template: CI/build-documentation.yml
+      - template: CI/publish-results.yml

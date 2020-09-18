@@ -1,0 +1,24 @@
+steps:
+    - powershell: | # for conda executable and binaries like sqlite (which pytest-cov uses)
+        Write-Host "##vso[task.prependpath]$env:CONDA\Library\mingw-w64\bin"
+        Write-Host "##vso[task.prependpath]$env:CONDA\Library\usr\bin"
+        Write-Host "##vso[task.prependpath]$env:CONDA\Library\bin"
+        Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+        Write-Host "##vso[task.prependpath]$env:CONDA\bin"
+      displayName: Add conda to PATH
+    - bash: |
+        conda update -n base conda pip setuptools -y &&
+        conda init --all
+      displayName: Conda setup
+    - bash: |
+        sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
+      name: disable_telemetry
+      displayName: Disable telemetry
+    - bash: |
+        conda --version &&
+        conda env create --file environment.yml &&
+        source activate pulsequantum &&
+        pip install -r test_requirements.txt &&
+        pip install .
+      name: install_package
+      displayName: Install Package
