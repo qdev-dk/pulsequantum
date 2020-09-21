@@ -44,7 +44,7 @@ jobs:
         run: |
           conda --version &&
           conda env create --file ./pulsequantum/environment.yml &&
-          source activate pulsequantum &&
+          conda activate pulsequantum &&
           pip install -r test_requirements.txt &&
           pip install .
         shell: bash               
