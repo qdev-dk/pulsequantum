@@ -13,3 +13,6 @@ def hello_world() -> None:
     Print hello world :)
     """
     print("Hello, world! from pulsequantum")
+	
+def myadd(x: float,y: float) -> float:
+	return x+y
