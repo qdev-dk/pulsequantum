@@ -62,4 +62,4 @@ jobs:
           #echo "source activate done" &&
           #pip install -r test_requirements.txt &&
           #pip install .
-        shell: bash               
+        shell: bash -l {0}              
