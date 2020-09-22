@@ -43,12 +43,13 @@ jobs:
       - name: print_bla
         run: |
          echo "$(pwd)"
+         echo "$(ls -a)"
          echo "$($PATH)"
          echo "$(conda env list)" 
       - name: install_package
         run: |
           conda --version &&
-          conda env create --file ./pulsequantum/environment.yml &&
+          conda env create --file ./environment.yml &&
           conda activate pulsequantum &&
           pip install -r test_requirements.txt &&
           pip install .
