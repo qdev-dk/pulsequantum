@@ -30,7 +30,7 @@ jobs:
           #python-version: 3.5
           #condarc-file: etc/example-condarc.yml
           auto-activate-base: false
-      - shell: bash
+      - shell: bash -l {0}
         run: |
           conda update -n base -c defaults conda
           conda info
