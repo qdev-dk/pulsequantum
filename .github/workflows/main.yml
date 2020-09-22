@@ -53,6 +53,7 @@ jobs:
           echo "env was created" &&
           conda init bash &&
           echo "init bash" &&
+          echo "$(conda env list)"
           source activate pulsequantum &&
           echo "source activate" &&
           pip install -r test_requirements.txt &&
