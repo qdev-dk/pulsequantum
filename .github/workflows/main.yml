@@ -57,7 +57,7 @@ jobs:
           #  conda deactivate base
         shell: bash
       - name: echopath     
-        run: echo "$($PATH)"
+        run: echo "$(which python)"
         shell: bash         
       #- name: acti     
        # run: source activate pulsequantum   
