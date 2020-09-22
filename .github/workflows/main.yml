@@ -36,8 +36,8 @@ jobs:
         with:
           activate-environment: pulsequantum
           environment-file: ./environment.yml
-          python-version: 3.5
-          condarc-file: etc/example-condarc.yml
+          #python-version: 3.5
+          #condarc-file: etc/example-condarc.yml
           auto-activate-base: false
       - shell: bash -l {0}
         run: |
