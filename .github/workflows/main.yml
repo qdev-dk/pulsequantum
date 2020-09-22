@@ -52,16 +52,6 @@ jobs:
          echo "$(ls -a)"
          echo "$($PATH)"
          echo "$(conda env list)" 
-      - name: install_package
-        run: |
-          conda --version &&
-          conda env create --file ./environment.yml &&
-          echo "env was created" &&
-          #  conda init bash &&
-          #  echo "init bash" &&
-          echo "$(conda env list)"  #&&
-          #  conda deactivate base
-        shell: bash
       - name: echopath     
         run: echo "$(which python)"
         shell: bash         
