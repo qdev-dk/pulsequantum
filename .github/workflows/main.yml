@@ -37,11 +37,12 @@ jobs:
           conda list
       - name: disable_telemetry
         run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
+        shell: bash -l {0}
   ###############################################################################################
-    - shell: bash -l {0}
-      run: |
-        source activate pulsequantum &&
-        mypy pulsequantum --junit-xml test-mypy-results.xml
+      - shell: bash -l {0}
+        run: |
+          source activate pulsequantum &&
+          mypy pulsequantum --junit-xml test-mypy-results.xml
     #  displayName: mypy
     #- bash: | # needs --cov= to generate Report
      #   source activate pulsequantum &&
