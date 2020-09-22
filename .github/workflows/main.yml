@@ -34,15 +34,12 @@ jobs:
 #############################################################################################
       - uses: conda-incubator/setup-miniconda@v1
         with:
-          miniconda-version: "latest"
-          activate-environment: foo
-      - name: Bash
-        shell: bash -l {0}
-        run: |
-          conda info
-          conda list
-      - name: PowerShell Core
-        shell: pwsh
+          activate-environment: pulsequantum
+          environment-file: ./environment.yml
+          python-version: 3.5
+          condarc-file: etc/example-condarc.yml
+          auto-activate-base: false
+      - shell: bash -l {0}
         run: |
           conda info
           conda list
