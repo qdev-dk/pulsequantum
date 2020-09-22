@@ -46,21 +46,9 @@ jobs:
           conda list
       - name: disable_telemetry
         run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
-        #shell: bash
-      - name: print_bla
+      - shell: bash -l {0}           
         run: |
-         echo "$(pwd)"
-         echo "$(ls -a)"
-         echo "$($PATH)"
-         echo "$(conda env list)" 
-      - name: echopath     
-        run: echo "$(which python)"
-      - shell: bash -l {0}         
-      #- name: acti     
-        run: source activate pulsequantum   
-          #  echo "$(deactivate base)" &&
-          #source activate pulsequantum #&&
-          #echo "source activate done" &&
-          #pip install -r test_requirements.txt &&
-          #pip install .
-        #shell: bash -l {0}              
+          conda info
+          conda list 
+          source activate pulsequantum  
+                      
