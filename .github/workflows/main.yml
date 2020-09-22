@@ -56,6 +56,9 @@ jobs:
           echo "$(conda env list)"  #&&
           #  conda deactivate base
         shell: bash
+      - name: echopath     
+        run: echo "$($PATH)"
+        shell: bash         
       - name: acti     
         run: source activate pulsequantum   
           #  echo "$(deactivate base)" &&
