@@ -59,11 +59,11 @@ jobs:
       - name: echopath     
         run: echo "$($PATH)"
         shell: bash         
-      - name: acti     
-        run: source activate pulsequantum   
+      #- name: acti     
+       # run: source activate pulsequantum   
           #  echo "$(deactivate base)" &&
           #source activate pulsequantum &&
           #echo "source activate done" &&
           #pip install -r test_requirements.txt &&
           #pip install .
-        shell: bash               
+        #shell: bash               
