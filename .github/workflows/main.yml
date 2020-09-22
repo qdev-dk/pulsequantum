@@ -52,7 +52,7 @@ jobs:
           conda env create --file ./environment.yml &&
           echo "env was created" &&
           conda init bash &&
-          conda activate pulsequantum &&
+          source activate pulsequantum &&
           pip install -r test_requirements.txt &&
           pip install .
         shell: bash               
