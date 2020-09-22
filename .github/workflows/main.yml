@@ -55,7 +55,7 @@ jobs:
           echo "init bash" &&
           echo "$(conda env list)"
           source deactivate base &&
-          echo "$(deactivate base)"
+          echo "$(deactivate base)" &&
           source activate pulsequantum &&
           echo "source activate" &&
           pip install -r test_requirements.txt &&
