@@ -51,13 +51,13 @@ jobs:
           conda --version &&
           conda env create --file ./environment.yml &&
           echo "env was created" &&
-          conda init bash &&
-          echo "init bash" &&
+        #  conda init bash &&
+        #  echo "init bash" &&
           echo "$(conda env list)" &&
-          conda deactivate base &&
-          echo "$(deactivate base)" &&
-          conda activate pulsequantum &&
-          echo "source activate" &&
+        #  conda deactivate base &&
+        #  echo "$(deactivate base)" &&
+          source activate pulsequantum &&
+          echo "source activate done" &&
           pip install -r test_requirements.txt &&
           pip install .
         shell: bash               
