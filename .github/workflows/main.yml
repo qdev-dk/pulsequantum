@@ -32,15 +32,20 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 #############################################################################################
-      - name: Add conda to PATH
+      - name: Conda setup
         run: |
           conda update -n base conda pip setuptools -y &&
           conda init --all
         shell: bash
-      - name: Conda setup
+      - name: disable_telemetry
         run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
         shell: bash
-      - name: disable_telemetry 
+      -name: print_bla
+       run: |
+         echo "$(pwd)"
+         echo "$($PATH)"
+         echo "$(conda env list)" 
+      - name: install_package
         run: |
           conda --version &&
           conda env create --file ./pulsequantum/environment.yml &&
