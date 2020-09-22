@@ -39,16 +39,12 @@ jobs:
           #python-version: 3.5
           #condarc-file: etc/example-condarc.yml
           auto-activate-base: false
-      - shell: bash -l {0}
+      - shell: bash
         run: |
           conda update -n base -c defaults conda
           conda info
           conda list
       - name: disable_telemetry
         run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
-      - shell: bash -l {0}           
-        run: |
-          conda info
-          conda list 
-          source activate pulsequantum  
+
                       
