@@ -40,8 +40,8 @@ jobs:
       - name: disable_telemetry
         run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
         shell: bash
-      -name: print_bla
-       run: |
+      - name: print_bla
+        run: |
          echo "$(pwd)"
          echo "$($PATH)"
          echo "$(conda env list)" 
