@@ -32,6 +32,20 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 #############################################################################################
+      - uses: conda-incubator/setup-miniconda@v1
+        with:
+          miniconda-version: "latest"
+          activate-environment: foo
+      - name: Bash
+        shell: bash -l {0}
+        run: |
+          conda info
+          conda list
+      - name: PowerShell Core
+        shell: pwsh
+        run: |
+          conda info
+          conda list
       - name: Conda setup
         run: |
           conda update -n base conda pip setuptools -y &&
