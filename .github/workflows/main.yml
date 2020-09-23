@@ -35,10 +35,16 @@ jobs:
           conda update -n base -c defaults conda
           conda info
           conda list
+      - name: pipins  
+        run: |
+          pip install -r test_requirements.txt &&
+          pip install .
+        shell: bash -l {0}
+#############################################################################         
       - name: disable_telemetry
         run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
         shell: bash -l {0}
-  ###############################################################################################
+###############################################################################################
       - shell: bash -l {0} 
         name: mypy
         run: |
@@ -46,7 +52,7 @@ jobs:
           conda list
           #source activate pulsequantum &&
           mypy pulsequantum --junit-xml test-mypy-results.xml
-          pytest --junitxml=test-results.xml --cov=pulsequantum --cov-report=xml --cov-config=.coveragerc pulsequantum
+          #pytest --junitxml=test-results.xml --cov=pulsequantum --cov-report=xml --cov-config=.coveragerc pulsequantum
     #  displayName: mypy
     #- bash: | # needs --cov= to generate Report
      #   source activate pulsequantum &&
