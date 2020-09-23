@@ -5,3 +5,6 @@ dependencies:
  - python=3.7.5
  - pip
  - pandoc
+ - pytest
+ - pytest-cov
+ - mypy
