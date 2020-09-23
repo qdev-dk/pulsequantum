@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v2
 
 #############################################################################################
-      - uses: conda-incubator/setup-miniconda@v1
+      - uses: conda-incubator/setup-miniconda@v1.7.0
         with:
           activate-environment: pulsequantum
           environment-file: ./environment.yml
@@ -41,7 +41,7 @@ jobs:
   ###############################################################################################
       - shell: bash -l {0}
         run: |
-         #source activate pulsequantum &&
+          source activate pulsequantum &&
           mypy pulsequantum --junit-xml test-mypy-results.xml
     #  displayName: mypy
     #- bash: | # needs --cov= to generate Report
