@@ -57,7 +57,7 @@ jobs:
       - shell: bash -l {0} 
         name: Build The Docs
         run: |
-          source activate pulsequantum &&
+          #source activate pulsequantum &&
           pip install -r docs_requirements.txt &&
           cd docs &&
           export SPHINXOPTS="-W -v" &&
