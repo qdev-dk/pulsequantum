@@ -62,7 +62,7 @@ jobs:
           pip list &&
           cd docs &&
           export SPHINXOPTS="-W -v" # &&
-          #make html
+          make html
 
 
 
