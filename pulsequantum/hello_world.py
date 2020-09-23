@@ -13,3 +13,7 @@ def hello_world() -> None:
     Print hello world :)
     """
     print("Hello, world! from pulsequantum")
+
+# This function addes to numbers
+def myadd(x: float,y: float) -> float:
+	return x+y
