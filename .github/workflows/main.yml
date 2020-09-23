@@ -30,23 +30,24 @@ jobs:
           #python-version: 3.5
           #condarc-file: etc/example-condarc.yml
           auto-activate-base: false
-      - shell: bash -l {0}
+      - name: update_conda
+        shell: bash -l {0}
         run: |
           conda update -n base -c defaults conda
           conda info
           conda list
-      - name: pipins  
+      - name: pip_install_test_requirements 
+        shell: bash -l {0} 
         run: |
           pip install -r test_requirements.txt &&
           pip install .
-        shell: bash -l {0}
 #############################################################################         
       - name: disable_telemetry
-        run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
         shell: bash -l {0}
+        run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
 ###############################################################################################
-      - shell: bash -l {0} 
-        name: tests
+      - name: tests
+        shell: bash -l {0}
         run: |
           conda info
           conda list
@@ -54,8 +55,8 @@ jobs:
           mypy pulsequantum --junit-xml test-mypy-results.xml
           pytest --junitxml=test-results.xml --cov=pulsequantum --cov-report=xml --cov-config=.coveragerc pulsequantum
 ################################################################################################################################
-      - shell: bash -l {0} 
-        name: Build The Docs
+      - name: Build The Docs 
+        shell: bash -l {0} 
         run: |
           #source activate pulsequantum &&
           pip install -r docs_requirements.txt &&
