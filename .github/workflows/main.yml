@@ -45,7 +45,7 @@ jobs:
           conda info
           conda list
           #source activate pulsequantum &&
-          #mypy pulsequantum --junit-xml test-mypy-results.xml
+          mypy pulsequantum --junit-xml test-mypy-results.xml
     #  displayName: mypy
     #- bash: | # needs --cov= to generate Report
      #   source activate pulsequantum &&
