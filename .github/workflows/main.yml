@@ -61,7 +61,7 @@ jobs:
           pip install -r docs_requirements.txt &&
           pip list &&
           cd docs &&
-          export SPHINXOPTS="-W -v" # &&
+          export SPHINXOPTS="-W -v"  &&
           make html
 
 
