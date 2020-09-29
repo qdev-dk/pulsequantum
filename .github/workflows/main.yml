@@ -6,9 +6,9 @@ name: CI
 # events but only for the main branch
 on:
   push:
-    branches: [ main ]
+    branches: [ dont run ]
   pull_request:
-    branches: [ main ]
+    branches: [ dont run ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,34 +22,48 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
 #############################################################################################
-      - name: Conda setup
+      - uses: conda-incubator/setup-miniconda@v1.7.0
+        with:
+          activate-environment: pulsequantum
+          environment-file: ./environment.yml
+          #python-version: 3.5
+          #condarc-file: etc/example-condarc.yml
+          auto-activate-base: false
+      - name: update_conda
+        shell: bash -l {0}
         run: |
-          conda update -n base conda pip setuptools -y &&
-          conda init --all
-        shell: bash
-      - name: disable_telemetry
-        run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
-        shell: bash
-      -name: print_bla
-       run: |
-         echo "$(pwd)"
-         echo "$($PATH)"
-         echo "$(conda env list)" 
-      - name: install_package
+          conda update -n base -c defaults conda
+          conda info
+          conda list
+      - name: pip_install_test_requirements 
+        shell: bash -l {0} 
         run: |
-          conda --version &&
-          conda env create --file ./pulsequantum/environment.yml &&
-          conda activate pulsequantum &&
           pip install -r test_requirements.txt &&
           pip install .
-        shell: bash               
+#############################################################################         
+      - name: disable_telemetry
+        shell: bash -l {0}
+        run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
+###############################################################################################
+      - name: mypy
+        shell: bash -l {0}
+        run: mypy pulsequantum --junit-xml test-mypy-results.xml
+      - name: Run the tests
+        shell: bash -l {0}
+        run: pytest --junitxml=test-results.xml --cov=pulsequantum --cov-report=xml --cov-config=.coveragerc pulsequantum
+        #if: ${{succeededOrFailed()}}
+################################################################################################################################
+      - name: Build The Docs 
+        shell: bash -l {0} 
+        run: |
+          #source activate pulsequantum &&
+          pip install -r docs_requirements.txt &&
+          pip list &&
+          cd docs &&
+          export SPHINXOPTS="-W -v"  &&
+          make html
+
+
+
+
