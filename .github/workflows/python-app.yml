@@ -2,9 +2,9 @@ name: Python application
 
 on:
   push:
-    branches: [ pipins ]
+    branches: [ main ]
   pull_request:
-    branches: [ pipins ]
+    branches: [ main ]
 
 jobs:
   build:
