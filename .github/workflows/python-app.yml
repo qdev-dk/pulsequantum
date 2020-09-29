@@ -1,0 +1,49 @@
+name: Python application
+
+on:
+  push:
+    branches: [ pipins ]
+  pull_request:
+    branches: [ pipins ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ 3.7]
+    env:
+      DISPLAY: ':99.0'
+
+    steps:
+    - name: setup ubuntu-latest xvfb
+      run: |
+        sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
+        /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: ./.github/actions/install-dependencies-and-pulsequantum
+    - name: disable_telemetry
+      shell: bash -l {0}
+      run: sed -i "s/\(enabled *= *\).*/\1False/" ./pulsequantum/conf/telemetry.ini
+
+    - name: Run Mypy
+      run: mypy pulsequantum
+    - name: Test with pytest
+      run: |
+        pytest ./pulsequantum/tests/
+    - uses: r-lib/actions/setup-pandoc@v1
+      with:
+        pandoc-version: '2.7.3' # The pandoc version to download (if necessary) and use.
+    - name: Build The Docs 
+      shell: bash  
+      run: |
+          cd docs &&
+          export SPHINXOPTS="-W -v"  &&
+          make html
+
+
