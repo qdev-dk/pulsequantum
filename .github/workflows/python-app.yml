@@ -54,7 +54,7 @@ jobs:
         ######################
     - uses: actions/download-artifact@v2
       with:
-        name: my-artifact
+        name: docs_${{ matrix.python-version }}
         path: ${{ github.workspace }}/docs/_build/html
     ###############################################################
     - name: Display structure of downloaded files
