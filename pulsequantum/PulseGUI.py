@@ -1147,7 +1147,7 @@ class pulseGUI(QMainWindow):
 
 #if __name__ == "__main__":  # had to add this otherwise app crashed
 
-def run(AWG):
+def run(AWG = None):
     global AWGB 
     AWGB = AWG
     if not QApplication.instance():
