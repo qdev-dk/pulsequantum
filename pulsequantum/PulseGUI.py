@@ -10,18 +10,6 @@ Created on Sat Feb 16 17:43:03 2019
 # import and initialise the driver and ensure that the sample
 # rate and channel voltage is correct
 
-from qcodes.instrument_drivers.tektronix.AWG5208 import AWG5208
-
-AWGB = AWG5208('awgQ','TCPIP0::192.168.15.118::inst0::INSTR')
-# set the instrument in awg mode
-AWGB.mode('AWG')
-# set the resolution to 8 bits plus two markers
-AWGB.ch1.resolution(12)
-AWGB.ch3.resolution(12)
-# clear the sequence list and waveform list (NOT ALWAYS A GOOD IDEA! BE CAREFUL!)
-AWGB.clearSequenceList()
-AWGB.clearWaveformList()
-
 
 
 import sys,math,time
@@ -397,6 +385,12 @@ class sequencing(QDialog):
 #############################################################################################
     def uploadToAWG(self,Choose_awg):
         if Choose_awg.currentText() == 'AWG5014':
+            #for i,  chan in enumerate(gseq.channels):
+            #    AWGB.channels[chan].AMP(float(chbox[chan-1].text()))
+            AWGB.ch1_amp(float(chbox[0].text()))
+            AWGB.ch2_amp(float(chbox[1].text()))
+            AWGB.ch3_amp(float(chbox[2].text()))
+            AWGB.ch4_amp(float(chbox[3].text()))
             package = gseq.outputForAWGFile()
             start_time=time.time();
             AWGB.make_send_and_load_awg_file(*package[:])
@@ -1151,19 +1145,19 @@ class pulseGUI(QMainWindow):
 
 
 
-if __name__ == "__main__":  # had to add this otherwise app crashed
+#if __name__ == "__main__":  # had to add this otherwise app crashed
 
-    def run():
-        if not QApplication.instance():
-            app = QApplication(sys.argv)
-        else:
-            app = QApplication.instance()
-        #app = QApplication(sys.argv)
-        app.aboutToQuit.connect(app.deleteLater)
-        Gui = pulseGUI()
-        app.exec_()
+def run():
+    if not QApplication.instance():
+        app = QApplication(sys.argv)
+    else:
+        app = QApplication.instance()
+    #app = QApplication(sys.argv)
+    app.aboutToQuit.connect(app.deleteLater)
+    Gui = pulseGUI()
+    app.exec_()
 
-run()
+#run()
 
 
 #############################################################################################
