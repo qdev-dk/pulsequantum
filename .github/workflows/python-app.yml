@@ -22,6 +22,8 @@ jobs:
         sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
         /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
     - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -45,18 +47,13 @@ jobs:
           cd docs &&
           export SPHINXOPTS="-W -v"  &&
           make html
-         ################################### 
-    - name: Upload build docs
-      uses: actions/upload-artifact@v2
+          
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@3.6.2
       with:
-        name: docs_${{ matrix.python-version }}
-        path: ${{ github.workspace }}/docs/_build/html
-        ######################
-    - uses: actions/download-artifact@v2
-      with:
-        name: docs_${{ matrix.python-version }}
-        path: ${{ github.workspace }}/docs/_build/html
-    ###############################################################
-    - name: Display structure of downloaded files
-      run: ls -R
-      working-directory: ${{ github.workspace }}/docs/_build/html
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: docs/_build/html # The folder the action should deploy.
+        CLEAN: true # Automatically remove deleted files from the deploy branch
+
+
