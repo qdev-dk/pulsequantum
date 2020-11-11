@@ -102,7 +102,7 @@ class sequencing(QDialog):
         #Upload to AWG
         #Function
         uploadbtn = QPushButton('Upload To AWG', self);
-        uploadbtn.clicked.connect(lambda state: self.uploadToAWG(Choose_awg))
+        uploadbtn.clicked.connect(lambda state: self.uploadToAWG(Choose_awg,chbox))
         
         #Choose awg
         Choose_awg = QComboBox(self)
@@ -196,13 +196,13 @@ class sequencing(QDialog):
         plotebtn.clicked.connect(lambda state: self.splotElement())
         # load sequence
         whichSeq = QLineEdit(self)
-        whichSeq.setText('path json')
+        whichSeq.setText('enter file name')
         #whichSeq.setGeometry(110,60,70,20)
         loadsbtn = QPushButton('Load Sequence', self)
         loadsbtn.clicked.connect(lambda state:self.loadSequence(whichSeq.text()))
         # save sequence
         SeqTo = QLineEdit(self)
-        SeqTo.setText('path json')
+        SeqTo.setText('enter file name')
        #SeqTo.setGeometry(20,60,70,20)
         savesbtn = QPushButton('Save Sequence', self)
         savesbtn.clicked.connect(lambda state: self.saveSequence(SeqTo.text()))
@@ -383,7 +383,7 @@ class sequencing(QDialog):
 # AWG functions (uploading, running AWG, turning on outputs. Note that in this section 
 # the AWG name is hardcoded. Probably first thing that needs to be changed.
 #############################################################################################
-    def uploadToAWG(self,Choose_awg):
+    def uploadToAWG(self,Choose_awg,chbox):
         if Choose_awg.currentText() == 'AWG5014':
             #for i,  chan in enumerate(gseq.channels):
             #    AWGB.channels[chan].AMP(float(chbox[chan-1].text()))
@@ -1147,7 +1147,9 @@ class pulseGUI(QMainWindow):
 
 #if __name__ == "__main__":  # had to add this otherwise app crashed
 
-def run():
+def run(AWG):
+    global AWGB 
+    AWGB = AWG
     if not QApplication.instance():
         app = QApplication(sys.argv)
     else:
