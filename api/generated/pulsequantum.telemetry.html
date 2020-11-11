@@ -1,0 +1,294 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pulsequantum.telemetry package &mdash; pulsequantum 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pulsequantum.tests package" href="pulsequantum.tests.html" />
+    <link rel="prev" title="pulsequantum.conf package" href="pulsequantum.conf.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pulsequantum
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">pulsequantum API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#api">API</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="modules.html">pulsequantum</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="pulsequantum.html">pulsequantum package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_notebooks/index.html">Examples of using pulsequantum</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pulsequantum</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">pulsequantum API Documentation</a> &raquo;</li>
+        
+          <li><a href="modules.html">pulsequantum</a> &raquo;</li>
+        
+          <li><a href="pulsequantum.html">pulsequantum package</a> &raquo;</li>
+        
+      <li>pulsequantum.telemetry package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/api/generated/pulsequantum.telemetry.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="pulsequantum-telemetry-package">
+<h1>pulsequantum.telemetry package<a class="headerlink" href="#pulsequantum-telemetry-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pulsequantum.telemetry.telemetry_functions">
+<span id="pulsequantum-telemetry-telemetry-functions-module"></span><h2>pulsequantum.telemetry.telemetry_functions module<a class="headerlink" href="#module-pulsequantum.telemetry.telemetry_functions" title="Permalink to this headline">¶</a></h2>
+<dl class="py data">
+<dt id="pulsequantum.telemetry.telemetry_functions.LOGGING_SEPARATOR">
+<code class="sig-prename descclassname">pulsequantum.telemetry.telemetry_functions.</code><code class="sig-name descname">LOGGING_SEPARATOR</code><em class="property"> = ' ¦ '</em><a class="headerlink" href="#pulsequantum.telemetry.telemetry_functions.LOGGING_SEPARATOR" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#pulsequantum.telemetry.telemetry_functions.LOGGING_SEPARATOR" title="pulsequantum.telemetry.telemetry_functions.LOGGING_SEPARATOR"><code class="xref py py-data docutils literal notranslate"><span class="pre">LOGGING_SEPARATOR</span></code></a> defines the str used to separate parts of the log
+message.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt id="pulsequantum.telemetry.telemetry_functions.FORMAT_STRING_DICT">
+<code class="sig-prename descclassname">pulsequantum.telemetry.telemetry_functions.</code><code class="sig-name descname">FORMAT_STRING_DICT</code><em class="property"> = {'asctime': 's', 'funcName': 's', 'levelname': 's', 'lineno': 'd', 'message': 's', 'module': 's', 'name': 's'}</em><a class="headerlink" href="#pulsequantum.telemetry.telemetry_functions.FORMAT_STRING_DICT" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#pulsequantum.telemetry.telemetry_functions.FORMAT_STRING_DICT" title="pulsequantum.telemetry.telemetry_functions.FORMAT_STRING_DICT"><code class="xref py py-data docutils literal notranslate"><span class="pre">FORMAT_STRING_DICT</span></code></a> defines the format used in logging messages.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pulsequantum.telemetry.telemetry_functions.get_formatter_for_telemetry">
+<code class="sig-prename descclassname">pulsequantum.telemetry.telemetry_functions.</code><code class="sig-name descname">get_formatter_for_telemetry</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3.6/library/logging.html#logging.Formatter" title="(in Python v3.6)">logging.Formatter</a><a class="reference internal" href="../../_modules/pulsequantum/telemetry/telemetry_functions.html#get_formatter_for_telemetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pulsequantum.telemetry.telemetry_functions.get_formatter_for_telemetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <a class="reference external" href="https://docs.python.org/3.6/library/logging.html#logging.Formatter" title="(in Python v3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Formatter</span></code></a> with only name, function name and
+message keywords from FORMAT_STRING_DICT</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pulsequantum.telemetry.telemetry_functions.flush_telemetry_traces">
+<code class="sig-prename descclassname">pulsequantum.telemetry.telemetry_functions.</code><code class="sig-name descname">flush_telemetry_traces</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3.6/library/constants.html#None" title="(in Python v3.6)">None</a><a class="reference internal" href="../../_modules/pulsequantum/telemetry/telemetry_functions.html#flush_telemetry_traces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pulsequantum.telemetry.telemetry_functions.flush_telemetry_traces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flush the traces of the telemetry logger. If telemetry is not enabled, this
+function does nothing.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pulsequantum.telemetry.telemetry_functions.start_telemetry">
+<code class="sig-prename descclassname">pulsequantum.telemetry.telemetry_functions.</code><code class="sig-name descname">start_telemetry</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference external" href="https://docs.python.org/3.6/library/constants.html#None" title="(in Python v3.6)">None</a><a class="reference internal" href="../../_modules/pulsequantum/telemetry/telemetry_functions.html#start_telemetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pulsequantum.telemetry.telemetry_functions.start_telemetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start telemetry, capturing all log messages and warnings and sending them
+to our Applications Insights cloud instance</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pulsequantum.telemetry">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pulsequantum.telemetry" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pulsequantum.tests.html" class="btn btn-neutral float-right" title="pulsequantum.tests package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pulsequantum.conf.html" class="btn btn-neutral float-left" title="pulsequantum.conf package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
