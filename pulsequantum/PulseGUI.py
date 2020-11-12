@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
 """
+# -*- coding: utf-8 -*-
 Created on Sat Feb 16 17:43:03 2019
 
 @author: Triton4acq_2
 """
-#todo: 
-#- fix sampling rate to match clock speed when changed
+#%%
 
-# import and initialise the driver and ensure that the sample
-# rate and channel voltage is correct
 
+# todo: 
+# - fix sampling rate to match clock speed when changed
 
 
 import sys,math,time
 from PyQt5.QtCore import QCoreApplication,Qt
-from PyQt5.QtWidgets import QFileDialog
+#from PyQt5.QtGui import QFileDialog
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame,QMainWindow, QPushButton, QAction, QMessageBox, QLineEdit, QLabel, QSizePolicy
 from PyQt5.QtWidgets import QCheckBox,QDialog,QTableWidget,QTableWidgetItem,QVBoxLayout,QHBoxLayout,QComboBox,QGridLayout
 
@@ -22,95 +21,70 @@ import pickle
 import broadbean as bb
 from broadbean.plotting import plotter
 
+
 import matplotlib
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 matplotlib.use('QT5Agg')
 import numpy as np
-import time
 
-#############################################################################################
-#Hardcoded stuff, should incorporate into main code
-#############################################################################################
 
 nlines=3;
 nchans=2;
 
-ramp = bb.PulseAtoms.ramp; #Globally defined ramp, element, and sequence
+ramp = bb.PulseAtoms.ramp;
 gelem = bb.Element();
 gseq = bb.Sequence();
-
-divch1=11.5;divch2=11.75;divch3=11.7;divch4=1; #Hardcoded channel dividers
+divch3=divch4=1;
+divch1=11.5;divch2=11.75;divch3=11.7;divch4=1;
 divch=[divch1,divch2,divch3,divch4];
-
 awgclock=1.2e9;
-corrDflag=0; #Global flag: Is correction D pulse already defined in the pulse table?
-params=["det","psm"]; #Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
+corrDflag=0;
+params=["det","psm_load","psm_unload","psm_load_sym","psm_unload_sym","dephasing_corrD"];
 
 
-#############################################################################################
-#Class for sequencing (secondary) window
-#############################################################################################
+class sequencing(QDialog,):
 
-class sequencing(QDialog):
-    """
-    Should have a docstring
-    """
-
-    def __init__(self):
-        #super(sequencing, self).__init__()
-        super().__init__()
+    def __init__(self,AWG):
+        super(sequencing, self).__init__()
         self.setGeometry(200, 200, 900, 500)
         self.setWindowTitle("Sequencing")
         self.setMinimumWidth(350)
         self.home()
-    
+        self.AWG=AWG
     def home(self):
         
         
         # Create channel voltage, divider and offset boxes and buttons
-        win4 = QWidget(self);
-        lay4= QGridLayout(win4);
-        vpp = QLabel(self);
-        vpp.setText('Vpp');
-        offset= QLabel(self);
-        offset.setText('Offset');
-        lay4.addWidget(vpp,0,1,1,1);
-        lay4.addWidget(offset,0,2,1,1);
-        number_channels = 4
-        chlabel = list(range(number_channels))
-        chbox = list(range(number_channels))
-        offbox = list(range(number_channels))
-        for i in range(4):
-            chlabel[i] = QLabel(self)
-            chlabel[i].setText('Ch%d'%(i+1))
-            chbox[i] = QLineEdit(self)
-            chbox[i].setText('4.5')
-            offbox[i] = QLineEdit(self)
-            offbox[i].setText('0')
-            lay4.addWidget(chlabel[i],i+1,0,1,1)
-            lay4.addWidget(chbox[i],i+1,1,1,1)
-            lay4.addWidget(offbox[i],i+1,2,1,1)
+        win4 = QWidget(self);lay4= QGridLayout(win4);
+        chlabel1='Ch1';chlabel2='Ch2';chlabel3='Ch3';chlabel4='Ch4';
+        chlabel=[chlabel1,chlabel2,chlabel3,chlabel4];
+        for i in range(len(chlabel)):
+            chlabel[i]= QLabel(self);chlabel[i].setText('Ch%d'%(i+1));
+        vpp= QLabel(self);vpp.setText('Vpp');
+        offset= QLabel(self);offset.setText('Offset');
+        chbox1 = QLineEdit(self);chbox2 = QLineEdit(self);chbox3 = QLineEdit(self);chbox4 = QLineEdit(self);
+        chbox=[chbox1,chbox2,chbox3,chbox4];
+        offbox1 = QLineEdit(self);offbox2 = QLineEdit(self);offbox3 = QLineEdit(self);offbox4 = QLineEdit(self);
+        offbox=[offbox1,offbox2,offbox3,offbox4];
+        for i in range(len(chbox)):
+            chbox[i].setText('4.5');offbox[i].setText('0');
+            lay4.addWidget(chbox[i],i+1,1,1,1);lay4.addWidget(chlabel[i],i+1,0,1,1);
+            lay4.addWidget(offbox[i],i+1,2,1,1);
+        lay4.addWidget(vpp,0,1,1,1);lay4.addWidget(offset,0,2,1,1);
         win4.move(10,100);
         
         #Continuous sequence?
-        contseqboxlabel= QLabel(self);
-        contseqboxlabel.setText('Simple continuous element?');
-        contseqboxlabel.move(20, 280);
-        contseqboxlabel.resize(contseqboxlabel.sizeHint())
-        contseqbox = QCheckBox(self);
-        contseqbox.move(200, 280);
+        contseqbox = QCheckBox(self);contseqbox.move(200, 280);
+        #contseqbox.stateChanged.connect(lambda state: self.continuousSequence(contseqbox))
+        contseqboxlabel= QLabel(self);contseqboxlabel.setText('Simple continuous element?');contseqboxlabel.move(20, 280);contseqboxlabel.resize(contseqboxlabel.sizeHint())
+        
         
         #Upload to AWG
         #Function
         uploadbtn = QPushButton('Upload To AWG', self);
-        uploadbtn.clicked.connect(lambda state: self.uploadToAWG(Choose_awg,chbox))
-        
-        #Choose awg
-        Choose_awg = QComboBox(self)
-        Choose_awg.addItem('AWG5014')
-        Choose_awg.addItem('AWG5208')
+        uploadbtn.clicked.connect(lambda state: self.uploadToAWG())
 
         #Update sequencing parameters: table and update button
         win2 = QWidget(self);
@@ -137,10 +111,8 @@ class sequencing(QDialog):
         
         
         #Build Sequence and take parameters
-        win3 = QWidget(self);
-        lay3= QGridLayout(win3);
-        buildseqlabel= QLabel(self);buildseqlabel.setText('Select a parameter to build the sequence:');
-        buildseqlabel.resize(buildseqlabel.sizeHint())
+        win3 = QWidget(self);lay3= QGridLayout(win3);
+        buildseqlabel= QLabel(self);buildseqlabel.setText('Select a parameter to build the sequence:');buildseqlabel.resize(buildseqlabel.sizeHint())
         buildseqbtn = QPushButton('Build sequence', self)
         buildseqbtn.clicked.connect(lambda state:self.buildSequenceWrap(chbox,offbox,contseqbox,timevoltbox,whichpulse,sparambox,seqstart,seqstop,seqpts))
         buildseqbtn.resize(buildseqbtn.sizeHint())
@@ -148,30 +120,18 @@ class sequencing(QDialog):
         
         #Native and special parameters
         timevoltbox=QComboBox(self);
-        timevoltbox.addItem("Time");
-        timevoltbox.addItem("Ch1 Voltage");
-        timevoltbox.addItem("Ch2 Voltage");
-        timevoltbox.addItem("Ch3 Voltage");
-        timevoltbox.addItem("Ch4 Voltage");
-        whichpulse=QLineEdit(self);
-        whichpulse.setText('Which pulse?');
-        whichpulse.resize(whichpulse.sizeHint());
+        timevoltbox.addItem("Time");timevoltbox.addItem("Ch1 Voltage");timevoltbox.addItem("Ch2 Voltage");timevoltbox.addItem("Ch3 Voltage"); timevoltbox.addItem("Ch4 Voltage");
+        whichpulse=QLineEdit(self);whichpulse.setText('Which pulse?');whichpulse.resize(whichpulse.sizeHint());
         sparambox=QComboBox(self);
         sparambox.addItem("-Special-")
         for i in range(len(params)):
             sparambox.addItem(params[i]);
         #Start/stop and build
-        lay32= QHBoxLayout();
-        lay32.addStretch();
-        startslabel= QLabel(self);
-        startslabel.setText('Start:');
-        stopslabel= QLabel(self);
-        stopslabel.setText('Stop:');
-        pointsslabel= QLabel(self);
-        pointsslabel.setText('Points:');
-        seqstart=QLineEdit(self);
-        seqstart.setText('0');
-        seqstart.resize(seqstart.sizeHint());
+        lay32= QHBoxLayout();lay32.addStretch();
+        startslabel= QLabel(self);startslabel.setText('Start:');
+        stopslabel= QLabel(self);stopslabel.setText('Stop:');
+        pointsslabel= QLabel(self);pointsslabel.setText('Points:');
+        seqstart=QLineEdit(self);seqstart.setText('0');seqstart.resize(seqstart.sizeHint());
         seqstop=QLineEdit(self);seqstop.setText('0');seqstop.resize(seqstop.sizeHint());
         seqpts=QLineEdit(self);seqpts.setText('0');seqpts.resize(seqpts.sizeHint());
         
@@ -181,70 +141,43 @@ class sequencing(QDialog):
         lay3.addWidget(seqstart,3,0,1,1);lay3.addWidget(seqstop,3,1,1,1);lay3.addWidget(seqpts,3,2,1,1);
         lay3.addWidget(buildseqbtn,4,0,1,3);
         lay3.addWidget(uploadbtn,5,0,1,3);
-        lay3.addWidget(Choose_awg,6,0,1,2);
-        Choose_awg 
         win3.move(10,300);
         win3.resize(win3.sizeHint());
         
         
         #Element and sequence saving and loading
         #Functions
-        win1 = QWidget(self);
-        lay1= QGridLayout(win1);
+        win1 = QWidget(self);lay1= QGridLayout(win1);
         loadebtn = QPushButton('Load Element', self);
         #loadebtn.clicked.connect(lambda state:self.sloadElement())
         saveebtn = QPushButton('Save Element', self);
         #saveebtn.clicked.connect(lambda state: self.ssaveElement())
         plotebtn = QPushButton('Plot Element', self);
         plotebtn.clicked.connect(lambda state: self.splotElement())
-        # load sequence
-        whichSeq = QLineEdit(self)
-        whichSeq.setText('enter file name')
-        #whichSeq.setGeometry(110,60,70,20)
-        loadsbtn = QPushButton('Load Sequence', self)
-        loadsbtn.clicked.connect(lambda state:self.loadSequence(whichSeq.text()))
-        # save sequence
-        SeqTo = QLineEdit(self)
-        SeqTo.setText('enter file name')
-       #SeqTo.setGeometry(20,60,70,20)
-        savesbtn = QPushButton('Save Sequence', self)
-        savesbtn.clicked.connect(lambda state: self.saveSequence(SeqTo.text()))
-        # plot sequence
+        loadsbtn = QPushButton('Load Sequence', self);
+        #loadsbtn.clicked.connect(lambda state:self.loadSequence())
+        savesbtn = QPushButton('Save Sequence', self);
+        #savesbtn.clicked.connect(lambda state: self.ssaveSequence())
         plotsbtn = QPushButton('Plot Sequence', self);
         plotsbtn.clicked.connect(lambda state: self.splotSequence())
-        lay1.addWidget(loadebtn,0,0,1,1);
-        lay1.addWidget(saveebtn,0,1,1,1);
-        lay1.addWidget(plotebtn,0,2,1,1);
-        lay1.addWidget(savesbtn,1,0,1,1);
-        lay1.addWidget(loadsbtn,1,1,1,1);
-        lay1.addWidget(plotsbtn,1,2,1,1);
-        lay1.addWidget(SeqTo,2,0,1,1);
-        lay1.addWidget(whichSeq,2,1,1,1);
+        lay1.addWidget(loadebtn,0,0,1,1);lay1.addWidget(saveebtn,0,1,1,1);lay1.addWidget(plotebtn,0,2,1,1);
+        lay1.addWidget(savesbtn,1,0,1,1);lay1.addWidget(loadsbtn,1,1,1,1);lay1.addWidget(plotsbtn,1,2,1,1);
         win1.move(10,0);
         win1.resize(win1.sizeHint());
         
         #AWG Panel stuff
         # Create channel voltage, divider and offset boxes and buttons
         #Divider linked to base GUI!!
-        win5 = QWidget(self);
-        lay5= QGridLayout(win5);
-        awgframeh=QFrame(self);
-        awgframeh.setFrameShape(QFrame.Shape(0x0004));
-        awgframeh2=QFrame(self);
-        awgframeh2.setFrameShape(QFrame.Shape(0x0004));
-        awgframev=QFrame(self);
-        awgframev.setFrameShape(QFrame.Shape(0x0005));
-        lay5.addWidget(awgframeh,0,0,1,6);
-        lay5.addWidget(awgframev,0,0,7,1);
-        awglabel= QLabel(self);
-        awglabel.setText('AWG Tools:');
+        win5 = QWidget(self);lay5= QGridLayout(win5);
+        awgframeh=QFrame(self);awgframeh.setFrameShape(QFrame.Shape(0x0004));
+        awgframeh2=QFrame(self);awgframeh2.setFrameShape(QFrame.Shape(0x0004));
+        awgframev=QFrame(self);awgframev.setFrameShape(QFrame.Shape(0x0005));
+        lay5.addWidget(awgframeh,0,0,1,6);lay5.addWidget(awgframev,0,0,7,1);
+        awglabel= QLabel(self);awglabel.setText('AWG Tools:');
         allonlabel= QLabel(self);allonlabel.setText('All on:');
         allonbox = QCheckBox(self);
         allonbox.stateChanged.connect(lambda state: self.runChan(allonbox, 0));
-        achlabel1='Ch1';
-        achlabel2='Ch2';
-        achlabel3='Ch3';
-        achlabel4='Ch4';
+        achlabel1='Ch1';achlabel2='Ch2';achlabel3='Ch3';achlabel4='Ch4';
         achlabel=[achlabel1,achlabel2,achlabel3,achlabel4];
         for i in range(len(achlabel)):
             achlabel[i]= QLabel(self);achlabel[i].setText('Ch%d'%(i+1));
@@ -262,7 +195,7 @@ class sequencing(QDialog):
         aoutbox3.stateChanged.connect(lambda state: self.runChan(aoutbox3, 3));
         aoutbox4.stateChanged.connect(lambda state: self.runChan(aoutbox4, 4));
         runawgbtn = QPushButton('Run AWG', self);
-        runawgbtn.clicked.connect(lambda state: self.runAWG(Choose_awg))
+        runawgbtn.clicked.connect(lambda state: self.runAWG())
         lay5.addWidget(awglabel,1,1,1,1);lay5.addWidget(runawgbtn,1,2,1,1);
         for i in range(len(achbox)):
             achbox[i].setText('4.5');aoffbox[i].setText('0');
@@ -272,13 +205,12 @@ class sequencing(QDialog):
         lay5.addWidget(allonlabel,1,3,1,1);lay5.addWidget(allonbox,1,4,1,1);
         win5.resize(win5.sizeHint())
         win5.move(450,270);
-
         
         #Filter Correction
         filtbtn = QPushButton('Filter correction', self)
         hfiltboxlabel= QLabel(self);hfiltboxlabel.setText('High pass (us):');hfiltboxlabel.resize(hfiltboxlabel.sizeHint());hfiltboxlabel.move(20,235);
         lfiltboxlabel= QLabel(self);lfiltboxlabel.setText('Low pass (us):');lfiltboxlabel.resize(lfiltboxlabel.sizeHint());lfiltboxlabel.move(170,235);
-        hfiltbox = QLineEdit(self);hfiltbox.setText('80');hfiltbox.resize(hfiltbox.sizeHint());hfiltbox.move(20,250);
+        hfiltbox = QLineEdit(self);hfiltbox.setText('65');hfiltbox.resize(hfiltbox.sizeHint());hfiltbox.move(20,250);
         lfiltbox = QLineEdit(self);lfiltbox.setText('-');lfiltbox.resize(lfiltbox.sizeHint());lfiltbox.move(170,250);
         filtbtn.clicked.connect(lambda state: self.filterCorrection(hfiltbox,lfiltbox))
         filtbtn.resize(filtbtn.sizeHint())
@@ -293,16 +225,7 @@ class sequencing(QDialog):
     
     def splotSequence(self):
         plotter(gseq);
-        
-    def loadSequence(self,pathseq):
-        global gseq;
-        gseq = bb.Sequence.init_from_json(pathseq)
-        #table.setItem(0,2, QTableWidgetItem("-12.8")
-        #return
     
-    def saveSequence(self,pathseq):
-        gseq.write_to_json(pathseq)
-   
     def seqchangeWidget(self,changeseqbox,win2,seqtable,seqpts):
         if changeseqbox.isChecked():
             self.updateSeqTable(seqtable,int(seqpts.text()));
@@ -340,11 +263,8 @@ class sequencing(QDialog):
             self.updategseq(i,seqlist);    
             
     def updategseq(self,row,seqlist):
-        #gseq.setSequenceSettings(row+1,seqlist[0],seqlist[1],seqlist[2],seqlist[3]);
-        gseq.setSequencingTriggerWait(row+1,seqlist[0])
-        gseq.setSequencingNumberOfRepetitions(row+1,seqlist[1])
-        gseq.setSequencingEventJumpTarget(row+1,seqlist[2])
-        gseq.setSequencingGoto(row+1,seqlist[3])
+        gseq.setSequenceSettings(row+1,seqlist[0],seqlist[1],seqlist[2],seqlist[3]);
+        
     
     def buildSequenceWrap(self,chbox,offbox,contseqbox,timevoltbox,whichpulse,sparambox,seqstart,seqstop,seqpts):
         global gseq;
@@ -360,124 +280,64 @@ class sequencing(QDialog):
         else:
             newparam="N-"+"Volt"+"-"+timevolt[2]+"-"+whichp;
         gseq.setSR(gelem.SR);
-        #for chan in gseq.channels:
-         #   gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
-          #  gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));
+        for i in range(4):
+            gseq.setChannelAmplitude(i+1,(float(chbox[i].text())));
+            gseq.setChannelOffset(i+1,(float(offbox[i].text())));
         if contseqbox.isChecked():
             gseq.addElement(1,gelem);
-            gseq.setSequencingTriggerWait(1,0)
-            gseq.setSequencingNumberOfRepetitions(1,0)
-            gseq.setSequencingEventJumpTarget(1,0)
             gseq.setSequenceSettings(1,0,0,0,0);
-            for chan in gseq.channels:
-                gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
-                gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));  
             return;
         elif sparam!="-Special-":
             buildsequencetable(gelem,sparam,sstart,sstop,spts);
         else:
             buildsequencetable(gelem,newparam,sstart,sstop,spts);
-          
-        for chan in gseq.channels:
-            gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
-            gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));  
-               
-#############################################################################################
-# AWG functions (uploading, running AWG, turning on outputs. Note that in this section 
-# the AWG name is hardcoded. Probably first thing that needs to be changed.
-#############################################################################################
-    def uploadToAWG(self,Choose_awg,chbox):
-        if Choose_awg.currentText() == 'AWG5014':
-            #for i,  chan in enumerate(gseq.channels):
-            #    AWGB.channels[chan].AMP(float(chbox[chan-1].text()))
-            AWGB.ch1_amp(float(chbox[0].text()))
-            AWGB.ch2_amp(float(chbox[1].text()))
-            AWGB.ch3_amp(float(chbox[2].text()))
-            AWGB.ch4_amp(float(chbox[3].text()))
-            package = gseq.outputForAWGFile()
-            start_time=time.time();
-            AWGB.make_send_and_load_awg_file(*package[:])
-            print("Sequence uploaded in %s seconds" %(time.time()-start_time));
-        if Choose_awg.currentText() == 'AWG5208':
-            gseq.name = 'sequence_from_gui'
-            AWGB.mode('AWG')
-            for chan in gseq.channels:
-                AWGB.channels[chan-1].resolution(12)
-                AWGB.channels[chan-1].awg_amplitude(0.5)
-                gseq.setChannelAmplitude(chan, AWGB.channels[chan-1].awg_amplitude())
-            AWGB.clearSequenceList()
-            AWGB.clearWaveformList()
-            AWGB.sample_rate(gseq.SR)
-            AWGB.sample_rate(gseq.SR)
-            print(Choose_awg.currentText() )
             
-            seqx_input = gseq.outputForSEQXFile()
-            start_time=time.time();
-            seqx_output = AWGB.makeSEQXFile(*seqx_input)
-            # transfer it to the awg harddrive
-            AWGB.sendSEQXFile(seqx_output, 'sequence_from_gui.seqx')
-            AWGB.loadSEQXFile('sequence_from_gui.seqx')
-            #time.sleep(1.300)
-            for i,  chan in enumerate(gseq.channels):       
-                AWGB.channels[chan-1].setSequenceTrack('sequence_from_gui', i+1)
-                AWGB.channels[chan-1].state(1)
-            print("Sequence uploaded in %s seconds" %(time.time()-start_time));
- 
-        else:
-            print('Choose an AWG model')
-  
+    def uploadToAWG(self):
+        package = gseq.outputForAWGFile()
+        start_time=time.time();
+        self.AWG.make_send_and_load_awg_file(*package[:])
+        print("Sequence uploaded in %s seconds" %(time.time()-start_time));
         
-    def runAWG(self,Choose_awg):
-        if Choose_awg.currentText() == 'AWG5014':
-            if AWGB.get_state()=='Idle':
-                AWGB.run();
-                print("AWGs Running");
-            elif AWGB.get_state()=='Running':
-                AWGB.stop();
-                print("AWGs Stopped");
-        else:
-            if AWGB.run_state() == 'Running':
-                AWGB.stop()
-                print(AWGB.run_state())
-            elif AWGB.run_state() == 'Waiting for trigger':
-                print(AWGB.run_state())
-            else:  
-                AWGB.play()
-                print(AWGB.run_state())
-            
-            AWGB.stop();
+    def runAWG(self):
+        if self.AWG.get_state()=='Idle':
+            self.AWG.run();
+            print("AWGs Running");
+        elif self.AWG.get_state()=='Running':
+            self.AWG.stop();
+            print("AWGs Stopped");
+        
     def runChan(self,outputbox,whichbox):
         if whichbox==0:
             if outputbox.isChecked():
-                AWGB.ch1_state(1);
-                AWGB.ch2_state(1);
-                AWGB.ch3_state(1);
-                AWGB.ch4_state(1);
+                self.AWG.ch1_state(1);
+                self.AWG.ch2_state(1);
+                self.AWG.ch3_state(1);
+                self.AWG.ch4_state(1);
             else:
-                AWGB.ch1_state(0);
-                AWGB.ch2_state(0);
-                AWGB.ch3_state(0);
-                AWGB.ch4_state(0);
+                self.AWG.ch1_state(0);
+                self.AWG.ch2_state(0);
+                self.AWG.ch3_state(0);
+                self.AWG.ch4_state(0);
         if whichbox==1:
             if outputbox.isChecked():
-                AWGB.ch1_state(1);
+                self.AWG.ch1_state(1);
             else:
-                AWGB.ch1_state(0);
+                self.AWG.ch1_state(0);
         if whichbox==2:
             if outputbox.isChecked():
-                AWGB.ch2_state(1);
+                self.AWG.ch2_state(1);
             else:
-                AWGB.ch2_state(0);
+                self.AWG.ch2_state(0);
         if whichbox==3:
             if outputbox.isChecked():
-                AWGB.ch3_state(1);
+                self.AWG.ch3_state(1);
             else:
-                AWGB.ch3_state(0);
+                self.AWG.ch3_state(0);
         if whichbox==4:
             if outputbox.isChecked():
-                AWGB.ch4_state(1);
+                self.AWG.ch4_state(1);
             else:
-                AWGB.ch4_state(0);
+                self.AWG.ch4_state(0);
     
     def filterCorrection(self,hfiltbox,lfiltbox):
         if gseq.points==0:
@@ -488,23 +348,16 @@ class sequencing(QDialog):
             gseq.setChannelFilterCompensation(i+1,'HP',order=1,tau=hptau);
     
     
-#############################################################################################
-# Main pulse building class and main window
-#############################################################################################
+class pulsetable(QMainWindow):
 
-class pulseGUI(QMainWindow):
-    """
-    Should have a docstring
-    """
-
-    def __init__(self):
-        #super(pulseGUI, self).__init__()
-        super().__init__()
+    def __init__(self,AWG):
+        super(pulsetable, self).__init__()
         self.setGeometry(50, 50, 1100, 900)
         self.setWindowTitle('Pulse Table Panel')
-        self.mainwindow=pulseGUI;
+        self.mainwindow=pulsetable;
         self.statusBar()
         self._sequencebox=None
+        self.AWG=AWG
 
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('&File')
@@ -582,56 +435,42 @@ class pulseGUI(QMainWindow):
         absmarkerbox = QCheckBox(self);absmarkerbox.move(830, 515);absmarkerbox.stateChanged.connect(lambda state: self.absMarkerWidget(absmarkerbox,win))
         absmarkerboxlabel= QLabel(self);absmarkerboxlabel.setText('Absolute Marker');absmarkerboxlabel.move(720, 520);absmarkerboxlabel.resize(absmarkerboxlabel.sizeHint())
         
-        # This is the start of top left buttons
-        win_puls = QWidget(self);
-        lay_puls= QGridLayout(win_puls);        
         #Square Pulse
-        sqpbtn = QPushButton('Square Pulse', self);
+        sqpbtn = QPushButton('Square Pulse', self);sqpbtn.resize(sqpbtn.sizeHint());sqpbtn.move(170, 70)
         sqpbtn.clicked.connect(lambda state:self.squarePulse(table))       
         
         #Pulse Triangle
-        ptpbtn = QPushButton('Pulse Triangle', self);
+        ptpbtn = QPushButton('Pulse Triangle', self);ptpbtn.resize(ptpbtn.sizeHint());ptpbtn.move(40, 70)
         ptpbtn.clicked.connect(lambda state:self.pulseTriangle(table)) 
         
-        #Spin Funnel
-        sfpbtn = QPushButton('Spin Funnel', self);
-        sfpbtn.clicked.connect(lambda state:self.spinFunnel(table))
+        # #Spin Funnel
+        # sfpbtn = QPushButton('Spin Funnel', self);sfpbtn.resize(sfpbtn.sizeHint());sfpbtn.move(290, 70)
+        # sfpbtn.clicked.connect(lambda state:self.spinFunnel(table))
+
+        #Dephasing
+        sfpbtn = QPushButton('Dephasing', self);sfpbtn.resize(sfpbtn.sizeHint());sfpbtn.move(290, 70)
+        sfpbtn.clicked.connect(lambda state:self.Dephasing(table))
         
+        #Placeholder
+        placebtn = QPushButton('Placeholder', self);placebtn.resize(placebtn.sizeHint());placebtn.move(400, 70)
+         
         #Plot Element
-        plotbtn = QPushButton('Plot Element', self)
-        #plotbtn.resize(plotbtn.sizeHint());plotbtn.move(185, 10)
+        plotbtn = QPushButton('Plot Element', self);plotbtn.resize(plotbtn.sizeHint());plotbtn.move(185, 10)
         plotbtn.clicked.connect(lambda state:self.plotElement())
         
         #Generate Element
-        runbtn = QPushButton('Generate Element', self);
-        #runbtn.resize(runbtn.sizeHint());runbtn.move(40, 10);
+        runbtn = QPushButton('Generate Element', self);runbtn.resize(runbtn.sizeHint());runbtn.move(40, 10);
         runbtn.clicked.connect(lambda state: self.generateElement(table))
         
         #Save Element
-        savebtn = QPushButton('Save Element', self)
+        savebtn = QPushButton('Save Element', self);savebtn.resize(savebtn.sizeHint());savebtn.move(170, 40)
         savebtn.clicked.connect(lambda state:self.saveElement())
         
         #Load Element
-        loadbtn = QPushButton('Load Element', self)
+        loadbtn = QPushButton('Load Element', self);loadbtn.resize(loadbtn.sizeHint());loadbtn.move(40, 40);
         loadbtn.clicked.connect(lambda state: self.loadElement(table))
         
-        #Populate table from Sequence
-        table_from_seq = QPushButton('Element from Sequence', self);
-        table_from_seq.clicked.connect(lambda state: self.from_sequence(table))
         
-        lay_puls.addWidget(runbtn,0,0,1,1);
-        lay_puls.addWidget(plotbtn,0,1,1,1);
-        lay_puls.addWidget(savebtn,1,0,1,1);
-        lay_puls.addWidget(loadbtn,1,1,1,1);
-        lay_puls.addWidget(sqpbtn,2,0,1,1);        
-        lay_puls.addWidget(ptpbtn,2,1,1,1);
-        lay_puls.addWidget(sfpbtn,2,2,1,1);
-        lay_puls.addWidget(table_from_seq ,2,3,1,1);
-        win_puls.move(20,5);
-        win_puls.resize(win_puls.sizeHint());
-        
-        # This is the end of top left buttons
-
         #Add a channel
         whichch=QComboBox(self);whichch.move(420,10);
         for i in range(len(chbox)): 
@@ -679,14 +518,12 @@ class pulseGUI(QMainWindow):
         corrbtn.resize(corrbtn.sizeHint())
         corrbtn.move(100, 600)
 
-         
 
         #Sequence and upload
         seqbtn = QPushButton('Upload Sequence', self)
         seqbtn.clicked.connect(lambda state:self.sequence())
         seqbtn.resize(seqbtn.sizeHint())
         seqbtn.move(400, 600)
-
         
         
         
@@ -734,12 +571,6 @@ class pulseGUI(QMainWindow):
     def plotElement(self):
         plotter(gelem);
     
-
-#############################################################################################
-# Saving and loading of element does not work yet. Using it may crash the GUI. I tried to use
-# pickle for saving an element object, however this created tons of problems I wasn't able to
-# solve. If I had to do it again, I would drill down into the dictionaries to save and load.
-#############################################################################################
     def saveElement(self):
         savedict=gelem.getArrays(includetime=True);
         dlg=QFileDialog(self);
@@ -849,10 +680,6 @@ class pulseGUI(QMainWindow):
         gelem._data[chno]['blueprint']=tempbp;
         
         
-#############################################################################################
-# The correction D pulse keeps the centre of gravity of the pulse at the DC value (voltage
-# seen by the same when there is no pulsing. Not always used or needed.
-#############################################################################################
     def correctionD(self,table):
         global awgclock;
         global corrDflag;
@@ -894,11 +721,7 @@ class pulseGUI(QMainWindow):
             
 
 
-#############################################################################################
-# Saving and loading of element does not work yet. Using it may crash the GUI. I tried to use
-# pickle for saving an element object, however this created tons of problems I wasn't able to
-# solve. If I had to do it again, I would drill down into the dictionaries to save and load.
-#############################################################################################    
+    
     def loadElement(self,table):
         global awgclock;
         global gelem;
@@ -922,11 +745,10 @@ class pulseGUI(QMainWindow):
             kwargs={'m1':m1,'m2':m2,'time':time};
             gelem.addArray(chno[i],wfm,awgclock,**kwargs);
        # Generate the pulse table
-
-    
+#    
     def sequence(self):
         if self._sequencebox is None:
-            self._sequencebox=sequencing();
+            self._sequencebox=sequencing(self.AWG);
             self._sequencebox.exec_();
         else:
 #            global_point = callWidget.mapToGlobal(point)
@@ -946,11 +768,6 @@ class pulseGUI(QMainWindow):
             pass
 
 
-
-
-#############################################################################################
-# A few hardcoded pulses that we use over and over, and some placeholder buttons.
-#############################################################################################
 
     def squarePulse(self,table):
         table.setColumnCount((2*3)+2);
@@ -996,7 +813,7 @@ class pulseGUI(QMainWindow):
             h=h+2;
         
         #Set vertical headers
-        nlist=["unload", "load","separate", "measure"];
+        nlist=["detuning_up", "detuning_up_b","down", "down_b"];
         for i in range(4):
             table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
             
@@ -1004,106 +821,26 @@ class pulseGUI(QMainWindow):
         for column in range(table.columnCount()):
             for row in range(table.rowCount()):
                 if column==0:
-                    table.setItem(row,column, QTableWidgetItem("20"));
+                    table.setItem(row,column, QTableWidgetItem("250"));
                 else:
                     table.setItem(row,column, QTableWidgetItem("0"));
         for column in range(table.columnCount()):
-            table.setItem(3,4, QTableWidgetItem("1"));
-        table.setItem(0,2, QTableWidgetItem("-8.8"));
-        table.setItem(0,3, QTableWidgetItem("-6"));
-        table.setItem(1,2, QTableWidgetItem("-6.8"));
-        table.setItem(1,3, QTableWidgetItem("2"));
-        table.setItem(2,2, QTableWidgetItem("10.2"));
-        table.setItem(2,3, QTableWidgetItem("-4"));
+            table.setItem(2,4, QTableWidgetItem("1"));
+            table.setItem(0,4, QTableWidgetItem("1"));
+#            table.setItem(3,4, QTableWidgetItem("1"));
+        table.setItem(0,2, QTableWidgetItem("0"));
+        table.setItem(0,3, QTableWidgetItem("0"));
+        table.setItem(1,2, QTableWidgetItem("0"));
+        table.setItem(1,3, QTableWidgetItem("0"));
+        table.setItem(2,2, QTableWidgetItem("0"));
+        table.setItem(2,3, QTableWidgetItem("0"));
         table.setItem(3,2, QTableWidgetItem("0"));
         table.setItem(3,3, QTableWidgetItem("0"));
         
-        # From Sequence
-    def from_sequence(self,table):
-         
-        seq_description = gseq.description['1']['channels']
-        seg_name = []
-        seg_durations = []
-        seg_ramp = []
-        values = []
-        marker1 = []
-        marker2 = []
-        for chan in seq_description.keys():
-            ch_values = []
-            channels_marker1 = []
-            channels_marker2 = []
-            print(chan)
-            marker1_rel = seq_description[chan]['marker1_rel']
-            marker2_rel = seq_description[chan]['marker2_rel']
-            seg_mar_list = list(seq_description[chan].keys())
-            seg_list = [s for s in seg_mar_list if 'segment' in s]
-            for i, seg in enumerate(seg_list):
-                seg_digt = seq_description[chan][seg]
-                tmp_name = seg_digt['name']
-                tmp_durations = seg_digt["durations"]
-                if tmp_name not in seg_name:
-                    seg_name.append(tmp_name)
-                    seg_durations.append(tmp_durations)
-                    if seg_digt['arguments']['start'] != seg_digt['arguments']['stop']:
-                        seg_ramp.append(1)
-                    else:
-                        seg_ramp.append(0)
-                ch_values.append(seg_digt['arguments']['stop'])
-                if marker1_rel[i] == (0,0):
-                    channels_marker1.append(0)
-                else:
-                    channels_marker1.append(1)
-                    
-                if marker2_rel[i] == (0,0):
-                    channels_marker2.append(0)
-                else:
-                    channels_marker2.append(1)             
-            values.append(ch_values)
-            marker1.append(channels_marker1)
-            marker2.append(channels_marker2)
-         
-        nchans = len(values)
-        nsegs = len(values[0])
 
-
-        table.setColumnCount((nchans*3)+2)
-        table.setRowCount(nsegs)
-        
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        #nlist= seg_name
-        for i, name in enumerate(seg_name):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(name));
-            
-        
-        for seg in range(nsegs):
-            duration = str(seg_durations[seg]/1e-6)
-            table.setItem(seg,0, QTableWidgetItem(duration))
-            ramp_yes = str(seg_ramp[seg])
-            table.setItem(seg,0, QTableWidgetItem(duration))
-            table.setItem(seg,1, QTableWidgetItem(ramp_yes))
-            for ch in range(nchans):
-               val = str(values[ch][seg]/(divch[ch]*1e-3))
-               mark1 = str(marker1[ch][seg])
-               mark2 = str(marker2[ch][seg])
-               table.setItem(seg,ch+2, QTableWidgetItem(val))
-               table.setItem(seg,ch*2+4, QTableWidgetItem(mark1))
-               table.setItem(seg,ch*2+5, QTableWidgetItem(mark2))
-
-        
-        
-    def spinFunnel(self,table):
+    def Dephasing(self,table):
         table.setColumnCount((2*3)+2)
-        table.setRowCount(8)
+        table.setRowCount(5)
         
         #Set horizontal headers
         h=nchans+1;
@@ -1116,8 +853,8 @@ class pulseGUI(QMainWindow):
             h=h+2;
         
         #Set vertical headers
-        nlist=["start","unload", "load","reference","wait","separate", "measure","stop"];
-        for i in range(8):
+        nlist=["dummy","Prepare","Prepare*","Separate","Measure"];
+        for i in range(5):
             table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
             
         #Set table items to zero initially    
@@ -1126,53 +863,110 @@ class pulseGUI(QMainWindow):
                 table.setItem(row,column, QTableWidgetItem("0"));
         
         #Times
-        table.setItem(0,0, QTableWidgetItem("0.01"));
-        table.setItem(1,0, QTableWidgetItem("20"));
-        table.setItem(2,0, QTableWidgetItem("20"));
-        table.setItem(3,0, QTableWidgetItem("10"));
-        table.setItem(4,0, QTableWidgetItem("1"));
-        table.setItem(5,0, QTableWidgetItem("0.5"));
-        table.setItem(6,0, QTableWidgetItem("10"));
-        table.setItem(7,0, QTableWidgetItem("0.01"));
+        table.setItem(0,0, QTableWidgetItem("5000"));
+        table.setItem(1,0, QTableWidgetItem("200"));
+        table.setItem(2,0, QTableWidgetItem("25"));
+        table.setItem(3,0, QTableWidgetItem("2000"));
+        table.setItem(4,0, QTableWidgetItem("10"));
+        # table.setItem(5,0, QTableWidgetItem("0.5"));
+        # table.setItem(6,0, QTableWidgetItem("10"));
+        # table.setItem(7,0, QTableWidgetItem("0.01"));
         
         #Markers
-        table.setItem(6,4, QTableWidgetItem("1"));
-        table.setItem(3,4, QTableWidgetItem("1"));
+        table.setItem(4,4, QTableWidgetItem("1"));
+        # table.setItem(3,4, QTableWidgetItem("1"));
         
-        #Pulses
-        table.setItem(1,2, QTableWidgetItem("-8.8"));
-        table.setItem(1,3, QTableWidgetItem("-6"));
-        table.setItem(2,2, QTableWidgetItem("-6.8"));
-        table.setItem(2,3, QTableWidgetItem("2"));
-        table.setItem(5,2, QTableWidgetItem("9.8"));
-        table.setItem(5,3, QTableWidgetItem("-2"));
+        #Pulses: (n,m): n - row from 0, m - clmn from 0
+        #Prepare 
+        table.setItem(1,2, QTableWidgetItem("-4.077"));
+        table.setItem(1,3, QTableWidgetItem("4.5322"));
+        #Prepare* 
+        table.setItem(2,2, QTableWidgetItem("0"));
+        table.setItem(2,3, QTableWidgetItem("0"));
+        #Separate 
+        table.setItem(3,2, QTableWidgetItem("6.604"));
+        table.setItem(3,3, QTableWidgetItem("-3.0405"));
+        #Measure 
+        table.setItem(4,2, QTableWidgetItem("0"));
+        table.setItem(4,3, QTableWidgetItem("0"));        
+        # table.setItem(1,3, QTableWidgetItem("0"));
+        # table.setItem(2,2, QTableWidgetItem("0"));
+        # table.setItem(2,3, QTableWidgetItem("2"));
+        # table.setItem(5,2, QTableWidgetItem("9.8"));
+        # table.setItem(5,3, QTableWidgetItem("-2"));
+        
+    # def spinFunnel(self,table):
+    #     table.setColumnCount((2*3)+2)
+    #     table.setRowCount(8)
+        
+    #     #Set horizontal headers
+    #     h=nchans+1;
+    #     table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
+    #     table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
+    #     for i in range(nchans):
+    #         table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
+    #         table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
+    #         table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
+    #         h=h+2;
+        
+    #     #Set vertical headers
+    #     nlist=["start","unload", "load","reference","wait","separate", "measure","stop"];
+    #     for i in range(8):
+    #         table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
+            
+    #     #Set table items to zero initially    
+    #     for column in range(table.columnCount()):
+    #         for row in range(table.rowCount()):
+    #             table.setItem(row,column, QTableWidgetItem("0"));
+        
+    #     #Times
+    #     table.setItem(0,0, QTableWidgetItem("0.01"));
+    #     table.setItem(1,0, QTableWidgetItem("20"));
+    #     table.setItem(2,0, QTableWidgetItem("20"));
+    #     table.setItem(3,0, QTableWidgetItem("10"));
+    #     table.setItem(4,0, QTableWidgetItem("1"));
+    #     table.setItem(5,0, QTableWidgetItem("0.5"));
+    #     table.setItem(6,0, QTableWidgetItem("10"));
+    #     table.setItem(7,0, QTableWidgetItem("0.01"));
+        
+    #     #Markers
+    #     table.setItem(6,4, QTableWidgetItem("1"));
+    #     table.setItem(3,4, QTableWidgetItem("1"));
+        
+    #     #Pulses
+    #     table.setItem(1,2, QTableWidgetItem("-8.8"));
+    #     table.setItem(1,3, QTableWidgetItem("-6"));
+    #     table.setItem(2,2, QTableWidgetItem("-6.8"));
+    #     table.setItem(2,3, QTableWidgetItem("2"));
+    #     table.setItem(5,2, QTableWidgetItem("9.8"));
+    #     table.setItem(5,3, QTableWidgetItem("-2"));
 
 
 
+if __name__ == "__main__":  # had to add this otherwise app crashed
 
+    def run():
+        if not QApplication.instance():
+            app = QApplication(sys.argv)
+        else:
+            app = QApplication.instance()
+        #app = QApplication(sys.argv)
+        app.aboutToQuit.connect(app.deleteLater)
+        Gui = pulsetable()
+        app.exec_()
 
-#if __name__ == "__main__":  # had to add this otherwise app crashed
+# run()
 
-def run(AWG = None):
-    global AWGB 
-    AWGB = AWG
-    if not QApplication.instance():
-        app = QApplication(sys.argv)
+def pulseGUI(AWG):
+    answer = int(input("Did you run the comand %matplotlib qt? type 0 for NO and 1 for YES "))
+    if answer==1:
+        pulsetable(AWG)
     else:
-        app = QApplication.instance()
-    #app = QApplication(sys.argv)
-    app.aboutToQuit.connect(app.deleteLater)
-    Gui = pulseGUI()
-    app.exec_()
-
-#run()
-
+        print('run the following line first: matplolib qt first')
 
 #############################################################################################
 ###################           BUILD SEQUENCE TABLE          #################################
 #############################################################################################
-
-
 def buildsequencetable(elem,param,start,stop,points):
     gseq.setSR(elem.SR);
     value=np.linspace(start,stop,points);
@@ -1194,7 +988,6 @@ def buildsequencetable(elem,param,start,stop,points):
 #############################################################################################
 ###################            SET PULSE PARAMETER          #################################
 #############################################################################################
-
 def setpulseparameter(elem,param,value):
     #Define your own parameters here! For setting a segment name use setpulse()
     ch=0;
@@ -1211,14 +1004,127 @@ def setpulseparameter(elem,param,value):
         #setpulselevel(elem,1,'separate',value*0.9558);#For 40-31
         #setpulselevel(elem,2,'separate',-value*0.2940);#For 40-31
         
-    if param=='psm':
-        setpulselevel(elem,1,'detuning',value*0.8);
-        setpulselevel(elem,2,'detuning',-value*0.5);
+#    if param=='psm':
+#        setpulselevel(elem,1,'detuning',value*0.8);
+#        setpulselevel(elem,3,'detuning',-value*0.5);
 
+
+##detuning load        
+#    if param=='psm_load':
+#        alpha_x = -0.6597
+#        beta_y = 0.7516
+#        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
+#        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
+#        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+#        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+
+    if param=='dephasing_corrD':
+        corrD_K0 = -1.8102
+        corrD_K1 = 0.44531
+        corrD_K2 = 0.0004064
+        corrD_K3 = -1.0403e-7
+        
+        corrD_X = corrD_K0 + corrD_K1*value + corrD_K2*value*value + corrD_K3*value*value*value
+        corrD_y = corrD_K0 + corrD_K1*value + corrD_K2*value*value + corrD_K3*value*value*value
+
+        #corr amplitudes for 2ms separation
+        # corrD_amp_BNC12 = -7.3569
+        # corrD_amp_BNC17 = 3.07129
+        setpulseduration(elem,1,'corrD', corrD_X)
+        setpulseduration(elem,2,'corrD', corrD_Y)
+        setpulseduration(elem,1,'Separate',value)
+        setpulseduration(elem,2,'Separate',value)
+
+
+
+#detuning load        
+    if param=='psm_load':
+        alpha_x = -0.621
+        beta_y = 0.7838
+        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+
+#detuning load symmetric       
+    if param=='psm_load_sym':
+        alpha_x = 0.974
+        beta_y = -0.226
+        setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17        
+        
+        
+
+
+#detuning unload symmetric       
+    if param=='psm_unload_sym':
+        alpha_x = 0.4832
+        beta_y = -0.8755
+        setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17     
+        
+        
+        
+                
+#detuning unload        
+    if param=='psm_unload':
+        alpha_x = 0.6761
+        beta_y = -0.7368
+        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+                
+
+        
+#detuning         
+#    if param=='psm':
+#        alpha_x = 0.407
+#        beta_y = -0.915
+#        setpulselevel(elem,1,'detuning_up',value*(0.5)*beta_y); #BNC12
+#        setpulselevel(elem,1,'detuning_down',value*(-0.5)*beta_y); #BNC12
+#        setpulselevel(elem,2,'detuning_up',value*(0.5)*alpha_x); #BNC43
+#        setpulselevel(elem,2,'detuning_down',value*(-0.5)*alpha_x) #BNC43            
+
+#detuning unload  
+#    if param=='psm':
+#        alpha_x = -0.407
+#        beta_y = 0.915
+#        setpulselevel(elem,1,'detuning_up',value*(1)*beta_y); #BNC12
+##        setpulselevel(elem,1,'detuning_down',value*(-0.5)*beta_y); #BNC12
+#        setpulselevel(elem,2,'detuning_up',value*(1)*alpha_x); #BNC43
+##        setpulselevel(elem,2,'detuning_down',value*(-0.5)*alpha_x) #BNC43    
+
+        
+#        setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x);
+#        setpulselevel(elem,1,'detuning_down',value*(-0.5)*alpha_x);
+#        setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y);
+#        setpulselevel(elem,2,'detuning_down',value*(-0.5)*beta_y)             
+        
+        
+#        setpulselevel(elem,1,'detuning_up',value);        
+#        setpulselevel(elem,2,'detuning_up',value);
+#        setpulselevel(elem,1,'detuning_down',value);        
+#        setpulselevel(elem,2,'detuning_down',value);        
+#        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x);        
+#        setpulselevel(elem,1,'detuning_down',value*(1)*alpha_x);
+#        
 
 
 #############################################################################################
-###################    CHANGE PULSE LEVEL OR DURATION       #################################
+###################            SET PULSE PARAMETER          #################################
 #############################################################################################
 def setpulselevel(elem,ch,seg,lvl,div=11.7):
     #Change a pulse within an element
@@ -1234,7 +1140,7 @@ def setpulseduration(elem,ch,seg,dur):
         elem.changeDuration(ch[i],seg,dur,False);
 
 #############################################################################################
-###################            correctionD Pulse            #################################
+###################           correctionD Element           #################################
 #############################################################################################
 def correctionDelem(elem):
     global awgclock;
