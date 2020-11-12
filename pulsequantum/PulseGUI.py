@@ -54,6 +54,9 @@ params=["det","psm"]; #Any new parameter defined for the "Special" sequencing ta
 #############################################################################################
 
 class sequencing(QDialog):
+    """
+    Should have a docstring
+    """
 
     def __init__(self):
         #super(sequencing, self).__init__()
@@ -490,6 +493,9 @@ class sequencing(QDialog):
 #############################################################################################
 
 class pulseGUI(QMainWindow):
+    """
+    Should have a docstring
+    """
 
     def __init__(self):
         #super(pulseGUI, self).__init__()
