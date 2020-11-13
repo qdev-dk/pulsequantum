@@ -46,26 +46,30 @@ divch=[divch1,divch2,divch3,divch4];
 
 awgclock=1.2e9;
 corrDflag=0; #Global flag: Is correction D pulse already defined in the pulse table?
-params=["det","psm"]; #Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
+
+#Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
+params=["det","psm_load","psm_unload","psm_load_sym","psm_unload_sym","dephasing_corrD"]
+ 
 
 
 #############################################################################################
 #Class for sequencing (secondary) window
 #############################################################################################
 
-class sequencing(QDialog):
+class sequencing(QDialog,):
     """
     Should have a docstring
     """
 
-    def __init__(self):
+    def __init__(self,AWG):
         #super(sequencing, self).__init__()
         super().__init__()
         self.setGeometry(200, 200, 900, 500)
         self.setWindowTitle("Sequencing")
         self.setMinimumWidth(350)
         self.home()
-    
+        self.AWG = AWG
+
     def home(self):
         
         
@@ -261,9 +265,9 @@ class sequencing(QDialog):
         aoutbox2.stateChanged.connect(lambda state: self.runChan(aoutbox2, 2));
         aoutbox3.stateChanged.connect(lambda state: self.runChan(aoutbox3, 3));
         aoutbox4.stateChanged.connect(lambda state: self.runChan(aoutbox4, 4));
-        runawgbtn = QPushButton('Run AWG', self);
-        runawgbtn.clicked.connect(lambda state: self.runAWG(Choose_awg))
-        lay5.addWidget(awglabel,1,1,1,1);lay5.addWidget(runawgbtn,1,2,1,1);
+        runself.AWGtn = QPushButton('Run AWG', self);
+        runself.AWGtn.clicked.connect(lambda state: self.runAWG(Choose_awg))
+        lay5.addWidget(awglabel,1,1,1,1);lay5.addWidget(runself.AWGtn,1,2,1,1);
         for i in range(len(achbox)):
             achbox[i].setText('4.5');aoffbox[i].setText('0');
             lay5.addWidget(achbox[i],i+3,2,1,1);lay5.addWidget(achlabel[i],i+3,1,1,1);
@@ -389,38 +393,38 @@ class sequencing(QDialog):
     def uploadToAWG(self,Choose_awg,chbox):
         if Choose_awg.currentText() == 'AWG5014':
             #for i,  chan in enumerate(gseq.channels):
-            #    AWGB.channels[chan].AMP(float(chbox[chan-1].text()))
-            AWGB.ch1_amp(float(chbox[0].text()))
-            AWGB.ch2_amp(float(chbox[1].text()))
-            AWGB.ch3_amp(float(chbox[2].text()))
-            AWGB.ch4_amp(float(chbox[3].text()))
+            #    self.AWG.channels[chan].AMP(float(chbox[chan-1].text()))
+            self.AWG.ch1_amp(float(chbox[0].text()))
+            self.AWG.ch2_amp(float(chbox[1].text()))
+            self.AWG.ch3_amp(float(chbox[2].text()))
+            self.AWG.ch4_amp(float(chbox[3].text()))
             package = gseq.outputForAWGFile()
             start_time=time.time();
-            AWGB.make_send_and_load_awg_file(*package[:])
+            self.AWG.make_send_and_load_awg_file(*package[:])
             print("Sequence uploaded in %s seconds" %(time.time()-start_time));
         if Choose_awg.currentText() == 'AWG5208':
             gseq.name = 'sequence_from_gui'
-            AWGB.mode('AWG')
+            self.AWG.mode('AWG')
             for chan in gseq.channels:
-                AWGB.channels[chan-1].resolution(12)
-                AWGB.channels[chan-1].awg_amplitude(0.5)
-                gseq.setChannelAmplitude(chan, AWGB.channels[chan-1].awg_amplitude())
-            AWGB.clearSequenceList()
-            AWGB.clearWaveformList()
-            AWGB.sample_rate(gseq.SR)
-            AWGB.sample_rate(gseq.SR)
+                self.AWG.channels[chan-1].resolution(12)
+                self.AWG.channels[chan-1].awg_amplitude(0.5)
+                gseq.setChannelAmplitude(chan, self.AWG.channels[chan-1].awg_amplitude())
+            self.AWG.clearSequenceList()
+            self.AWG.clearWaveformList()
+            self.AWG.sample_rate(gseq.SR)
+            self.AWG.sample_rate(gseq.SR)
             print(Choose_awg.currentText() )
             
             seqx_input = gseq.outputForSEQXFile()
             start_time=time.time();
-            seqx_output = AWGB.makeSEQXFile(*seqx_input)
+            seqx_output = self.AWG.makeSEQXFile(*seqx_input)
             # transfer it to the awg harddrive
-            AWGB.sendSEQXFile(seqx_output, 'sequence_from_gui.seqx')
-            AWGB.loadSEQXFile('sequence_from_gui.seqx')
+            self.AWG.sendSEQXFile(seqx_output, 'sequence_from_gui.seqx')
+            self.AWG.loadSEQXFile('sequence_from_gui.seqx')
             #time.sleep(1.300)
             for i,  chan in enumerate(gseq.channels):       
-                AWGB.channels[chan-1].setSequenceTrack('sequence_from_gui', i+1)
-                AWGB.channels[chan-1].state(1)
+                self.AWG.channels[chan-1].setSequenceTrack('sequence_from_gui', i+1)
+                self.AWG.channels[chan-1].state(1)
             print("Sequence uploaded in %s seconds" %(time.time()-start_time));
  
         else:
@@ -429,55 +433,55 @@ class sequencing(QDialog):
         
     def runAWG(self,Choose_awg):
         if Choose_awg.currentText() == 'AWG5014':
-            if AWGB.get_state()=='Idle':
-                AWGB.run();
+            if self.AWG.get_state()=='Idle':
+                self.AWG.run();
                 print("AWGs Running");
-            elif AWGB.get_state()=='Running':
-                AWGB.stop();
+            elif self.AWG.get_state()=='Running':
+                self.AWG.stop();
                 print("AWGs Stopped");
         else:
-            if AWGB.run_state() == 'Running':
-                AWGB.stop()
-                print(AWGB.run_state())
-            elif AWGB.run_state() == 'Waiting for trigger':
-                print(AWGB.run_state())
+            if self.AWG.run_state() == 'Running':
+                self.AWG.stop()
+                print(self.AWG.run_state())
+            elif self.AWG.run_state() == 'Waiting for trigger':
+                print(self.AWG.run_state())
             else:  
-                AWGB.play()
-                print(AWGB.run_state())
+                self.AWG.play()
+                print(self.AWG.run_state())
             
-            AWGB.stop();
+            self.AWG.stop();
     def runChan(self,outputbox,whichbox):
         if whichbox==0:
             if outputbox.isChecked():
-                AWGB.ch1_state(1);
-                AWGB.ch2_state(1);
-                AWGB.ch3_state(1);
-                AWGB.ch4_state(1);
+                self.AWG.ch1_state(1);
+                self.AWG.ch2_state(1);
+                self.AWG.ch3_state(1);
+                self.AWG.ch4_state(1);
             else:
-                AWGB.ch1_state(0);
-                AWGB.ch2_state(0);
-                AWGB.ch3_state(0);
-                AWGB.ch4_state(0);
+                self.AWG.ch1_state(0);
+                self.AWG.ch2_state(0);
+                self.AWG.ch3_state(0);
+                self.AWG.ch4_state(0);
         if whichbox==1:
             if outputbox.isChecked():
-                AWGB.ch1_state(1);
+                self.AWG.ch1_state(1);
             else:
-                AWGB.ch1_state(0);
+                self.AWG.ch1_state(0);
         if whichbox==2:
             if outputbox.isChecked():
-                AWGB.ch2_state(1);
+                self.AWG.ch2_state(1);
             else:
-                AWGB.ch2_state(0);
+                self.AWG.ch2_state(0);
         if whichbox==3:
             if outputbox.isChecked():
-                AWGB.ch3_state(1);
+                self.AWG.ch3_state(1);
             else:
-                AWGB.ch3_state(0);
+                self.AWG.ch3_state(0);
         if whichbox==4:
             if outputbox.isChecked():
-                AWGB.ch4_state(1);
+                self.AWG.ch4_state(1);
             else:
-                AWGB.ch4_state(0);
+                self.AWG.ch4_state(0);
     
     def filterCorrection(self,hfiltbox,lfiltbox):
         if gseq.points==0:
@@ -492,26 +496,27 @@ class sequencing(QDialog):
 # Main pulse building class and main window
 #############################################################################################
 
-class pulseGUI(QMainWindow):
+class pulsetable(QMainWindow):
     """
     Should have a docstring
     """
 
-    def __init__(self):
+    def __init__(self,AWG):
         #super(pulseGUI, self).__init__()
         super().__init__()
         self.setGeometry(50, 50, 1100, 900)
         self.setWindowTitle('Pulse Table Panel')
-        self.mainwindow=pulseGUI;
+        self.mainwindow=pulsetable
         self.statusBar()
         self._sequencebox=None
-
+        self.AWG = AWG
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('&File')
         
         self.home()
 
     def home(self):
+
         
         #Set up initial pulse table
         table=QTableWidget(4,4,self)
@@ -596,6 +601,13 @@ class pulseGUI(QMainWindow):
         #Spin Funnel
         sfpbtn = QPushButton('Spin Funnel', self);
         sfpbtn.clicked.connect(lambda state:self.spinFunnel(table))
+
+        #Dephasing
+        sfpbtn = QPushButton('Dephasing', self);sfpbtn.resize(sfpbtn.sizeHint());sfpbtn.move(290, 70)
+        sfpbtn.clicked.connect(lambda state:self.Dephasing(table))
+
+
+
         
         #Plot Element
         plotbtn = QPushButton('Plot Element', self)
@@ -683,7 +695,7 @@ class pulseGUI(QMainWindow):
 
         #Sequence and upload
         seqbtn = QPushButton('Upload Sequence', self)
-        seqbtn.clicked.connect(lambda state:self.sequence())
+        seqbtn.clicked.connect(lambda state:self.sequence(self.AWG))
         seqbtn.resize(seqbtn.sizeHint())
         seqbtn.move(400, 600)
 
@@ -997,6 +1009,7 @@ class pulseGUI(QMainWindow):
         
         #Set vertical headers
         nlist=["unload", "load","separate", "measure"];
+        #nlist=["detuning_up", "detuning_up_b","down", "down_b"];
         for i in range(4):
             table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
             
@@ -1154,8 +1167,8 @@ class pulseGUI(QMainWindow):
 #if __name__ == "__main__":  # had to add this otherwise app crashed
 
 def run(AWG = None):
-    global AWGB 
-    AWGB = AWG
+    global self.AWG 
+    self.AWG = AWG
     if not QApplication.instance():
         app = QApplication(sys.argv)
     else:
