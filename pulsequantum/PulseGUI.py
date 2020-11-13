@@ -265,9 +265,10 @@ class sequencing(QDialog,):
         aoutbox2.stateChanged.connect(lambda state: self.runChan(aoutbox2, 2));
         aoutbox3.stateChanged.connect(lambda state: self.runChan(aoutbox3, 3));
         aoutbox4.stateChanged.connect(lambda state: self.runChan(aoutbox4, 4));
-        runself.AWGtn = QPushButton('Run AWG', self);
-        runself.AWGtn.clicked.connect(lambda state: self.runAWG(Choose_awg))
-        lay5.addWidget(awglabel,1,1,1,1);lay5.addWidget(runself.AWGtn,1,2,1,1);
+        runAWGtn = QPushButton('Run AWG', self);
+        runAWGtn.clicked.connect(lambda state: self.runAWG(Choose_awg))
+        lay5.addWidget(awglabel,1,1,1,1);
+        lay5.addWidget(runAWGtn,1,2,1,1);
         for i in range(len(achbox)):
             achbox[i].setText('4.5');aoffbox[i].setText('0');
             lay5.addWidget(achbox[i],i+3,2,1,1);lay5.addWidget(achlabel[i],i+3,1,1,1);
@@ -364,9 +365,7 @@ class sequencing(QDialog,):
         else:
             newparam="N-"+"Volt"+"-"+timevolt[2]+"-"+whichp;
         gseq.setSR(gelem.SR);
-        #for chan in gseq.channels:
-         #   gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
-          #  gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));
+
         if contseqbox.isChecked():
             gseq.addElement(1,gelem);
             gseq.setSequencingTriggerWait(1,0)
@@ -501,7 +500,7 @@ class pulsetable(QMainWindow):
     Should have a docstring
     """
 
-    def __init__(self,AWG):
+    def __init__(self,AWG = None):
         #super(pulseGUI, self).__init__()
         super().__init__()
         self.setGeometry(50, 50, 1100, 900)
@@ -591,20 +590,20 @@ class pulsetable(QMainWindow):
         win_puls = QWidget(self);
         lay_puls= QGridLayout(win_puls);        
         #Square Pulse
-        sqpbtn = QPushButton('Square Pulse', self);
+        sqpbtn = QPushButton('Square Pulse', self)
         sqpbtn.clicked.connect(lambda state:self.squarePulse(table))       
         
         #Pulse Triangle
-        ptpbtn = QPushButton('Pulse Triangle', self);
+        ptpbtn = QPushButton('Pulse Triangle', self)
         ptpbtn.clicked.connect(lambda state:self.pulseTriangle(table)) 
         
         #Spin Funnel
-        sfpbtn = QPushButton('Spin Funnel', self);
+        sfpbtn = QPushButton('Spin Funnel', self)
         sfpbtn.clicked.connect(lambda state:self.spinFunnel(table))
 
         #Dephasing
-        sfpbtn = QPushButton('Dephasing', self);sfpbtn.resize(sfpbtn.sizeHint());sfpbtn.move(290, 70)
-        sfpbtn.clicked.connect(lambda state:self.Dephasing(table))
+        dppbtn = QPushButton('Dephasing', self)
+        dppbtn.clicked.connect(lambda state:self.Dephasing(table))
 
 
 
@@ -631,16 +630,17 @@ class pulsetable(QMainWindow):
         table_from_seq = QPushButton('Element from Sequence', self);
         table_from_seq.clicked.connect(lambda state: self.from_sequence(table))
         
-        lay_puls.addWidget(runbtn,0,0,1,1);
-        lay_puls.addWidget(plotbtn,0,1,1,1);
-        lay_puls.addWidget(savebtn,1,0,1,1);
-        lay_puls.addWidget(loadbtn,1,1,1,1);
-        lay_puls.addWidget(sqpbtn,2,0,1,1);        
-        lay_puls.addWidget(ptpbtn,2,1,1,1);
-        lay_puls.addWidget(sfpbtn,2,2,1,1);
-        lay_puls.addWidget(table_from_seq ,2,3,1,1);
-        win_puls.move(20,5);
-        win_puls.resize(win_puls.sizeHint());
+        lay_puls.addWidget(runbtn,0,0,1,1)
+        lay_puls.addWidget(plotbtn,0,1,1,1)
+        lay_puls.addWidget(savebtn,1,0,1,1)
+        lay_puls.addWidget(loadbtn,1,1,1,1)
+        lay_puls.addWidget(sqpbtn,2,0,1,1)        
+        lay_puls.addWidget(ptpbtn,2,1,1,1)
+        lay_puls.addWidget(sfpbtn,2,2,1,1)
+        lay_puls.addWidget(dppbtn,1,2,1,1)
+        lay_puls.addWidget(table_from_seq ,2,3,1,1)
+        win_puls.move(20,5)
+        win_puls.resize(win_puls.sizeHint())
         
         # This is the end of top left buttons
 
@@ -695,7 +695,7 @@ class pulsetable(QMainWindow):
 
         #Sequence and upload
         seqbtn = QPushButton('Upload Sequence', self)
-        seqbtn.clicked.connect(lambda state:self.sequence(self.AWG))
+        seqbtn.clicked.connect(lambda state:self.sequence())
         seqbtn.resize(seqbtn.sizeHint())
         seqbtn.move(400, 600)
 
@@ -938,7 +938,7 @@ class pulsetable(QMainWindow):
     
     def sequence(self):
         if self._sequencebox is None:
-            self._sequencebox=sequencing();
+            self._sequencebox=sequencing(self.AWG);
             self._sequencebox.exec_();
         else:
 #            global_point = callWidget.mapToGlobal(point)
@@ -1159,26 +1159,87 @@ class pulsetable(QMainWindow):
         table.setItem(2,3, QTableWidgetItem("2"));
         table.setItem(5,2, QTableWidgetItem("9.8"));
         table.setItem(5,3, QTableWidgetItem("-2"));
+        
+    def Dephasing(self,table):
+        table.setColumnCount((2*3)+2)
+        table.setRowCount(5)
+        
+        #Set horizontal headers
+        h=nchans+1;
+        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
+        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
+        for i in range(nchans):
+            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
+            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
+            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
+            h=h+2;
+        
+        #Set vertical headers
+        nlist=["dummy","Prepare","Prepare*","Separate","Measure"];
+        for i in range(5):
+            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
+            
+        #Set table items to zero initially    
+        for column in range(table.columnCount()):
+            for row in range(table.rowCount()):
+                table.setItem(row,column, QTableWidgetItem("0"));
+        
+        #Times
+        table.setItem(0,0, QTableWidgetItem("5000"));
+        table.setItem(1,0, QTableWidgetItem("200"));
+        table.setItem(2,0, QTableWidgetItem("25"));
+        table.setItem(3,0, QTableWidgetItem("2000"));
+        table.setItem(4,0, QTableWidgetItem("10"));
+        # table.setItem(5,0, QTableWidgetItem("0.5"));
+        # table.setItem(6,0, QTableWidgetItem("10"));
+        # table.setItem(7,0, QTableWidgetItem("0.01"));
+        
+        #Markers
+        table.setItem(4,4, QTableWidgetItem("1"));
+        # table.setItem(3,4, QTableWidgetItem("1"));
+        
+        #Pulses: (n,m): n - row from 0, m - clmn from 0
+        #Prepare 
+        table.setItem(1,2, QTableWidgetItem("-4.077"));
+        table.setItem(1,3, QTableWidgetItem("4.5322"));
+        #Prepare* 
+        table.setItem(2,2, QTableWidgetItem("0"));
+        table.setItem(2,3, QTableWidgetItem("0"));
+        #Separate 
+        table.setItem(3,2, QTableWidgetItem("6.604"));
+        table.setItem(3,3, QTableWidgetItem("-3.0405"));
+        #Measure 
+        table.setItem(4,2, QTableWidgetItem("0"));
+        table.setItem(4,3, QTableWidgetItem("0"));        
+        # table.setItem(1,3, QTableWidgetItem("0"));
+        # table.setItem(2,2, QTableWidgetItem("0"));
+        # table.setItem(2,3, QTableWidgetItem("2"));
+        # table.setItem(5,2, QTableWidgetItem("9.8"));
+        # table.setItem(5,3, QTableWidgetItem("-2"));
 
 
 
+if __name__ == "__main__":  # had to add this otherwise app crashed
 
+    def run():
+        if not QApplication.instance():
+            app = QApplication(sys.argv)
+        else:
+            app = QApplication.instance()
+        #app = QApplication(sys.argv)
+        app.aboutToQuit.connect(app.deleteLater)
+        Gui = pulsetable()
+        app.exec_()
 
-#if __name__ == "__main__":  # had to add this otherwise app crashed
+    run()
 
-def run(AWG = None):
-    global self.AWG 
-    self.AWG = AWG
-    if not QApplication.instance():
-        app = QApplication(sys.argv)
+def pulseGUI(AWG= None):
+    answer = int(input("Did you run the comand %matplotlib qt? type 0 for NO and 1 for YES "))
+    if answer==1:
+        pulsetable(AWG)
     else:
-        app = QApplication.instance()
-    #app = QApplication(sys.argv)
-    app.aboutToQuit.connect(app.deleteLater)
-    Gui = pulseGUI()
-    app.exec_()
+        print('run the following line first: matplolib qt first')
 
-#run()
 
 
 #############################################################################################
@@ -1227,7 +1288,118 @@ def setpulseparameter(elem,param,value):
     if param=='psm':
         setpulselevel(elem,1,'detuning',value*0.8);
         setpulselevel(elem,2,'detuning',-value*0.5);
+##detuning load        
+#    if param=='psm_load':
+#        alpha_x = -0.6597
+#        beta_y = 0.7516
+#        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
+#        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
+#        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+#        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
 
+    if param=='dephasing_corrD':
+        corrD_K0 = -1.8102
+        corrD_K1 = 0.44531
+        corrD_K2 = 0.0004064
+        corrD_K3 = -1.0403e-7
+        
+        corrD_X = corrD_K0 + corrD_K1*value + corrD_K2*value*value + corrD_K3*value*value*value
+        corrD_y = corrD_K0 + corrD_K1*value + corrD_K2*value*value + corrD_K3*value*value*value
+
+        #corr amplitudes for 2ms separation
+        # corrD_amp_BNC12 = -7.3569
+        # corrD_amp_BNC17 = 3.07129
+        setpulseduration(elem,1,'corrD', corrD_X)
+        setpulseduration(elem,2,'corrD', corrD_Y)
+        setpulseduration(elem,1,'Separate',value)
+        setpulseduration(elem,2,'Separate',value)
+
+
+
+#detuning load        
+    if param=='psm_load':
+        alpha_x = -0.621
+        beta_y = 0.7838
+        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+
+#detuning load symmetric       
+    if param=='psm_load_sym':
+        alpha_x = 0.974
+        beta_y = -0.226
+        setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC12
+        setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17        
+        
+        
+
+
+#detuning unload symmetric       
+    if param=='psm_unload_sym':
+        alpha_x = 0.4832
+        beta_y = -0.8755
+        setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
+        setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC43
+        setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17     
+        
+        
+        
+                
+#detuning unload        
+    if param=='psm_unload':
+        alpha_x = 0.6761
+        beta_y = -0.7368
+        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
+        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+                
+
+        
+#detuning         
+#    if param=='psm':
+#        alpha_x = 0.407
+#        beta_y = -0.915
+#        setpulselevel(elem,1,'detuning_up',value*(0.5)*beta_y); #BNC12
+#        setpulselevel(elem,1,'detuning_down',value*(-0.5)*beta_y); #BNC12
+#        setpulselevel(elem,2,'detuning_up',value*(0.5)*alpha_x); #BNC43
+#        setpulselevel(elem,2,'detuning_down',value*(-0.5)*alpha_x) #BNC43            
+
+#detuning unload  
+#    if param=='psm':
+#        alpha_x = -0.407
+#        beta_y = 0.915
+#        setpulselevel(elem,1,'detuning_up',value*(1)*beta_y); #BNC12
+##        setpulselevel(elem,1,'detuning_down',value*(-0.5)*beta_y); #BNC12
+#        setpulselevel(elem,2,'detuning_up',value*(1)*alpha_x); #BNC43
+##        setpulselevel(elem,2,'detuning_down',value*(-0.5)*alpha_x) #BNC43    
+
+        
+#        setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x);
+#        setpulselevel(elem,1,'detuning_down',value*(-0.5)*alpha_x);
+#        setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y);
+#        setpulselevel(elem,2,'detuning_down',value*(-0.5)*beta_y)             
+        
+        
+#        setpulselevel(elem,1,'detuning_up',value);        
+#        setpulselevel(elem,2,'detuning_up',value);
+#        setpulselevel(elem,1,'detuning_down',value);        
+#        setpulselevel(elem,2,'detuning_down',value);        
+#        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x);        
+#        setpulselevel(elem,1,'detuning_down',value*(1)*alpha_x);
+#        
 
 
 #############################################################################################
