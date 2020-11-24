@@ -1,5 +1,5 @@
 import broadbean as bb
-class Gseg():
+class Gseq():
     """
     Class for sequencing 
     """
