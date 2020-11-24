@@ -4,15 +4,8 @@
 # import and initialise the driver and ensure that the sample
 # rate and channel voltage is correct
 
-
-import numpy as np
 import matplotlib
-import time
-import pickle 
-import broadbean as bb
-from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame, QMainWindow, QPushButton, QAction, QMessageBox, QLineEdit, QLabel, QSizePolicy
+from PyQt5.QtWidgets import QWidget, QFrame,  QPushButton, QLineEdit, QLabel
 from PyQt5.QtWidgets import QCheckBox, QDialog, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QComboBox, QGridLayout
 from broadbean.plotting import plotter
 from sequencebuilding import Gseq
@@ -21,16 +14,16 @@ matplotlib.use('QT5Agg')
 
 
 #Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
-params=["det", "psm_load", "psm_unload", "psm_load_sym", "psm_unload_sym", "dephasing_corrD"]
+params = ["det", "psm_load", "psm_unload", "psm_load_sym", "psm_unload_sym", "dephasing_corrD"]
 
 
-class Sequencing(QDialog,Gseq):
+class Sequencing(QDialog, Gseq):
     """
     Class for sequencing (secondary) window
     """
 
     def __init__(self, AWG=None, gelem=None):
-        super().__init__()
+        super().__init__(AWG=AWG, gelem=gelem)
         self.setGeometry(200, 200, 900, 500)
         self.setWindowTitle("Sequencing")
         self.setMinimumWidth(350)

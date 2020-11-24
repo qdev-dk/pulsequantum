@@ -9,6 +9,7 @@ import pickle
 import broadbean as bb
 from broadbean.plotting import plotter
 from awgsequencing import Sequencing
+from pulsebuilding import Gelem
 
 import matplotlib
 matplotlib.use('QT5Agg')
@@ -22,14 +23,10 @@ matplotlib.use('QT5Agg')
 nlines=3;
 nchans=2;
 
-ramp = bb.PulseAtoms.ramp; #Globally defined ramp, element, and sequence
-
-gseq = bb.Sequence();
-
 divch1=11.5;divch2=11.75;divch3=11.7;divch4=1; #Hardcoded channel dividers
 divch=[divch1,divch2,divch3,divch4];
 
-awgclock=1.2e9;
+
 corrDflag=0; #Global flag: Is correction D pulse already defined in the pulse table?
 
 #Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
@@ -37,7 +34,7 @@ params=["det","psm_load","psm_unload","psm_load_sym","psm_unload_sym","dephasing
  
 
 
-class pulsetable(QMainWindow):
+class pulsetable(QMainWindow,Gelem):
     """
     Main pulse building class and main window
     """
@@ -51,7 +48,6 @@ class pulsetable(QMainWindow):
         self.statusBar()
         self._sequencebox=None
         self.AWG = AWG
-        self.gelem = bb.Element()
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('&File')
         
@@ -251,56 +247,6 @@ class pulsetable(QMainWindow):
         win.hide()
         
         
-    def generateElement(self,table):
-        #Make element from pulse table
-        self.gelem= bb.Element();
-        h=int((table.columnCount()-2)/3);
-        prevlvl=0;
-        global awgclock;
-        v=table.rowCount();
-        for col in range(2,h+2):
-            chno=int(table.horizontalHeaderItem(col).text()[2]);
-            gp = bb.BluePrint()
-            gp.setSR(awgclock);
-            for row in range(v):
-                nm=table.verticalHeaderItem(row).text();
-                dr=(float(table.item(row,0).text()))*1e-6;
-                rmp=int(table.item(row,1).text());
-                lvl=(float(table.item(row,col).text()))*divch[col-2]*1e-3;
-                mkr1=int(table.item(row,h+2).text());
-                mkr2=int(table.item(row,h+3).text());
-                if rmp==0:
-                    gp.insertSegment(row, ramp, (lvl, lvl), name=nm, dur=dr);
-                if rmp==1:
-                    if row==0:
-                        gp.insertSegment(row, ramp, (0, lvl), name=nm, dur=dr);
-                    else:
-                        gp.insertSegment(row, ramp, (prevlvl, lvl), name=nm, dur=dr);
-                if mkr1==1:
-                    gp.setSegmentMarker(nm, (0,dr), 1);
-                if mkr2==1:
-                    gp.setSegmentMarker(nm, (0,dr), 2);
-                prevlvl=lvl;
-            self.gelem.addBluePrint(chno, gp);
-            h=h+2;
-        self.gelem.validateDurations();
-        
-    def plotElement(self):
-        plotter(self.gelem);
-    
-
-#############################################################################################
-# Saving and loading of element does not work yet. Using it may crash the GUI. I tried to use
-# pickle for saving an element object, however this created tons of problems I wasn't able to
-# solve. If I had to do it again, I would drill down into the dictionaries to save and load.
-#############################################################################################
-    def saveElement(self):
-        savedict=self.gelem.getArrays(includetime=True);
-        dlg=QFileDialog(self);
-        fileName, _ =  dlg.getSaveFileName(self,"Save Element",r"A:\Users\fabio\QCoDeSLocal\SpinQubit\Pulse_wrappers\Pulsinglibrary");
-        with open(fileName, 'wb') as f:
-            pickle.dump(savedict,f,protocol=pickle.HIGHEST_PROTOCOL)
-    
     def addChannel(self,table,whichch):
         global nchans;
         nchans=nchans+1;
@@ -367,8 +313,7 @@ class pulsetable(QMainWindow):
             divch[i]=(float(chbox[i].text()));
         
     def setAWGClock(self,setawgclockbox):
-        global awgclock;
-        awgclock=(float(setawgclockbox.text()))*1e9;
+        self.awgclock=(float(setawgclockbox.text()))*1e9;
         
     def absMarkerWidget(self,absmarkerbox,win):
         if absmarkerbox.isChecked():
@@ -403,82 +348,12 @@ class pulsetable(QMainWindow):
         self.gelem._data[chno]['blueprint']=tempbp;
         
         
-#############################################################################################
-# The correction D pulse keeps the centre of gravity of the pulse at the DC value (voltage
-# seen by the same when there is no pulsing. Not always used or needed.
-#############################################################################################
-    def correctionD(self,table):
-        global awgclock;
-        global corrDflag;
-        if corrDflag==1:
-            print("Correction D pulse already exists.")
-            return;
-        corrDflag=1;
-        awgclockinus=awgclock/1e6;
-        dpulse = QLineEdit(self);dpulse.setText('corrD');
-        tottime=0;
-        dpos=1;#position of correction D pulse, hardcoded for now
-        self.addPulse(table,dpulse,dpos);
-        #Set D pulse time to 60% of total pulse cycle time
-        for row in range(table.rowCount()):
-            nm=table.verticalHeaderItem(row).text();
-            if nm!='corrD':
-                tottime=tottime+(float(table.item(row,0).text()));
-        timeD=round(tottime/1.65*(awgclockinus))/awgclockinus;
-        table.setItem(dpos,0, QTableWidgetItem("%f"%timeD));
-        
-        #Correct all voltages in a loop
-        for column in range(6):
-            tottimevolt=0;
-            colnm=table.horizontalHeaderItem(column).text();
-            for row in range(table.rowCount()):
-                rownm=table.verticalHeaderItem(row).text();
-                rmp=int(table.item(row,1).text());
-                if (rownm!='corrD') and (colnm=='CH1' or colnm=='CH2' or colnm=='CH3' or colnm=='CH4'):
-                    if rmp==0:
-                        tottimevolt=tottimevolt+((float(table.item(row,0).text()))*(float(table.item(row,column).text())));
-                    if rmp==1:
-                        if row==0:
-                            tottimevolt=tottimevolt+((float(table.item(row,0).text()))*(float(table.item(row,column).text()))/2);
-                        else:
-                            tottimevolt=tottimevolt+((float(table.item(row,0).text()))*((float(table.item(row,column).text()))+(float(table.item(row-1,column).text())))/2);
-                voltD=-tottimevolt/timeD;
-            if (column!=0) and (column!=1) and (colnm=='CH1' or colnm=='CH2' or colnm=='CH3' or colnm=='CH4'):
-                table.setItem(dpos,column, QTableWidgetItem("%f"%voltD));
-            
 
-
-#############################################################################################
-# Saving and loading of element does not work yet. Using it may crash the GUI. I tried to use
-# pickle for saving an element object, however this created tons of problems I wasn't able to
-# solve. If I had to do it again, I would drill down into the dictionaries to save and load.
-#############################################################################################    
-    def loadElement(self,table):
-        global awgclock;
-        dlg=QFileDialog(self);
-        fileName, _ =  dlg.getOpenFileName(self,"Load Element",r"A:\Users\fabio\QCoDeSLocal\SpinQubit\Pulse_wrappers\Pulsinglibrary");
-        with open(fileName, 'rb') as f:
-            loaddict=pickle.load(f)
-        table.setRowCount(0);
-        table.setColumnCount(0);
-        #Create the element
-        chno=list(loaddict.keys());#List of channels
-        for i in range(len(chno)):
-            temp=loaddict[chno[i]];
-            wfm=temp['wfm'];
-            newdurations=temp['newdurations'];
-            m1=temp['m1'];
-            m2=temp['m2'];
-            time=temp['time'];
-#            print(len(newdurations));print(len(wfm));
-            kwargs={'m1':m1,'m2':m2,'time':time};
-            gelem.addArray(chno[i],wfm,awgclock,**kwargs);
-       # Generate the pulse table
 
     
     def sequence(self):
         if self._sequencebox is None:
-            self._sequencebox = Sequencing(self.AWG,self.gelem);
+            self._sequencebox = Sequencing(AWG = self.AWG, gelem = self.gelem)
             self._sequencebox.exec_();
         else:
 #            global_point = callWidget.mapToGlobal(point)
@@ -496,82 +371,8 @@ class pulsetable(QMainWindow):
             app.exec_()
         else:
             pass
-
-
-
-
-#############################################################################################
-# A few hardcoded pulses that we use over and over, and some placeholder buttons.
-#############################################################################################
-
-    def squarePulse(self,table):
-        table.setColumnCount((2*3)+2);
-        table.setRowCount(2);
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(2):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["up", "down"];
-        for i in range(2):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                if column==0:
-                    table.setItem(row,column, QTableWidgetItem("1"));
-                else:
-                    table.setItem(row,column, QTableWidgetItem("0"));
-        table.setItem(1,4, QTableWidgetItem("1"));
-        table.setItem(1,5, QTableWidgetItem("1"));
-
-
-    def pulseTriangle(self,table):
-        table.setColumnCount((2*3)+2)
-        table.setRowCount(4)
-        
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["unload", "load","separate", "measure"];
-        #nlist=["detuning_up", "detuning_up_b","down", "down_b"];
-        for i in range(4):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                if column==0:
-                    table.setItem(row,column, QTableWidgetItem("20"));
-                else:
-                    table.setItem(row,column, QTableWidgetItem("0"));
-        for column in range(table.columnCount()):
-            table.setItem(3,4, QTableWidgetItem("1"));
-        table.setItem(0,2, QTableWidgetItem("-8.8"));
-        table.setItem(0,3, QTableWidgetItem("-6"));
-        table.setItem(1,2, QTableWidgetItem("-6.8"));
-        table.setItem(1,3, QTableWidgetItem("2"));
-        table.setItem(2,2, QTableWidgetItem("10.2"));
-        table.setItem(2,3, QTableWidgetItem("-4"));
-        table.setItem(3,2, QTableWidgetItem("0"));
-        table.setItem(3,3, QTableWidgetItem("0"));
-        
-        # From Sequence
+    
+    # From Sequence
     def from_sequence(self, table, seq):
          
         seq_description = seq.description['1']['channels']
@@ -654,285 +455,5 @@ class pulsetable(QMainWindow):
 
         
         
-    def spinFunnel(self,table):
-        table.setColumnCount((2*3)+2)
-        table.setRowCount(8)
-        
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["start","unload", "load","reference","wait","separate", "measure","stop"];
-        for i in range(8):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                table.setItem(row,column, QTableWidgetItem("0"));
-        
-        #Times
-        table.setItem(0,0, QTableWidgetItem("0.01"));
-        table.setItem(1,0, QTableWidgetItem("20"));
-        table.setItem(2,0, QTableWidgetItem("20"));
-        table.setItem(3,0, QTableWidgetItem("10"));
-        table.setItem(4,0, QTableWidgetItem("1"));
-        table.setItem(5,0, QTableWidgetItem("0.5"));
-        table.setItem(6,0, QTableWidgetItem("10"));
-        table.setItem(7,0, QTableWidgetItem("0.01"));
-        
-        #Markers
-        table.setItem(6,4, QTableWidgetItem("1"));
-        table.setItem(3,4, QTableWidgetItem("1"));
-        
-        #Pulses
-        table.setItem(1,2, QTableWidgetItem("-8.8"));
-        table.setItem(1,3, QTableWidgetItem("-6"));
-        table.setItem(2,2, QTableWidgetItem("-6.8"));
-        table.setItem(2,3, QTableWidgetItem("2"));
-        table.setItem(5,2, QTableWidgetItem("9.8"));
-        table.setItem(5,3, QTableWidgetItem("-2"));
-        
-    def Dephasing(self,table):
-        table.setColumnCount((2*3)+2)
-        table.setRowCount(5)
-        
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["dummy","Prepare","Prepare*","Separate","Measure"];
-        for i in range(5):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                table.setItem(row,column, QTableWidgetItem("0"));
-        
-        #Times
-        table.setItem(0,0, QTableWidgetItem("5000"));
-        table.setItem(1,0, QTableWidgetItem("200"));
-        table.setItem(2,0, QTableWidgetItem("25"));
-        table.setItem(3,0, QTableWidgetItem("2000"));
-        table.setItem(4,0, QTableWidgetItem("10"));
-        # table.setItem(5,0, QTableWidgetItem("0.5"));
-        # table.setItem(6,0, QTableWidgetItem("10"));
-        # table.setItem(7,0, QTableWidgetItem("0.01"));
-        
-        #Markers
-        table.setItem(4,4, QTableWidgetItem("1"));
-        # table.setItem(3,4, QTableWidgetItem("1"));
-        
-        #Pulses: (n,m): n - row from 0, m - clmn from 0
-        #Prepare 
-        table.setItem(1,2, QTableWidgetItem("-4.077"));
-        table.setItem(1,3, QTableWidgetItem("4.5322"));
-        #Prepare* 
-        table.setItem(2,2, QTableWidgetItem("0"));
-        table.setItem(2,3, QTableWidgetItem("0"));
-        #Separate 
-        table.setItem(3,2, QTableWidgetItem("6.604"));
-        table.setItem(3,3, QTableWidgetItem("-3.0405"));
-        #Measure 
-        table.setItem(4,2, QTableWidgetItem("0"));
-        table.setItem(4,3, QTableWidgetItem("0"));        
 
         
-#############################################################################################
-###################            SET PULSE PARAMETER          #################################
-#############################################################################################
-
-    def setpulseparameter(elem,param,value):
-        #Define your own parameters here! For setting a segment name use setpulse()
-        ch=0;
-        if param[0]=='N':
-            ch=int(param[7]);
-            seg=param[9:len(param)];
-            if param[2:6]=="Time":
-                setpulseduration(elem,ch,seg,value);
-            else:
-                setpulselevel(elem,ch,seg,value);
-        if param=='det':
-            setpulselevel(elem,1,'separate',value*0.8552);#For 20-11
-            setpulselevel(elem,2,'separate',-value*0.5183);#For 20-11
-            #setpulselevel(elem,1,'separate',value*0.9558);#For 40-31
-            #setpulselevel(elem,2,'separate',-value*0.2940);#For 40-31
-            
-        if param=='psm':
-            setpulselevel(elem,1,'detuning',value*0.8);
-            setpulselevel(elem,2,'detuning',-value*0.5);
-    ##detuning load        
-    #    if param=='psm_load':
-    #        alpha_x = -0.6597
-    #        beta_y = 0.7516
-    #        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
-    #        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
-    #        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
-    #        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
-
-        if param=='dephasing_corrD':
-            corrD_K0 = -1.8102
-            corrD_K1 = 0.44531
-            corrD_K2 = 0.0004064
-            corrD_K3 = -1.0403e-7
-            
-            corrD_X = corrD_K0 + corrD_K1*value + corrD_K2*value*value + corrD_K3*value*value*value
-            corrD_y = corrD_K0 + corrD_K1*value + corrD_K2*value*value + corrD_K3*value*value*value
-
-            #corr amplitudes for 2ms separation
-            # corrD_amp_BNC12 = -7.3569
-            # corrD_amp_BNC17 = 3.07129
-            setpulseduration(elem,1,'corrD', corrD_X)
-            setpulseduration(elem,2,'corrD', corrD_Y)
-            setpulseduration(elem,1,'Separate',value)
-            setpulseduration(elem,2,'Separate',value)
-
-
-
-    #detuning load        
-        if param=='psm_load':
-            alpha_x = -0.621
-            beta_y = 0.7838
-            setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
-
-    #detuning load symmetric       
-        if param=='psm_load_sym':
-            alpha_x = 0.974
-            beta_y = -0.226
-            setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17        
-            
-            
-
-
-    #detuning unload symmetric       
-        if param=='psm_unload_sym':
-            alpha_x = 0.4832
-            beta_y = -0.8755
-            setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17     
-            
-            
-            
-                    
-    #detuning unload        
-        if param=='psm_unload':
-            alpha_x = 0.6761
-            beta_y = -0.7368
-            setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
-                    
-
-                
-
-
-    #############################################################################################
-    ###################    CHANGE PULSE LEVEL OR DURATION       #################################
-    #############################################################################################
-    def setpulselevel(elem,ch,seg,lvl,div=11.7):
-        #Change a pulse within an element
-        lvl=lvl*divch[ch-1]*1e-3;
-    #    print(lvl);
-        elem.changeArg(ch,seg,0,lvl,False);
-        elem.changeArg(ch,seg,1,lvl,False);
-
-    def setpulseduration(elem,ch,seg,dur):
-        dur=dur*1e-6;
-        ch=self.gelem.channels;
-        for i in range(len(ch)):
-            elem.changeDuration(ch[i],seg,dur,False);
-
-    #############################################################################################
-    ###################            correctionD Pulse            #################################
-    #############################################################################################
-    def correctionDelem(elem):
-        global awgclock;
-        global corrDflag;
-        
-        
-        #If no correctionD pulse exists print error and just return
-        if(corrDflag==0):
-            return
-        #Set up variables
-        start=[];
-        stop=[];
-        ramp=[];
-        name=[];
-        seg_dur=[];
-        tottime=0;
-        awgclockinus=awgclock/1e6;
-        
-        
-        #Number of pulses in element
-        num=len(elem.description['{}'.format(elem.channels[0])])-4
-        chs=len(elem.channels)
-        #Get all pulses in element
-        for j in range(chs):
-            #Reinitialise pulses and total time
-            start=[];stop=[];ramp=[];name=[];seg_dur=[];
-            tottime=0;
-            tottimevolt=0;
-            timeD=0;voltD=0;
-            #Get all pulses for that channel
-            for i in range(num):
-                pulsestart=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['start'])/divch[j+1]
-                pulsestop=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['stop'])/divch[j+1] #Need correct channel dividers!
-                start.append(pulsestart)
-                stop.append(pulsestop)
-                if(pulsestart==pulsestop):
-                    ramp.append(0);
-                else:
-                    ramp.append(1);
-                pulsedur=1e6*elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['durations']
-                seg_dur.append(pulsedur)
-                pulsename=elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['name']
-                name.append(pulsename)
-                #Add duration to total time
-                if pulsename!='corrD':
-                    tottime=tottime+pulsedur; #In us  
-            #Calculate correctionD time, 65% of the total pulse cycle time
-            timeD=round(tottime/1.65*(awgclockinus))/awgclockinus;
-            setpulseduration(elem,j+1,'corrD',timeD);
-            #Calculate tottimevolt
-            for i in range(num):
-                if name[i]!='corrD':
-                    if(ramp[i]==0):
-                        tottimevolt=tottimevolt+(start[i]*seg_dur[i]); #If not ramp take start or stop
-                    if(ramp[i]==1):
-                        tottimevolt=tottimevolt+(((start[i]+stop[i])/2)*seg_dur[i]); #If ramp take midpoint of start and stop
-            #Calculate correctionD for that channel
-            voltD=-tottimevolt/timeD;
-            #Change level of correctionD pulse
-            setpulselevel(elem,j+1,'corrD',voltD)
