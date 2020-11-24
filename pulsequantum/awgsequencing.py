@@ -17,22 +17,10 @@ from PyQt5.QtWidgets import QCheckBox, QDialog, QTableWidget, QTableWidgetItem, 
 from broadbean.plotting import plotter
 matplotlib.use('QT5Agg')
 
-#############################################################################################
-#Hardcoded stuff, should incorporate into main code
-#############################################################################################
 
-
-gseq = bb.Sequence()
-
-divch1=11.5;divch2=11.75;divch3=11.7;divch4=1; #Hardcoded channel dividers
-divch=[divch1,divch2,divch3,divch4];
-
-awgclock=1.2e9;
-corrDflag=0; #Global flag: Is correction D pulse already defined in the pulse table?
 
 #Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
-params=["det","psm_load","psm_unload","psm_load_sym","psm_unload_sym","dephasing_corrD"]
- 
+params=["det", "psm_load", "psm_unload", "psm_load_sym", "psm_unload_sym", "dephasing_corrD"]
 
 
 class Sequencing(QDialog):
@@ -40,8 +28,7 @@ class Sequencing(QDialog):
     Class for sequencing (secondary) window
     """
 
-    def __init__(self,AWG = None, gelem = None):
-        #super(sequencing, self).__init__()
+    def __init__(self, AWG=None, gelem=None):
         super().__init__()
         self.setGeometry(200, 200, 900, 500)
         self.setWindowTitle("Sequencing")
@@ -49,126 +36,141 @@ class Sequencing(QDialog):
         self.home()
         self.AWG = AWG
         self.gelem = gelem
+        self.gseq = bb.Sequence()
 
     def home(self):
         
-        
         # Create channel voltage, divider and offset boxes and buttons
-        win4 = QWidget(self);
-        lay4= QGridLayout(win4);
-        vpp = QLabel(self);
-        vpp.setText('Vpp');
-        offset= QLabel(self);
-        offset.setText('Offset');
-        lay4.addWidget(vpp,0,1,1,1);
-        lay4.addWidget(offset,0,2,1,1);
+        win4 = QWidget(self)
+        lay4 = QGridLayout(win4)
+        vpp = QLabel(self)
+        vpp.setText('Vpp')
+        offset = QLabel(self)
+        offset.setText('Offset')
+        lay4.addWidget(vpp, 0, 1, 1, 1)
+        lay4.addWidget(offset, 0, 2, 1, 1)
         number_channels = 4
         chlabel = list(range(number_channels))
         chbox = list(range(number_channels))
         offbox = list(range(number_channels))
-        for i in range(4):
+        for i in range(number_channels):
             chlabel[i] = QLabel(self)
             chlabel[i].setText('Ch%d'%(i+1))
             chbox[i] = QLineEdit(self)
             chbox[i].setText('4.5')
             offbox[i] = QLineEdit(self)
             offbox[i].setText('0')
-            lay4.addWidget(chlabel[i],i+1,0,1,1)
-            lay4.addWidget(chbox[i],i+1,1,1,1)
-            lay4.addWidget(offbox[i],i+1,2,1,1)
-        win4.move(10,100);
-        
-        #Continuous sequence?
-        contseqboxlabel= QLabel(self);
-        contseqboxlabel.setText('Simple continuous element?');
-        contseqboxlabel.move(20, 280);
+            lay4.addWidget(chlabel[i], i+1, 0, 1, 1)
+            lay4.addWidget(chbox[i], i+1, 1, 1, 1)
+            lay4.addWidget(offbox[i], i+1, 2, 1, 1)
+        win4.move(10, 100)
+
+        # Continuous sequence?
+        contseq = QWidget(self)
+        lay_contseq = QGridLayout(contseq)
+        contseqboxlabel = QLabel(self)
+        contseqboxlabel.setText('Simple continuous element?')
         contseqboxlabel.resize(contseqboxlabel.sizeHint())
-        contseqbox = QCheckBox(self);
-        contseqbox.move(200, 280);
+        contseqbox = QCheckBox(self)
+        lay_contseq.addWidget(contseqboxlabel, 0, 0, 1, 1)
+        lay_contseq.addWidget(contseqbox, 0, 1, 1, 1)
+        contseq.move(20, 280)
+
+        # Upload to AWG
+        # Function
+        uploadbtn = QPushButton('Upload To AWG', self)
+        uploadbtn.clicked.connect(lambda state: self.uploadToAWG(Choose_awg, chbox))
         
-        #Upload to AWG
-        #Function
-        uploadbtn = QPushButton('Upload To AWG', self);
-        uploadbtn.clicked.connect(lambda state: self.uploadToAWG(Choose_awg,chbox))
-        
-        #Choose awg
+        # Choose awg
         Choose_awg = QComboBox(self)
         Choose_awg.addItem('AWG5014')
         Choose_awg.addItem('AWG5208')
 
-        #Update sequencing parameters: table and update button
-        win2 = QWidget(self);
-        lay2= QVBoxLayout(win2);
-        seqtable=QTableWidget(4,4,self)
-        seqtable.setColumnCount(4);
-        #Set top headers
-        hlist=["TrigWait", "NumReps", "JumpTarget","Goto"];
-        for i in range(4):
-            seqtable.setColumnWidth(i,70);
-            seqtable.setHorizontalHeaderItem(i, QTableWidgetItem(hlist[i]));
-        seqtable.setRowCount(0);
+        # Update sequencing parameters: table and update button
+        win2 = QWidget(self)
+        lay2 = QVBoxLayout(win2)
+        seqtable = QTableWidget(4, 4, self)
+        seqtable.setColumnCount(4)
+        # Set top headers
+        hlist = ["TrigWait", "NumReps", "JumpTarget", "Goto"]
+        for i in range(len(hlist)):
+            seqtable.setColumnWidth(i, 70)
+            seqtable.setHorizontalHeaderItem(i, QTableWidgetItem(hlist[i]))
+        seqtable.setRowCount(0)
         updateseqbtn = QPushButton('Update sequence', self)
-        updateseqbtn.clicked.connect(lambda state:self.changedSeqTable(seqtable))
+        updateseqbtn.clicked.connect(lambda state: self.changedSeqTable(seqtable))
         updateseqbtn.resize(updateseqbtn.sizeHint())
-        lay2.addWidget(seqtable);
-        lay2.addWidget(updateseqbtn);
-        win2.move(450,30);win2.resize(win2.sizeHint());
+        lay2.addWidget(seqtable)
+        lay2.addWidget(updateseqbtn)
+        win2.move(450, 30)
+        win2.resize(win2.sizeHint())
         
-        #Update sequencing parameters: do this?
-        changeseqbox = QCheckBox(self);changeseqbox.move(630,10);
-        changeseqbox.stateChanged.connect(lambda state: self.seqchangeWidget(changeseqbox,win2,seqtable,seqpts))
-        changeseqboxlabel= QLabel(self);changeseqboxlabel.setText('Change sequencing options?');changeseqboxlabel.move(450,10);changeseqboxlabel.resize(changeseqboxlabel.sizeHint())
+        # Update sequencing parameters: do this?
+        changeseqbox = QCheckBox(self)
+        changeseqbox.move(630, 10)
+        changeseqbox.stateChanged.connect(lambda state: self.seqchangeWidget(changeseqbox, win2, seqtable, seqpts))
+        changeseqboxlabel = QLabel(self)
+        changeseqboxlabel.setText('Change sequencing options?')
+        changeseqboxlabel.move(450, 10)
+        changeseqboxlabel.resize(changeseqboxlabel.sizeHint())
         
-        
-        #Build Sequence and take parameters
-        win3 = QWidget(self);
-        lay3= QGridLayout(win3);
-        buildseqlabel= QLabel(self);buildseqlabel.setText('Select a parameter to build the sequence:');
+        # Build Sequence and take parameters
+        win3 = QWidget(self)
+        lay3 = QGridLayout(win3)
+        buildseqlabel = QLabel(self)
+        buildseqlabel.setText('Select a parameter to build the sequence:')
         buildseqlabel.resize(buildseqlabel.sizeHint())
         buildseqbtn = QPushButton('Build sequence', self)
-        buildseqbtn.clicked.connect(lambda state:self.buildSequenceWrap(chbox,offbox,contseqbox,timevoltbox,whichpulse,sparambox,seqstart,seqstop,seqpts))
+        buildseqbtn.clicked.connect(lambda state: self.buildSequenceWrap(chbox, offbox, contseqbox, timevoltbox, whichpulse, sparambox, seqstart, seqstop, seqpts))
         buildseqbtn.resize(buildseqbtn.sizeHint())
         buildseqbtn.move(350, 100)
         
-        #Native and special parameters
-        timevoltbox=QComboBox(self);
-        timevoltbox.addItem("Time");
-        timevoltbox.addItem("Ch1 Voltage");
-        timevoltbox.addItem("Ch2 Voltage");
-        timevoltbox.addItem("Ch3 Voltage");
-        timevoltbox.addItem("Ch4 Voltage");
-        whichpulse=QLineEdit(self);
-        whichpulse.setText('Which pulse?');
-        whichpulse.resize(whichpulse.sizeHint());
-        sparambox=QComboBox(self);
+        # Native and special parameters
+        timevoltbox = QComboBox(self)
+        timevoltbox.addItem("Time")
+        for i in range(number_channels):
+            timevoltbox.addItem("Ch%{} Voltage".format(i))
+        whichpulse = QLineEdit(self)
+        whichpulse.setText('Which pulse?')
+        whichpulse.resize(whichpulse.sizeHint())
+        sparambox = QComboBox(self)
         sparambox.addItem("-Special-")
         for i in range(len(params)):
-            sparambox.addItem(params[i]);
-        #Start/stop and build
-        lay32= QHBoxLayout();
-        lay32.addStretch();
-        startslabel= QLabel(self);
-        startslabel.setText('Start:');
-        stopslabel= QLabel(self);
-        stopslabel.setText('Stop:');
-        pointsslabel= QLabel(self);
-        pointsslabel.setText('Points:');
-        seqstart=QLineEdit(self);
-        seqstart.setText('0');
-        seqstart.resize(seqstart.sizeHint());
-        seqstop=QLineEdit(self);seqstop.setText('0');seqstop.resize(seqstop.sizeHint());
-        seqpts=QLineEdit(self);seqpts.setText('0');seqpts.resize(seqpts.sizeHint());
+            sparambox.addItem(params[i])
+        # Start/stop and build
+        lay32 = QHBoxLayout()
+        lay32.addStretch()
+        startslabel = QLabel(self)
+        startslabel.setText('Start:')
+        stopslabel = QLabel(self)
+        stopslabel.setText('Stop:')
+        pointsslabel = QLabel(self)
+        pointsslabel.setText('Points:')
+        seqstart = QLineEdit(self)
+        seqstart.setText('0')
+        seqstart.resize(seqstart.sizeHint())
+        seqstop = QLineEdit(self)
+        seqstop.setText('0')
+        seqstop.resize(seqstop.sizeHint())
+        seqpts = QLineEdit(self)
+        seqpts.setText('0')
+        seqpts.resize(seqpts.sizeHint())
         
-        lay3.addWidget(buildseqlabel,0,0,1,3);
-        lay3.addWidget(timevoltbox,1,0,1,1);lay3.addWidget(whichpulse,1,1,1,1);lay3.addWidget(sparambox,1,2,1,1);
-        lay3.addWidget(startslabel,2,0,1,1);lay3.addWidget(stopslabel,2,1,1,1);lay3.addWidget(pointsslabel,2,2,1,1);
-        lay3.addWidget(seqstart,3,0,1,1);lay3.addWidget(seqstop,3,1,1,1);lay3.addWidget(seqpts,3,2,1,1);
-        lay3.addWidget(buildseqbtn,4,0,1,3);
-        lay3.addWidget(uploadbtn,5,0,1,3);
-        lay3.addWidget(Choose_awg,6,0,1,2);
-        Choose_awg 
-        win3.move(10,300);
-        win3.resize(win3.sizeHint());
+        lay3.addWidget(buildseqlabel, 0, 0, 1, 3)
+        lay3.addWidget(timevoltbox, 1, 0, 1, 1)
+        lay3.addWidget(whichpulse, 1, 1, 1, 1)
+        lay3.addWidget(sparambox, 1, 2, 1, 1)
+        lay3.addWidget(startslabel, 2, 0, 1, 1)
+        lay3.addWidget(stopslabel, 2, 1, 1, 1)
+        lay3.addWidget(pointsslabel, 2, 2, 1, 1)
+        lay3.addWidget(seqstart, 3, 0, 1, 1)
+        lay3.addWidget(seqstop, 3, 1, 1, 1)
+        lay3.addWidget(seqpts, 3, 2, 1, 1)
+        lay3.addWidget(buildseqbtn, 4, 0, 1, 3)
+        lay3.addWidget(uploadbtn, 5, 0, 1, 3)
+        lay3.addWidget(Choose_awg, 6, 0, 1, 2)
+        win3.move(10, 300)
+        win3.resize(win3.sizeHint())
         
         
         #Element and sequence saving and loading
@@ -192,10 +194,10 @@ class Sequencing(QDialog):
         SeqTo.setText('enter file name')
        #SeqTo.setGeometry(20,60,70,20)
         savesbtn = QPushButton('Save Sequence', self)
-        savesbtn.clicked.connect(lambda state: self.saveSequence(SeqTo.text()))
+        savesbtn.clicked.connect(lambda state: self.gseq.write_to_json(SeqTo.text()))
         # plot sequence
         plotsbtn = QPushButton('Plot Sequence', self);
-        plotsbtn.clicked.connect(lambda state: self.splotSequence())
+        plotsbtn.clicked.connect(lambda state: plotter(self.gseq))
         lay1.addWidget(loadebtn,0,0,1,1);
         lay1.addWidget(saveebtn,0,1,1,1);
         lay1.addWidget(plotebtn,0,2,1,1);
@@ -272,21 +274,12 @@ class Sequencing(QDialog):
         
         self.show()
         win2.hide()
+############################################################################################################################################################################################################
 
-    def splotElement(self):
-        plotter(self.gelem);
-    
-    def splotSequence(self):
-        plotter(gseq);
-        
     def loadSequence(self,pathseq):
-        global gseq;
-        gseq = bb.Sequence.init_from_json(pathseq)
+        self.gseq = bb.Sequence.init_from_json(pathseq)
         #table.setItem(0,2, QTableWidgetItem("-12.8")
         #return
-    
-    def saveSequence(self,pathseq):
-        gseq.write_to_json(pathseq)
    
     def seqchangeWidget(self,changeseqbox,win2,seqtable,seqpts):
         if changeseqbox.isChecked():
@@ -296,7 +289,7 @@ class Sequencing(QDialog):
             win2.hide();
     
     def updateSeqTable(self,seqtable,seqpts):
-        if gseq.points==0:
+        if self.gseq.points==0:
             return
         elif seqpts==0:
             seqtable.setRowCount(1);
@@ -314,7 +307,7 @@ class Sequencing(QDialog):
             seqtable.setItem(i,3,QTableWidgetItem("1"));
     
     def changedSeqTable(self,seqtable):
-        if gseq.points==0:
+        if self.gseq.points==0:
             return 
         seqlist=[];
         deflist=[0,1,0,0];
@@ -325,15 +318,14 @@ class Sequencing(QDialog):
             self.updategseq(i,seqlist);    
             
     def updategseq(self,row,seqlist):
-        #gseq.setSequenceSettings(row+1,seqlist[0],seqlist[1],seqlist[2],seqlist[3]);
-        gseq.setSequencingTriggerWait(row+1,seqlist[0])
-        gseq.setSequencingNumberOfRepetitions(row+1,seqlist[1])
-        gseq.setSequencingEventJumpTarget(row+1,seqlist[2])
-        gseq.setSequencingGoto(row+1,seqlist[3])
+        #self.gseq.setSequenceSettings(row+1,seqlist[0],seqlist[1],seqlist[2],seqlist[3]);
+        self.gseq.setSequencingTriggerWait(row+1,seqlist[0])
+        self.gseq.setSequencingNumberOfRepetitions(row+1,seqlist[1])
+        self.gseq.setSequencingEventJumpTarget(row+1,seqlist[2])
+        self.gseq.setSequencingGoto(row+1,seqlist[3])
     
     def buildSequenceWrap(self,chbox,offbox,contseqbox,timevoltbox,whichpulse,sparambox,seqstart,seqstop,seqpts):
-        global gseq;
-        gseq= bb.Sequence();
+        self.gseq= bb.Sequence();
         timevolt=str(timevoltbox.currentText());
         whichp=str(whichpulse.text());
         sparam=str(sparambox.currentText());
@@ -344,26 +336,52 @@ class Sequencing(QDialog):
             newparam="N-"+timevolt+"-0-"+whichp;
         else:
             newparam="N-"+"Volt"+"-"+timevolt[2]+"-"+whichp;
-        gseq.setSR(self.gelem.SR);
+        self.gseq.setSR(self.gelem.SR);
 
         if contseqbox.isChecked():
-            gseq.addElement(1,self.gelem);
-            gseq.setSequencingTriggerWait(1,0)
-            gseq.setSequencingNumberOfRepetitions(1,0)
-            gseq.setSequencingEventJumpTarget(1,0)
-            gseq.setSequenceSettings(1,0,0,0,0);
-            for chan in gseq.channels:
-                gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
-                gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));  
+            self.gseq.addElement(1,self.gelem);
+            self.gseq.setSequencingTriggerWait(1,0)
+            self.gseq.setSequencingNumberOfRepetitions(1,0)
+            self.gseq.setSequencingEventJumpTarget(1,0)
+            self.gseq.setSequenceSettings(1,0,0,0,0);
+            for chan in self.gseq.channels:
+                self.gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
+                self.gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));  
             return;
         elif sparam!="-Special-":
             buildsequencetable(self.gelem,sparam,sstart,sstop,spts);
         else:
             buildsequencetable(self.gelem,newparam,sstart,sstop,spts);
           
-        for chan in gseq.channels:
-            gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
-            gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));  
+        for chan in self.gseq.channels:
+            self.gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())));
+            self.gseq.setChannelOffset(chan,(float(offbox[chan-1].text())));  
+
+
+    def filterCorrection(self,hfiltbox,lfiltbox):
+        if self.gseq.points==0:
+            print("No sequence defined");
+            return
+        hptau=(float(hfiltbox.text()))*1e-6;
+        for i in range(4):
+            self.gseq.setChannelFilterCompensation(i+1,'HP',order=1,tau=hptau);
+
+    def buildsequencetable(elem,param,start,stop,points):
+        self.gseq.setSR(elem.SR);
+        value=np.linspace(start,stop,points);
+        #if first letter is "N"
+        #if second word is time
+        #setpulseduration
+        #if second word is volt
+        #setpulselevel
+        for n in range(points):
+            setpulseparameter(elem,param,value[n]);
+            correctionDelem(elem);
+            self.gseq.addElement(n+1, elem);
+            self.gseq.setSequenceSettings(n+1,0,1,0,0);
+            # Arguments are position, wait for trigger (0 means OFF), number of repetitions 
+            #(0 is infinite, 1 is one), jump target (0 is off), goto (0 means next)
+        self.gseq.setSequenceSettings(n+1,0,1,0,1);                
                
 #############################################################################################
 # AWG functions (uploading, running AWG, turning on outputs. Note that in this section 
@@ -371,37 +389,37 @@ class Sequencing(QDialog):
 #############################################################################################
     def uploadToAWG(self,Choose_awg,chbox):
         if Choose_awg.currentText() == 'AWG5014':
-            #for i,  chan in enumerate(gseq.channels):
+            #for i,  chan in enumerate(self.gseq.channels):
             #    self.AWG.channels[chan].AMP(float(chbox[chan-1].text()))
             self.AWG.ch1_amp(float(chbox[0].text()))
             self.AWG.ch2_amp(float(chbox[1].text()))
             self.AWG.ch3_amp(float(chbox[2].text()))
             self.AWG.ch4_amp(float(chbox[3].text()))
-            package = gseq.outputForAWGFile()
+            package = self.gseq.outputForAWGFile()
             start_time=time.time();
             self.AWG.make_send_and_load_awg_file(*package[:])
             print("Sequence uploaded in %s seconds" %(time.time()-start_time));
         if Choose_awg.currentText() == 'AWG5208':
-            gseq.name = 'sequence_from_gui'
+            self.gseq.name = 'sequence_from_gui'
             self.AWG.mode('AWG')
-            for chan in gseq.channels:
+            for chan in self.gseq.channels:
                 self.AWG.channels[chan-1].resolution(12)
                 self.AWG.channels[chan-1].awg_amplitude(0.5)
-                gseq.setChannelAmplitude(chan, self.AWG.channels[chan-1].awg_amplitude())
+                self.gseq.setChannelAmplitude(chan, self.AWG.channels[chan-1].awg_amplitude())
             self.AWG.clearSequenceList()
             self.AWG.clearWaveformList()
-            self.AWG.sample_rate(gseq.SR)
-            self.AWG.sample_rate(gseq.SR)
+            self.AWG.sample_rate(self.gseq.SR)
+            self.AWG.sample_rate(self.gseq.SR)
             print(Choose_awg.currentText() )
             
-            seqx_input = gseq.outputForSEQXFile()
+            seqx_input = self.gseq.outputForSEQXFile()
             start_time=time.time();
             seqx_output = self.AWG.makeSEQXFile(*seqx_input)
             # transfer it to the awg harddrive
             self.AWG.sendSEQXFile(seqx_output, 'sequence_from_gui.seqx')
             self.AWG.loadSEQXFile('sequence_from_gui.seqx')
             #time.sleep(1.300)
-            for i,  chan in enumerate(gseq.channels):       
+            for i,  chan in enumerate(self.gseq.channels):       
                 self.AWG.channels[chan-1].setSequenceTrack('sequence_from_gui', i+1)
                 self.AWG.channels[chan-1].state(1)
             print("Sequence uploaded in %s seconds" %(time.time()-start_time));
@@ -429,6 +447,8 @@ class Sequencing(QDialog):
                 print(self.AWG.run_state())
             
             self.AWG.stop();
+
+
     def runChan(self,outputbox,whichbox):
         if whichbox==0:
             if outputbox.isChecked():
@@ -462,27 +482,4 @@ class Sequencing(QDialog):
             else:
                 self.AWG.ch4_state(0);
     
-    def filterCorrection(self,hfiltbox,lfiltbox):
-        if gseq.points==0:
-            print("No sequence defined");
-            return
-        hptau=(float(hfiltbox.text()))*1e-6;
-        for i in range(4):
-            gseq.setChannelFilterCompensation(i+1,'HP',order=1,tau=hptau);
-
-    def buildsequencetable(elem,param,start,stop,points):
-        gseq.setSR(elem.SR);
-        value=np.linspace(start,stop,points);
-        #if first letter is "N"
-        #if second word is time
-        #setpulseduration
-        #if second word is volt
-        #setpulselevel
-        for n in range(points):
-            setpulseparameter(elem,param,value[n]);
-            correctionDelem(elem);
-            gseq.addElement(n+1, elem);
-            gseq.setSequenceSettings(n+1,0,1,0,0);
-            # Arguments are position, wait for trigger (0 means OFF), number of repetitions 
-            #(0 is infinite, 1 is one), jump target (0 is off), goto (0 means next)
-        gseq.setSequenceSettings(n+1,0,1,0,1);            
+        

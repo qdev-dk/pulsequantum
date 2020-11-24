@@ -171,7 +171,7 @@ class pulsetable(QMainWindow):
         
         #Populate table from Sequence
         table_from_seq = QPushButton('Element from Sequence', self);
-        table_from_seq.clicked.connect(lambda state: self.from_sequence(table))
+        table_from_seq.clicked.connect(lambda state: self.from_sequence(table, seq = self._sequencebox.gseq))
         
         lay_puls.addWidget(runbtn,0,0,1,1)
         lay_puls.addWidget(plotbtn,0,1,1,1)
@@ -572,9 +572,9 @@ class pulsetable(QMainWindow):
         table.setItem(3,3, QTableWidgetItem("0"));
         
         # From Sequence
-    def from_sequence(self,table):
+    def from_sequence(self, table, seq):
          
-        seq_description = gseq.description['1']['channels']
+        seq_description = seq.description['1']['channels']
         seg_name = []
         seg_durations = []
         seg_ramp = []
