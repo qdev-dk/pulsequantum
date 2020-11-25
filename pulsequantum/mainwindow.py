@@ -85,36 +85,52 @@ class pulsetable(QMainWindow,Gelem):
 
         # Divider wiget
         win_divider = QWidget(self)
-        lay_divider= QGridLayout(win_divider)
-
-        # Create channel divider boxes and buttons
-        chlabel1='Ch1';chlabel2='Ch2';chlabel3='Ch3';chlabel4='Ch4';
-        chlabel=[chlabel1,chlabel2,chlabel3,chlabel4];
-        for i in range(len(chlabel)):
-            chlabel[i] = QLabel(self);
-            chlabel[i].setText('Ch%d'%(i+1));
-            chlabel[i].move(100+(50*i), 520)
-
-        chbox1 = QLineEdit(self);chbox2 = QLineEdit(self);chbox3 = QLineEdit(self);chbox4 = QLineEdit(self);
-        chbox=[chbox1,chbox2,chbox3,chbox4];
-        for i in range(len(chbox)):
-            chbox[i].setText('{}'.format(divch[i]));
-            chbox[i].setGeometry(100+(50*i),550,40,40)
-        
-        #Set dividers
+        lay_divider = QGridLayout(win_divider)
+        chlabel = []
+        chbox = []
+        for i in range(4):  # todo make dynamic with number of channels
+            chlabel.append(QLabel(self))
+            chlabel[i].setText('Ch%d'%(i+1))
+            chbox.append(QLineEdit(self))
+            chbox[i].setText('{}'.format(divch[i]))
+            lay_divider.addWidget(chlabel[i], 0, i, 1, 1)
+            lay_divider.addWidget(chbox[i], 1, i, 1, 1)
+ 
+        # Set dividers
         divbtn = QPushButton('Set Dividers', self)
         divbtn.clicked.connect(lambda state: self.setDividers(chbox))
-        divbtn.resize(divbtn.sizeHint())
-        divbtn.move(300,550)
+        lay_divider.addWidget(divbtn, 2, 0, 1, 4)
+        win_divider.move(100, 520)
+        win_divider.resize(200, 100) 
 
         # AWG clock ("sample rate")
-        setawgclockbox = QLineEdit(self);setawgclockbox.setText('1.2');setawgclockbox.setGeometry(500,550,40,40);
-        setawgclocklabel= QLabel(self);setawgclocklabel.setText('AWG Clock (GS/s)');setawgclocklabel.move(500, 520);setawgclocklabel.resize(setawgclocklabel.sizeHint())
-        setawgclockbtn = QPushButton('Set AWG Clock', self);setawgclockbtn.clicked.connect(lambda state: self.setAWGClock(setawgclockbox));setawgclockbtn.move(550,550);setawgclockbtn.resize(setawgclockbtn.sizeHint())
+        win_AWGclock = QWidget(self)
+        lay_AWGclock = QGridLayout(win_AWGclock)
+        setawgclockbox = QLineEdit(self);
+        setawgclockbox.setText('1.2');
+        #setawgclockbox.setGeometry(500,550,40,40);
+        setawgclocklabel = QLabel(self);
+        setawgclocklabel.setText('AWG Clock (GS/s)');
+        #setawgclocklabel.move(500, 520);
+        setawgclocklabel.resize(setawgclocklabel.sizeHint())
+        setawgclockbtn = QPushButton('Set AWG Clock', self);
+        setawgclockbtn.clicked.connect(lambda state: self.setAWGClock(setawgclockbox));
+        #setawgclockbtn.move(550,550);
+        setawgclockbtn.resize(setawgclockbtn.sizeHint())
+        lay_AWGclock.addWidget(setawgclocklabel, 0, 0, 2, 1)
+        lay_AWGclock.addWidget(setawgclockbox, 1, 0, 1, 1)
+        lay_AWGclock.addWidget(setawgclockbtn, 1, 1, 1, 1)
+        win_AWGclock.move(500, 520)
+        win_AWGclock.resize(200, 100) 
         
-        #Absolute Marker
+        # Absolute Marker
         win = QWidget(self);
-        lay= QVBoxLayout(win);lay.addStretch();lay1= QHBoxLayout();lay1.addStretch();lay2= QHBoxLayout();lay2.addStretch();
+        lay= QVBoxLayout(win);
+        lay.addStretch();
+        lay1= QHBoxLayout();
+        lay1.addStretch();
+        lay2= QHBoxLayout();
+        lay2.addStretch();
         absmarkerch=QComboBox(self);
         for i in range(len(chbox)): 
             absmarkerch.addItem('CH%dM1'%(i+1));absmarkerch.addItem('CH%dM2'%(i+1));
@@ -230,7 +246,7 @@ class pulsetable(QMainWindow,Gelem):
         corrbtn = QPushButton('Correction D', self)
         corrbtn.clicked.connect(lambda state: self.correctionD(table))
         corrbtn.resize(corrbtn.sizeHint())
-        corrbtn.move(100, 600)
+        corrbtn.move(100, 700)
 
          
 
@@ -238,7 +254,7 @@ class pulsetable(QMainWindow,Gelem):
         seqbtn = QPushButton('Upload Sequence', self)
         seqbtn.clicked.connect(lambda state:self.sequence())
         seqbtn.resize(seqbtn.sizeHint())
-        seqbtn.move(400, 600)
+        seqbtn.move(400, 700)
 
         
         
