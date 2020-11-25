@@ -1,17 +1,13 @@
-
-
-import time
-from PyQt5.QtCore import QCoreApplication,Qt
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QApplication, QWidget, QFrame,QMainWindow, QPushButton, QAction, QMessageBox, QLineEdit, QLabel, QSizePolicy
-from PyQt5.QtWidgets import QCheckBox,QDialog,QTableWidget,QTableWidgetItem,QVBoxLayout,QHBoxLayout,QComboBox,QGridLayout
-import pickle 
 import broadbean as bb
-from broadbean.plotting import plotter
+import matplotlib
+from PyQt5.QtWidgets import QWidget, QMainWindow, QPushButton, QMessageBox, QLineEdit, QLabel
+from PyQt5.QtWidgets import QCheckBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QComboBox, QGridLayout
 from awgsequencing import Sequencing
 from pulsebuilding import Gelem
+from os import listdir
+from os.path import isfile, join
 
-import matplotlib
+
 matplotlib.use('QT5Agg')
 
 
@@ -34,7 +30,7 @@ class pulsetable(QMainWindow,Gelem):
 
     """
 
-    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0):
+    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0, libpath = './pulselib/'):
         super().__init__()
         self.setGeometry(50, 50, 1100, 900)
         self.setWindowTitle('Pulse Table Panel')
@@ -45,20 +41,17 @@ class pulsetable(QMainWindow,Gelem):
         self.nchans = nchans
         self.nlines = nlines
         self.corrDflag = corrDflag
-        mainMenu = self.menuBar()
-        fileMenu = mainMenu.addMenu('&File')
-        
+        self.libpath = libpath
         self.home()
 
     def home(self):
-
-        
         # Set up initial pulse table
+        self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]
         table = QTableWidget(4, 4, self)
         table.setGeometry(50, 100, 1000, 400)
         table.setColumnCount((self.nchans*3)+2)
         table.setRowCount(self.nlines)
-        
+
         # Set horizontal headers
         h = self.nchans+1
         table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"))
@@ -68,12 +61,12 @@ class pulsetable(QMainWindow,Gelem):
             table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)))
             table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)))
             h = h+2
-                        
+
         # Set vertical headers
         nlist = ["load", "unload", "measure"]
         for i in range(self.nlines):
             table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]))
-            
+
         # Set table items to zero initially
         for column in range(table.columnCount()):
             for row in range(table.rowCount()):
@@ -81,7 +74,6 @@ class pulsetable(QMainWindow,Gelem):
                     table.setItem(row, column, QTableWidgetItem("1"))
                 else:
                     table.setItem(row, column, QTableWidgetItem("0"))
-
 
         # Divider wiget
         win_divider = QWidget(self)
@@ -95,7 +87,7 @@ class pulsetable(QMainWindow,Gelem):
             chbox[i].setText('{}'.format(divch[i]))
             lay_divider.addWidget(chlabel[i], 0, i, 1, 1)
             lay_divider.addWidget(chbox[i], 1, i, 1, 1)
- 
+
         # Set dividers
         divbtn = QPushButton('Set Dividers', self)
         divbtn.clicked.connect(lambda state: self.setDividers(chbox))
@@ -106,16 +98,13 @@ class pulsetable(QMainWindow,Gelem):
         # AWG clock ("sample rate")
         win_AWGclock = QWidget(self)
         lay_AWGclock = QGridLayout(win_AWGclock)
-        setawgclockbox = QLineEdit(self);
-        setawgclockbox.setText('1.2');
-        #setawgclockbox.setGeometry(500,550,40,40);
-        setawgclocklabel = QLabel(self);
-        setawgclocklabel.setText('AWG Clock (GS/s)');
-        #setawgclocklabel.move(500, 520);
+        setawgclockbox = QLineEdit(self)
+        setawgclockbox.setText('1.2')
+        setawgclocklabel = QLabel(self)
+        setawgclocklabel.setText('AWG Clock (GS/s)')
         setawgclocklabel.resize(setawgclocklabel.sizeHint())
-        setawgclockbtn = QPushButton('Set AWG Clock', self);
-        setawgclockbtn.clicked.connect(lambda state: self.setAWGClock(setawgclockbox));
-        #setawgclockbtn.move(550,550);
+        setawgclockbtn = QPushButton('Set AWG Clock', self)
+        setawgclockbtn.clicked.connect(lambda state: self.setAWGClock(setawgclockbox))
         setawgclockbtn.resize(setawgclockbtn.sizeHint())
         lay_AWGclock.addWidget(setawgclocklabel, 0, 0, 2, 1)
         lay_AWGclock.addWidget(setawgclockbox, 1, 0, 1, 1)
@@ -142,29 +131,17 @@ class pulsetable(QMainWindow,Gelem):
         win.resize(win.sizeHint());
         absmarkerbox = QCheckBox(self);absmarkerbox.move(830, 515);absmarkerbox.stateChanged.connect(lambda state: self.absMarkerWidget(absmarkerbox,win))
         absmarkerboxlabel= QLabel(self);absmarkerboxlabel.setText('Absolute Marker');absmarkerboxlabel.move(720, 520);absmarkerboxlabel.resize(absmarkerboxlabel.sizeHint())
+
+        # lib box
+        libbox = QComboBox(self)
+        libbox.addItem("-Load From Lib-")
+        for i in range(len(self.seq_files)):
+            libbox.addItem(self.seq_files[i])
         
         # This is the start of top left buttons
         win_puls = QWidget(self);
         lay_puls= QGridLayout(win_puls);        
-        #Square Pulse
-        sqpbtn = QPushButton('Square Pulse', self)
-        sqpbtn.clicked.connect(lambda state:self.squarePulse(table))       
-        
-        #Pulse Triangle
-        ptpbtn = QPushButton('Pulse Triangle', self)
-        ptpbtn.clicked.connect(lambda state:self.pulseTriangle(table)) 
-        
-        #Spin Funnel
-        sfpbtn = QPushButton('Spin Funnel', self)
-        sfpbtn.clicked.connect(lambda state:self.spinFunnel(table))
 
-        #Dephasing
-        dppbtn = QPushButton('Dephasing', self)
-        dppbtn.clicked.connect(lambda state:self.Dephasing(table))
-
-
-
-        
         #Plot Element
         plotbtn = QPushButton('Plot Element', self)
         #plotbtn.resize(plotbtn.sizeHint());plotbtn.move(185, 10)
@@ -181,20 +158,17 @@ class pulsetable(QMainWindow,Gelem):
         
         #Load Element
         loadbtn = QPushButton('Load Element', self)
-        loadbtn.clicked.connect(lambda state: self.loadElement(table))
+        loadbtn.clicked.connect(lambda state: self.loadElement(table,path=join(self.libpath,libbox.currentText()) ))
         
         #Populate table from Sequence
-        table_from_seq = QPushButton('Element from Sequence', self);
+        table_from_seq = QPushButton('Element from Sequence', self)
         table_from_seq.clicked.connect(lambda state: self.from_sequence(table, seq = self._sequencebox.gseq))
         
         lay_puls.addWidget(runbtn,0,0,1,1)
         lay_puls.addWidget(plotbtn,0,1,1,1)
         lay_puls.addWidget(savebtn,1,0,1,1)
         lay_puls.addWidget(loadbtn,1,1,1,1)
-        lay_puls.addWidget(sqpbtn,2,0,1,1)        
-        lay_puls.addWidget(ptpbtn,2,1,1,1)
-        lay_puls.addWidget(sfpbtn,2,2,1,1)
-        lay_puls.addWidget(dppbtn,1,2,1,1)
+        lay_puls.addWidget(libbox,1,2,1,1)
         lay_puls.addWidget(table_from_seq ,2,3,1,1)
         win_puls.move(20,5)
         win_puls.resize(win_puls.sizeHint())
@@ -399,7 +373,6 @@ class pulsetable(QMainWindow,Gelem):
             ch_values = []
             channels_marker1 = []
             channels_marker2 = []
-            print(chan)
             marker1_rel = seq_description[chan]['marker1_rel']
             marker2_rel = seq_description[chan]['marker2_rel']
             seg_mar_list = list(seq_description[chan].keys())
@@ -465,6 +438,11 @@ class pulsetable(QMainWindow,Gelem):
                table.setItem(seg,ch+2, QTableWidgetItem(val))
                table.setItem(seg,ch*2+4, QTableWidgetItem(mark1))
                table.setItem(seg,ch*2+5, QTableWidgetItem(mark2))
+    
+    def loadElement(self,table, path):
+        seq = bb.Sequence.init_from_json(path)
+        self.from_sequence(table, seq=seq)
+
 
         
         

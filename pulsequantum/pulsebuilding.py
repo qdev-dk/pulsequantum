@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFrame,QMainWindow, QPushButt
 from PyQt5.QtWidgets import QCheckBox,QDialog,QTableWidget,QTableWidgetItem,QVBoxLayout,QHBoxLayout,QComboBox,QGridLayout
 from broadbean.plotting import plotter
 
-nlines=3;
 nchans=2;
 
 ramp = bb.PulseAtoms.ramp; #Globally defined ramp, element, and sequence
@@ -57,7 +56,7 @@ class Gelem():
         self.gelem.validateDurations();
 
 
-    #############################################################################################
+#############################################################################################
 # The correction D pulse keeps the centre of gravity of the pulse at the DC value (voltage
 # seen by the same when there is no pulsing. Not always used or needed.
 #############################################################################################
@@ -102,209 +101,24 @@ class Gelem():
 
 
 #############################################################################################
-# Saving and loading of element does not work yet. Using it may crash the GUI. I tried to use
-# pickle for saving an element object, however this created tons of problems I wasn't able to
-# solve. If I had to do it again, I would drill down into the dictionaries to save and load.
-#############################################################################################    
-    def loadElement(self,table):
-        dlg=QFileDialog(self);
-        fileName, _ =  dlg.getOpenFileName(self,"Load Element",r"A:\Users\fabio\QCoDeSLocal\SpinQubit\Pulse_wrappers\Pulsinglibrary");
-        with open(fileName, 'rb') as f:
-            loaddict=pickle.load(f)
-        table.setRowCount(0);
-        table.setColumnCount(0);
-        #Create the element
-        chno=list(loaddict.keys());#List of channels
-        for i in range(len(chno)):
-            temp=loaddict[chno[i]];
-            wfm=temp['wfm'];
-            newdurations=temp['newdurations'];
-            m1=temp['m1'];
-            m2=temp['m2'];
-            time=temp['time'];
-#            print(len(newdurations));print(len(wfm));
-            kwargs={'m1':m1,'m2':m2,'time':time};
-            gelem.addArray(chno[i],wfm,self.awgclock,**kwargs);
-       # Generate the pulse table    
+   
+    def loadElement(self,path):
+        seq = bb.Sequence.init_from_json(path)
+        
+        
+    def saveElement(self):
+        return None
+
         
     def plotElement(self):
-        plotter(self.gelem);
+        plotter(self.gelem)
     
 
 #############################################################################################
 
-    def saveElement(self):
-        return None
 
 
 
 
- #############################################################################################
-# A few hardcoded pulses that we use over and over, and some placeholder buttons. should be replaced by json libery
-#############################################################################################
-
-    def squarePulse(self,table):
-        table.setColumnCount((2*3)+2);
-        table.setRowCount(2);
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(2):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["up", "down"];
-        for i in range(2):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                if column==0:
-                    table.setItem(row,column, QTableWidgetItem("1"));
-                else:
-                    table.setItem(row,column, QTableWidgetItem("0"));
-        table.setItem(1,4, QTableWidgetItem("1"));
-        table.setItem(1,5, QTableWidgetItem("1"));
-
-
-    def pulseTriangle(self,table):
-        table.setColumnCount((2*3)+2)
-        table.setRowCount(4)
-        
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["unload", "load","separate", "measure"];
-        #nlist=["detuning_up", "detuning_up_b","down", "down_b"];
-        for i in range(4):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                if column==0:
-                    table.setItem(row,column, QTableWidgetItem("20"));
-                else:
-                    table.setItem(row,column, QTableWidgetItem("0"));
-        for column in range(table.columnCount()):
-            table.setItem(3,4, QTableWidgetItem("1"));
-        table.setItem(0,2, QTableWidgetItem("-8.8"));
-        table.setItem(0,3, QTableWidgetItem("-6"));
-        table.setItem(1,2, QTableWidgetItem("-6.8"));
-        table.setItem(1,3, QTableWidgetItem("2"));
-        table.setItem(2,2, QTableWidgetItem("10.2"));
-        table.setItem(2,3, QTableWidgetItem("-4"));
-        table.setItem(3,2, QTableWidgetItem("0"));
-        table.setItem(3,3, QTableWidgetItem("0"));    
-
-    def spinFunnel(self,table):
-        table.setColumnCount((2*3)+2)
-        table.setRowCount(8)
-        
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["start","unload", "load","reference","wait","separate", "measure","stop"];
-        for i in range(8):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                table.setItem(row,column, QTableWidgetItem("0"));
-        
-        #Times
-        table.setItem(0,0, QTableWidgetItem("0.01"));
-        table.setItem(1,0, QTableWidgetItem("20"));
-        table.setItem(2,0, QTableWidgetItem("20"));
-        table.setItem(3,0, QTableWidgetItem("10"));
-        table.setItem(4,0, QTableWidgetItem("1"));
-        table.setItem(5,0, QTableWidgetItem("0.5"));
-        table.setItem(6,0, QTableWidgetItem("10"));
-        table.setItem(7,0, QTableWidgetItem("0.01"));
-        
-        #Markers
-        table.setItem(6,4, QTableWidgetItem("1"));
-        table.setItem(3,4, QTableWidgetItem("1"));
-        
-        #Pulses
-        table.setItem(1,2, QTableWidgetItem("-8.8"));
-        table.setItem(1,3, QTableWidgetItem("-6"));
-        table.setItem(2,2, QTableWidgetItem("-6.8"));
-        table.setItem(2,3, QTableWidgetItem("2"));
-        table.setItem(5,2, QTableWidgetItem("9.8"));
-        table.setItem(5,3, QTableWidgetItem("-2"));
-        
-    def Dephasing(self,table):
-        table.setColumnCount((2*3)+2)
-        table.setRowCount(5)
-        
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        nlist=["dummy","Prepare","Prepare*","Separate","Measure"];
-        for i in range(5):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
-            
-        #Set table items to zero initially    
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                table.setItem(row,column, QTableWidgetItem("0"));
-        
-        #Times
-        table.setItem(0,0, QTableWidgetItem("5000"));
-        table.setItem(1,0, QTableWidgetItem("200"));
-        table.setItem(2,0, QTableWidgetItem("25"));
-        table.setItem(3,0, QTableWidgetItem("2000"));
-        table.setItem(4,0, QTableWidgetItem("10"));
-        # table.setItem(5,0, QTableWidgetItem("0.5"));
-        # table.setItem(6,0, QTableWidgetItem("10"));
-        # table.setItem(7,0, QTableWidgetItem("0.01"));
-        
-        #Markers
-        table.setItem(4,4, QTableWidgetItem("1"));
-        # table.setItem(3,4, QTableWidgetItem("1"));
-        
-        #Pulses: (n,m): n - row from 0, m - clmn from 0
-        #Prepare 
-        table.setItem(1,2, QTableWidgetItem("-4.077"));
-        table.setItem(1,3, QTableWidgetItem("4.5322"));
-        #Prepare* 
-        table.setItem(2,2, QTableWidgetItem("0"));
-        table.setItem(2,3, QTableWidgetItem("0"));
-        #Separate 
-        table.setItem(3,2, QTableWidgetItem("6.604"));
-        table.setItem(3,3, QTableWidgetItem("-3.0405"));
-        #Measure 
-        table.setItem(4,2, QTableWidgetItem("0"));
-        table.setItem(4,3, QTableWidgetItem("0"));        
+      
     
