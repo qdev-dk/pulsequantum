@@ -20,34 +20,31 @@ matplotlib.use('QT5Agg')
 #Hardcoded stuff, should incorporate into main code
 #############################################################################################
 
-nlines=3;
-nchans=2;
-
 divch1=11.5;divch2=11.75;divch3=11.7;divch4=1; #Hardcoded channel dividers
 divch=[divch1,divch2,divch3,divch4];
 
-
-corrDflag=0; #Global flag: Is correction D pulse already defined in the pulse table?
-
-#Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
-params=["det","psm_load","psm_unload","psm_load_sym","psm_unload_sym","dephasing_corrD"]
- 
-
-
 class pulsetable(QMainWindow,Gelem):
     """
-    Main pulse building class and main window
+    This is the GUI setup for the main window
+
+    AWG=None AWG instance
+    nchans=2 number of channels,
+    nlines=3 number of elements
+    corrDflag=0 Global flag: Is correction D pulse already defined in the pulse table?
+
     """
 
-    def __init__(self,AWG = None):
-        #super(pulseGUI, self).__init__()
+    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0):
         super().__init__()
         self.setGeometry(50, 50, 1100, 900)
         self.setWindowTitle('Pulse Table Panel')
-        self.mainwindow=pulsetable
+        self.mainwindow = pulsetable
         self.statusBar()
-        self._sequencebox=None
+        self._sequencebox = None
         self.AWG = AWG
+        self.nchans = nchans
+        self.nlines = nlines
+        self.corrDflag = corrDflag
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('&File')
         
@@ -56,42 +53,47 @@ class pulsetable(QMainWindow,Gelem):
     def home(self):
 
         
-        #Set up initial pulse table
-        table=QTableWidget(4,4,self)
+        # Set up initial pulse table
+        table = QTableWidget(4, 4, self)
         table.setGeometry(50, 100, 1000, 400)
-        table.setColumnCount((nchans*3)+2)
-        table.setRowCount(nlines)
+        table.setColumnCount((self.nchans*3)+2)
+        table.setRowCount(self.nlines)
         
-        #Set horizontal headers
-        h=nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        
-        
-        #Set vertical headers
-        nlist=["load", "unload", "measure"];
-        for i in range(nlines):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]));
+        # Set horizontal headers
+        h = self.nchans+1
+        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"))
+        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"))
+        for i in range(self.nchans):
+            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)))
+            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)))
+            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)))
+            h = h+2
+                        
+        # Set vertical headers
+        nlist = ["load", "unload", "measure"]
+        for i in range(self.nlines):
+            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]))
             
-        #Set table items to zero initially    
+        # Set table items to zero initially
         for column in range(table.columnCount()):
             for row in range(table.rowCount()):
-                if column==0:
-                    table.setItem(row,column, QTableWidgetItem("1"));
+                if column == 0:
+                    table.setItem(row, column, QTableWidgetItem("1"))
                 else:
-                    table.setItem(row,column, QTableWidgetItem("0"));
+                    table.setItem(row, column, QTableWidgetItem("0"))
+
+
+        # Divider wiget
+        win_divider = QWidget(self)
+        lay_divider= QGridLayout(win_divider)
 
         # Create channel divider boxes and buttons
         chlabel1='Ch1';chlabel2='Ch2';chlabel3='Ch3';chlabel4='Ch4';
         chlabel=[chlabel1,chlabel2,chlabel3,chlabel4];
         for i in range(len(chlabel)):
-            chlabel[i]= QLabel(self);chlabel[i].setText('Ch%d'%(i+1));chlabel[i].move(100+(50*i), 520)
+            chlabel[i] = QLabel(self);
+            chlabel[i].setText('Ch%d'%(i+1));
+            chlabel[i].move(100+(50*i), 520)
 
         chbox1 = QLineEdit(self);chbox2 = QLineEdit(self);chbox3 = QLineEdit(self);chbox4 = QLineEdit(self);
         chbox=[chbox1,chbox2,chbox3,chbox4];
@@ -248,8 +250,7 @@ class pulsetable(QMainWindow,Gelem):
         
         
     def addChannel(self,table,whichch):
-        global nchans;
-        nchans=nchans+1;
+        self.nchans=self.nchans+1;
         index=whichch.currentIndex();
         ch=[1,2,3,4];chno=ch[index];
         n=table.columnCount();nchan=int((table.columnCount()-2)/3);
@@ -263,8 +264,7 @@ class pulsetable(QMainWindow,Gelem):
             table.setItem(row,n+2, QTableWidgetItem("0"));
     
     def remChannel(self,table,whichch):
-        global nchans;
-        nchans=nchans-1;
+        self.nchans=self.nchans-1;
         n=table.columnCount();
         n=n-1;
         for i in range(n):
@@ -277,8 +277,7 @@ class pulsetable(QMainWindow,Gelem):
                 table.removeColumn(i);
     
     def addPulse(self,table,whichp,i=-1):
-        global nlines;
-        nlines=nlines+1;
+        self.nlines=self.nlines+1;
         if i==-1:
             n=table.rowCount();
         else:
@@ -292,13 +291,11 @@ class pulsetable(QMainWindow,Gelem):
                 table.setItem(n,column, QTableWidgetItem("0"));
     
     def remPulse(self,table,whichp):
-        global nlines;
-        global corrDflag;
-        nlines=nlines-1;
+        self.nlines=self.nlines-1;
         for n in range(table.rowCount()):
             if table.verticalHeaderItem(n).text()==whichp.text():
                 if whichp.text()=='corrD':
-                    corrDflag=0;
+                    self.corrDflag=0;
                 table.removeRow(n);
     
     def renamePulse(self,table,oldpname,newpname):
@@ -416,18 +413,18 @@ class pulsetable(QMainWindow,Gelem):
             marker1.append(channels_marker1)
             marker2.append(channels_marker2)
          
-        nchans = len(values)
+        self.nchans = len(values)
         nsegs = len(values[0])
 
 
-        table.setColumnCount((nchans*3)+2)
+        table.setColumnCount((self.nchans*3)+2)
         table.setRowCount(nsegs)
         
         #Set horizontal headers
-        h=nchans+1;
+        h=self.nchans+1;
         table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
         table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(nchans):
+        for i in range(self.nchans):
             table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
             table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
             table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
@@ -445,7 +442,7 @@ class pulsetable(QMainWindow,Gelem):
             ramp_yes = str(seg_ramp[seg])
             table.setItem(seg,0, QTableWidgetItem(duration))
             table.setItem(seg,1, QTableWidgetItem(ramp_yes))
-            for ch in range(nchans):
+            for ch in range(self.nchans):
                val = str(values[ch][seg]/(divch[ch]*1e-3))
                mark1 = str(marker1[ch][seg])
                mark2 = str(marker2[ch][seg])
