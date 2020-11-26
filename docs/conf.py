@@ -376,7 +376,7 @@ templates_path = ['_templates']
 # want to store them locally.
 suppress_warnings = ['image.nonlocal_uri']
 
-nitpicky = True
+nitpicky = False
 
 
 # we allow most types from the typing modules to be used in
