@@ -1,5 +1,6 @@
 import broadbean as bb
 import matplotlib
+import pandas as pd
 from PyQt5.QtWidgets import QWidget, QMainWindow, QPushButton, QMessageBox, QLineEdit, QLabel
 from PyQt5.QtWidgets import QCheckBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QComboBox, QGridLayout
 from awgsequencing import Sequencing
@@ -74,7 +75,6 @@ class pulsetable(QMainWindow,Gelem):
                     table.setItem(row, column, QTableWidgetItem("1"))
                 else:
                     table.setItem(row, column, QTableWidgetItem("0"))
-
         # Divider wiget
         win_divider = QWidget(self)
         lay_divider = QGridLayout(win_divider)
@@ -228,12 +228,7 @@ class pulsetable(QMainWindow,Gelem):
         seqbtn = QPushButton('Upload Sequence', self)
         seqbtn.clicked.connect(lambda state:self.sequence())
         seqbtn.resize(seqbtn.sizeHint())
-        seqbtn.move(400, 700)
-
-        
-        
-        
-        
+        seqbtn.move(400, 700)   
         
         self.show()
         win.hide()
@@ -442,6 +437,30 @@ class pulsetable(QMainWindow,Gelem):
     def loadElement(self,table, path):
         seq = bb.Sequence.init_from_json(path)
         self.from_sequence(table, seq=seq)
+
+
+    def table_to_df(self,table):
+        number_of_rows = table.rowCount()
+        number_of_columns = table.columnCount()
+        columns_headers = []
+        for i in range(number_of_columns):
+            columns_headers.append(table.horizontalHeaderItem(i).text())
+        row_headers = []
+        for i in range(number_of_rows):
+            row_headers.append(table.verticalHeaderItem(i).text())
+
+        tmp_df = pd.DataFrame( 
+                columns=columns_headers, # Fill columnets
+                index=row_headers # Fill rows
+                ) 
+
+        for i, row in enumerate(row_headers):
+            for j, col in enumerate(columns_headers):
+                print(table.item(i, j).text())
+                tmp_df.loc[row, col] = table.item(i, j).text()
+        
+        return tmp_df
+        
 
 
         
