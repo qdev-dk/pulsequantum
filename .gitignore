@@ -74,6 +74,7 @@ target/
 *.dat
 *.hdf5
 *.json
+!pulsequantum/pulselib/*.json
 
 # Temporary files
 *.md~
