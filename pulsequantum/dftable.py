@@ -6,8 +6,10 @@ class QTableWidgetDF(QTableWidget):
     """
     Extent the QTableWidget interact with Pandas
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self,parent=None):
+        super(QTableWidgetDF, self).__init__(parent)
+    #def __init__(self):
+    #    super().__init__()
 
     def table_to_df(self):
         """

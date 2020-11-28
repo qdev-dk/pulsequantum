@@ -7,7 +7,7 @@ from awgsequencing import Sequencing
 from pulsebuilding import Gelem
 from os import listdir
 from os.path import isfile, join
-
+from dftable import QTableWidgetDF
 
 matplotlib.use('QT5Agg')
 
@@ -48,7 +48,7 @@ class pulsetable(QMainWindow,Gelem):
     def home(self):
         # Set up initial pulse table
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]
-        table = QTableWidget(4, 4, self)
+        table = QTableWidgetDF(self) # QTableWidget(4, 4, self)
         table.setGeometry(50, 100, 1000, 400)
         table.setColumnCount((self.nchans*3)+2)
         table.setRowCount(self.nlines)
@@ -438,32 +438,4 @@ class pulsetable(QMainWindow,Gelem):
         seq = bb.Sequence.init_from_json(path)
         self.from_sequence(table, seq=seq)
 
-
-    def table_to_df(self,table):
-        number_of_rows = table.rowCount()
-        number_of_columns = table.columnCount()
-        columns_headers = []
-        for i in range(number_of_columns):
-            columns_headers.append(table.horizontalHeaderItem(i).text())
-        row_headers = []
-        for i in range(number_of_rows):
-            row_headers.append(table.verticalHeaderItem(i).text())
-
-        tmp_df = pd.DataFrame( 
-                columns=columns_headers, # Fill columnets
-                index=row_headers # Fill rows
-                ) 
-
-        for i, row in enumerate(row_headers):
-            for j, col in enumerate(columns_headers):
-                print(table.item(i, j).text())
-                tmp_df.loc[row, col] = table.item(i, j).text()
-        
-        return tmp_df
-        
-
-
-        
-        
-
-        
+    
