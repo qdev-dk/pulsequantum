@@ -1,4 +1,5 @@
 import broadbean as bb
+import time
 class Gseq():
     """
     Class for sequencing 
@@ -91,7 +92,7 @@ class Gseq():
 # the AWG name is hardcoded. Probably first thing that needs to be changed.
 #############################################################################################
     def uploadToAWG(self,Choose_awg,chbox):
-        if Choose_awg.currentText() == 'AWG5014':
+        if Choose_awg == 'AWG5014':
             #for i,  chan in enumerate(self.gseq.channels):
             #    self.AWG.channels[chan].AMP(float(chbox[chan-1].text()))
             self.AWG.ch1_amp(float(chbox[0].text()))
@@ -102,7 +103,7 @@ class Gseq():
             start_time=time.time();
             self.AWG.make_send_and_load_awg_file(*package[:])
             print("Sequence uploaded in %s seconds" %(time.time()-start_time));
-        if Choose_awg.currentText() == 'AWG5208':
+        elif Choose_awg == 'AWG5208':
             self.gseq.name = 'sequence_from_gui'
             self.AWG.mode('AWG')
             for chan in self.gseq.channels:
@@ -113,7 +114,6 @@ class Gseq():
             self.AWG.clearWaveformList()
             self.AWG.sample_rate(self.gseq.SR)
             self.AWG.sample_rate(self.gseq.SR)
-            print(Choose_awg.currentText() )
             
             seqx_input = self.gseq.outputForSEQXFile()
             start_time=time.time();
@@ -132,7 +132,7 @@ class Gseq():
   
         
     def runAWG(self,Choose_awg):
-        if Choose_awg.currentText() == 'AWG5014':
+        if Choose_awg == 'AWG5014':
             if self.AWG.get_state()=='Idle':
                 self.AWG.run();
                 print("AWGs Running");

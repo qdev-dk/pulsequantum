@@ -1,12 +1,12 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from  mainwindow import pulsetable
+from  pulsequantum.mainwindow import pulsetable
 
 
 
 
 
-def run():
+def run(AWG=None):
     if not QApplication.instance():
         app = QApplication(sys.argv)
     else:
@@ -16,4 +16,4 @@ def run():
     pulsetable(AWG = None)
     app.exec_()    
 if __name__ == "__main__": 
-    run()
+    run()       

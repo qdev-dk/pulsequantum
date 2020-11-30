@@ -8,7 +8,7 @@ import matplotlib
 from PyQt5.QtWidgets import QWidget, QFrame,  QPushButton, QLineEdit, QLabel
 from PyQt5.QtWidgets import QCheckBox, QDialog, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QComboBox, QGridLayout
 from broadbean.plotting import plotter
-from sequencebuilding import Gseq
+from pulsequantum.sequencebuilding import Gseq
 matplotlib.use('QT5Agg')
 
 
@@ -70,7 +70,7 @@ class Sequencing(QDialog, Gseq):
         # Upload to AWG
         # Function
         uploadbtn = QPushButton('Upload To AWG', self)
-        uploadbtn.clicked.connect(lambda state: self.uploadToAWG(Choose_awg, chbox))
+        uploadbtn.clicked.connect(lambda state: self.uploadToAWG(str(Choose_awg.currentText()), chbox))
         
         # Choose awg
         Choose_awg = QComboBox(self)
@@ -239,7 +239,7 @@ class Sequencing(QDialog, Gseq):
         aoutbox3.stateChanged.connect(lambda state: self.runChan(aoutbox3, 3));
         aoutbox4.stateChanged.connect(lambda state: self.runChan(aoutbox4, 4));
         runAWGtn = QPushButton('Run AWG', self);
-        runAWGtn.clicked.connect(lambda state: self.runAWG(Choose_awg))
+        runAWGtn.clicked.connect(lambda state: self.runAWG(str(Choose_awg.currentText())))
         lay5.addWidget(awglabel,1,1,1,1);
         lay5.addWidget(runAWGtn,1,2,1,1);
         for i in range(len(achbox)):
@@ -292,6 +292,6 @@ class Sequencing(QDialog, Gseq):
                 seqtable.setItem(i,1,QTableWidgetItem("1"));
                 seqtable.setItem(i,2,QTableWidgetItem("0"));
                 seqtable.setItem(i,3,QTableWidgetItem("0"));
-            seqtable.setItem(i,3,QTableWidgetItem("1"));
+                seqtable.setItem(i,3,QTableWidgetItem("1"));
     
     

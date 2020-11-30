@@ -102,8 +102,8 @@ class Gelem():
 
 #############################################################################################
    
-    def loadElement(self,path):
-        seq = bb.Sequence.init_from_json(path)
+    #def loadElement(self,path):
+     #   seq = bb.Sequence.init_from_json(path)
         
         
     def saveElement(self):

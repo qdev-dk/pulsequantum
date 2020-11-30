@@ -1,13 +1,14 @@
 import broadbean as bb
 import matplotlib
 import pandas as pd
+import pathlib
 from PyQt5.QtWidgets import QWidget, QMainWindow, QPushButton, QMessageBox, QLineEdit, QLabel
 from PyQt5.QtWidgets import QCheckBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QComboBox, QGridLayout
-from awgsequencing import Sequencing
-from pulsebuilding import Gelem
+from pulsequantum.awgsequencing import Sequencing
+from pulsequantum.pulsebuilding import Gelem
 from os import listdir
 from os.path import isfile, join
-from dftable import QTableWidgetDF
+from pulsequantum.dftable import QTableWidgetDF
 
 matplotlib.use('QT5Agg')
 
@@ -31,7 +32,7 @@ class pulsetable(QMainWindow,Gelem):
 
     """
 
-    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0, libpath = './pulselib/'):
+    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0, libpath = 'pulselib/'):
         super().__init__()
         self.setGeometry(50, 50, 1100, 900)
         self.setWindowTitle('Pulse Table Panel')
@@ -42,7 +43,7 @@ class pulsetable(QMainWindow,Gelem):
         self.nchans = nchans
         self.nlines = nlines
         self.corrDflag = corrDflag
-        self.libpath = libpath
+        self.libpath = join(pathlib.Path(__file__),libpath)
         self.home()
 
     def home(self):
