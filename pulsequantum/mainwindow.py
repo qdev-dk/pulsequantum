@@ -9,7 +9,7 @@ from pulsequantum.pulsebuilding import Gelem
 from os import listdir
 from os.path import isfile, join
 from pulsequantum.dftable import QTableWidgetDF
-
+from pathlib import Path
 matplotlib.use('QT5Agg')
 
 
@@ -43,8 +43,9 @@ class pulsetable(QMainWindow,Gelem):
         self.nchans = nchans
         self.nlines = nlines
         self.corrDflag = corrDflag
-        self.libpath = join(pathlib.Path(__file__),libpath)
+        self.libpath = join(pathlib.Path(__file__).parents[0],libpath)
         self.home()
+        print(self.libpath)
 
     def home(self):
         # Set up initial pulse table
