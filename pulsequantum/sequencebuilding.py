@@ -11,9 +11,15 @@ class Gseq():
         self.gseq = bb.Sequence()
 
     def loadSequence(self, pathseq):
+        """
+        Loads af sequence from as json file
+        """
         self.gseq = bb.Sequence.init_from_json(pathseq)
     
-    def changedSeqTable(self, seqtable): # make seqtable a normal array
+    def changedSeqTable(self, seqtable):
+        """
+         Updates gseg from seqtable
+        """
         if self.gseq.points == 0:
             return
         for i in range(seqtable.rowCount()):
@@ -23,12 +29,18 @@ class Gseq():
             self.updategseq(i, seqlist)   
             
     def updategseq(self, row, seqlist):
+        """
+        Updates the repetition pattern of the sequence  
+        """
         self.gseq.setSequencingTriggerWait(row+1, seqlist[0])
         self.gseq.setSequencingNumberOfRepetitions(row+1, seqlist[1])
         self.gseq.setSequencingEventJumpTarget(row+1, seqlist[2])
         self.gseq.setSequencingGoto(row+1, seqlist[3])
     
     def buildSequenceWrap(self, chbox, offbox, contseqbox, timevoltbox, whichpulse, sparambox, seqstart, seqstop, seqpts):
+        """
+        Build gseq from gelem
+        """
         self.gseq= bb.Sequence()
         timevolt=str(timevoltbox.currentText())
         whichp=str(whichpulse.text())
