@@ -260,7 +260,7 @@ class pulsetable(QMainWindow,Gelem):
         self.nlines=self.nlines-1;
         for n in range(table.rowCount()):
             if table.verticalHeaderItem(n).text()==whichp.text():
-                if whichp.text()=='corrD':
+                if str(whichp.text())=='corrD':
                     self.corrDflag=0;
                 table.removeRow(n);
     

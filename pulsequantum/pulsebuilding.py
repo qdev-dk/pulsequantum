@@ -18,7 +18,7 @@ gseq = bb.Sequence();
 divch1=11.5;divch2=11.75;divch3=11.7;divch4=1; #Hardcoded channel dividers
 divch=[divch1,divch2,divch3,divch4];
 
-corrDflag=0; #Global flag: Is correction D pulse already defined in the pulse table?
+
 
 class Gelem():
     def __init__(self, AWG=None, gelem=None, libpath = 'pulselib/'):
@@ -26,6 +26,7 @@ class Gelem():
         self.awgclock=1.2e9
         self.libpath = join(pathlib.Path(__file__).parents[0], libpath)
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]
+        self.corrDflag=0
 
 
     def generateElement(self,table):
@@ -67,11 +68,10 @@ class Gelem():
 # seen by the same when there is no pulsing. Not always used or needed.
 #############################################################################################
     def correctionD(self,table):
-        global corrDflag;
-        if corrDflag==1:
+        if self.corrDflag==1:
             print("Correction D pulse already exists.")
             return;
-        corrDflag=1;
+        self.corrDflag=1;
         awgclockinus=self.awgclock/1e6;
         dpulse = QLineEdit(self);dpulse.setText('corrD');
         tottime=0;
