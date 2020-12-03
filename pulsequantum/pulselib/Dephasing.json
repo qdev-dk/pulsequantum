@@ -1,0 +1,206 @@
+{
+    "1": {
+        "channels": {
+            "1": {
+                "segment_01": {
+                    "name": "dummy",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 0.005,
+                    "arguments": {
+                        "start": 0.0,
+                        "stop": 0.0
+                    }
+                },
+                "segment_02": {
+                    "name": "Prepare",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 0.00019999999999999998,
+                    "arguments": {
+                        "start": -0.046885500000000004,
+                        "stop": -0.046885500000000004
+                    }
+                },
+                "segment_03": {
+                    "name": "Prepare*",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 2.4999999999999998e-05,
+                    "arguments": {
+                        "start": 0.0,
+                        "stop": 0.0
+                    }
+                },
+                "segment_04": {
+                    "name": "Separate",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 0.002,
+                    "arguments": {
+                        "start": 0.075946,
+                        "stop": 0.075946
+                    }
+                },
+                "segment_05": {
+                    "name": "Measure",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 9.999999999999999e-06,
+                    "arguments": {
+                        "start": 0.0,
+                        "stop": 0.0
+                    }
+                },
+                "marker1_abs": [],
+                "marker2_abs": [],
+                "marker1_rel": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        9.999999999999999e-06
+                    ]
+                ],
+                "marker2_rel": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ]
+                ]
+            },
+            "2": {
+                "segment_01": {
+                    "name": "dummy",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 0.005,
+                    "arguments": {
+                        "start": 0.0,
+                        "stop": 0.0
+                    }
+                },
+                "segment_02": {
+                    "name": "Prepare",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 0.00019999999999999998,
+                    "arguments": {
+                        "start": 0.05325335,
+                        "stop": 0.05325335
+                    }
+                },
+                "segment_03": {
+                    "name": "Prepare*",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 2.4999999999999998e-05,
+                    "arguments": {
+                        "start": 0.0,
+                        "stop": 0.0
+                    }
+                },
+                "segment_04": {
+                    "name": "Separate",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 0.002,
+                    "arguments": {
+                        "start": -0.035725875000000004,
+                        "stop": -0.035725875000000004
+                    }
+                },
+                "segment_05": {
+                    "name": "Measure",
+                    "function": "function PulseAtoms.ramp",
+                    "durations": 9.999999999999999e-06,
+                    "arguments": {
+                        "start": 0.0,
+                        "stop": 0.0
+                    }
+                },
+                "marker1_abs": [],
+                "marker2_abs": [],
+                "marker1_rel": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ]
+                ],
+                "marker2_rel": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        0,
+                        0
+                    ]
+                ]
+            }
+        },
+        "sequencing": {
+            "Wait trigger": 0,
+            "Repeat": 0,
+            "jump_input": 0,
+            "jump_target": 0,
+            "Go to": 0
+        }
+    },
+    "awgspecs": {
+        "SR": 1200000000.0,
+        "channel1_amplitude": 4.5,
+        "channel1_offset": 0.0,
+        "channel2_amplitude": 4.5,
+        "channel2_offset": 0.0
+    }
+}
