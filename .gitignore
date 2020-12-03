@@ -74,7 +74,9 @@ target/
 *.dat
 *.hdf5
 *.json
-!pulsequantum/pulselib/*.json
+!pulsequantum/pulselib/Dephasing.json
+!pulsequantum/pulselib/Pulse_Triangle.json
+!pulsequantum/pulselib/Spin_Funnel.json
 
 # Temporary files
 *.md~

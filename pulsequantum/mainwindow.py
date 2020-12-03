@@ -32,7 +32,7 @@ class pulsetable(QMainWindow,Gelem):
 
     """
 
-    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0, libpath = 'pulselib/'):
+    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0):
         super().__init__()
         self.setGeometry(50, 50, 1100, 900)
         self.setWindowTitle('Pulse Table Panel')
@@ -43,40 +43,16 @@ class pulsetable(QMainWindow,Gelem):
         self.nchans = nchans
         self.nlines = nlines
         self.corrDflag = corrDflag
-        self.libpath = join(pathlib.Path(__file__).parents[0],libpath)
         self.home()
-        print(self.libpath)
+
 
     def home(self):
+        print(self.seq_files)
         # Set up initial pulse table
-        self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]
-        table = QTableWidgetDF(self) # QTableWidget(4, 4, self)
+        table = QTableWidgetDF(self)
         table.setGeometry(50, 100, 1000, 400)
-        table.setColumnCount((self.nchans*3)+2)
-        table.setRowCount(self.nlines)
+        self.loadElement(table, path=join(join(pathlib.Path(__file__).parents[0], 'initfiles/init.json')))
 
-        # Set horizontal headers
-        h = self.nchans+1
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"))
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"))
-        for i in range(self.nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)))
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)))
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)))
-            h = h+2
-
-        # Set vertical headers
-        nlist = ["load", "unload", "measure"]
-        for i in range(self.nlines):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(nlist[i]))
-
-        # Set table items to zero initially
-        for column in range(table.columnCount()):
-            for row in range(table.rowCount()):
-                if column == 0:
-                    table.setItem(row, column, QTableWidgetItem("1"))
-                else:
-                    table.setItem(row, column, QTableWidgetItem("0"))
         # Divider wiget
         win_divider = QWidget(self)
         lay_divider = QGridLayout(win_divider)
@@ -139,6 +115,8 @@ class pulsetable(QMainWindow,Gelem):
         libbox.addItem("-Load From Lib-")
         for i in range(len(self.seq_files)):
             libbox.addItem(self.seq_files[i])
+        save_to = QLineEdit(self)
+        save_to.setText('enter file name')
         
         # This is the start of top left buttons
         win_puls = QWidget(self);
@@ -156,7 +134,7 @@ class pulsetable(QMainWindow,Gelem):
         
         #Save Element
         savebtn = QPushButton('Save Element', self)
-        savebtn.clicked.connect(lambda state:self.saveElement())
+        savebtn.clicked.connect(lambda state:self.saveElement(join(self.libpath,save_to.text())))
         
         #Load Element
         loadbtn = QPushButton('Load Element', self)
@@ -168,9 +146,10 @@ class pulsetable(QMainWindow,Gelem):
         
         lay_puls.addWidget(runbtn,0,0,1,1)
         lay_puls.addWidget(plotbtn,0,1,1,1)
-        lay_puls.addWidget(savebtn,1,0,1,1)
-        lay_puls.addWidget(loadbtn,1,1,1,1)
-        lay_puls.addWidget(libbox,1,2,1,1)
+        lay_puls.addWidget(savebtn,2,0,1,1)
+        lay_puls.addWidget(save_to,2,1,1,1)
+        lay_puls.addWidget(loadbtn,1,0,1,1)
+        lay_puls.addWidget(libbox,1,1,1,1)
         lay_puls.addWidget(table_from_seq ,2,3,1,1)
         win_puls.move(20,5)
         win_puls.resize(win_puls.sizeHint())
@@ -356,88 +335,7 @@ class pulsetable(QMainWindow,Gelem):
         else:
             pass
     
-    # From Sequence
-    def from_sequence(self, table, seq):
-         
-        seq_description = seq.description['1']['channels']
-        seg_name = []
-        seg_durations = []
-        seg_ramp = []
-        values = []
-        marker1 = []
-        marker2 = []
-        for chan in seq_description.keys():
-            ch_values = []
-            channels_marker1 = []
-            channels_marker2 = []
-            marker1_rel = seq_description[chan]['marker1_rel']
-            marker2_rel = seq_description[chan]['marker2_rel']
-            seg_mar_list = list(seq_description[chan].keys())
-            seg_list = [s for s in seg_mar_list if 'segment' in s]
-            for i, seg in enumerate(seg_list):
-                seg_digt = seq_description[chan][seg]
-                tmp_name = seg_digt['name']
-                tmp_durations = seg_digt["durations"]
-                if tmp_name not in seg_name:
-                    seg_name.append(tmp_name)
-                    seg_durations.append(tmp_durations)
-                    if seg_digt['arguments']['start'] != seg_digt['arguments']['stop']:
-                        seg_ramp.append(1)
-                    else:
-                        seg_ramp.append(0)
-                ch_values.append(seg_digt['arguments']['stop'])
-                if marker1_rel[i] == (0,0):
-                    channels_marker1.append(0)
-                else:
-                    channels_marker1.append(1)
-                    
-                if marker2_rel[i] == (0,0):
-                    channels_marker2.append(0)
-                else:
-                    channels_marker2.append(1)             
-            values.append(ch_values)
-            marker1.append(channels_marker1)
-            marker2.append(channels_marker2)
-         
-        self.nchans = len(values)
-        nsegs = len(values[0])
 
-
-        table.setColumnCount((self.nchans*3)+2)
-        table.setRowCount(nsegs)
-        
-        #Set horizontal headers
-        h=self.nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(self.nchans):
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
-            h=h+2;
-        
-        #Set vertical headers
-        #nlist= seg_name
-        for i, name in enumerate(seg_name):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(name));
-            
-        
-        for seg in range(nsegs):
-            duration = str(seg_durations[seg]/1e-6)
-            table.setItem(seg,0, QTableWidgetItem(duration))
-            ramp_yes = str(seg_ramp[seg])
-            table.setItem(seg,0, QTableWidgetItem(duration))
-            table.setItem(seg,1, QTableWidgetItem(ramp_yes))
-            for ch in range(self.nchans):
-               val = str(values[ch][seg]/(divch[ch]*1e-3))
-               mark1 = str(marker1[ch][seg])
-               mark2 = str(marker2[ch][seg])
-               table.setItem(seg,ch+2, QTableWidgetItem(val))
-               table.setItem(seg,ch*2+4, QTableWidgetItem(mark1))
-               table.setItem(seg,ch*2+5, QTableWidgetItem(mark2))
     
-    def loadElement(self,table, path):
-        seq = bb.Sequence.init_from_json(path)
-        self.from_sequence(table, seq=seq)
 
     
