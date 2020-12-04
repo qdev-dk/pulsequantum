@@ -1,0 +1,426 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pulsequantum.pulsebuilding &mdash; pulsequantum 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pulsequantum
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">pulsequantum API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_notebooks/index.html">Examples of using pulsequantum</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pulsequantum</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pulsequantum.pulsebuilding</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pulsequantum.pulsebuilding</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">broadbean</span> <span class="k">as</span> <span class="nn">bb</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">QCoreApplication</span><span class="p">,</span><span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QFileDialog</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QFrame</span><span class="p">,</span><span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QAction</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QSizePolicy</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QCheckBox</span><span class="p">,</span><span class="n">QDialog</span><span class="p">,</span><span class="n">QTableWidget</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">,</span><span class="n">QVBoxLayout</span><span class="p">,</span><span class="n">QHBoxLayout</span><span class="p">,</span><span class="n">QComboBox</span><span class="p">,</span><span class="n">QGridLayout</span>
+<span class="kn">from</span> <span class="nn">broadbean.plotting</span> <span class="kn">import</span> <span class="n">plotter</span>
+
+<span class="n">nchans</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
+
+<span class="n">ramp</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">PulseAtoms</span><span class="o">.</span><span class="n">ramp</span><span class="p">;</span> <span class="c1">#Globally defined ramp, element, and sequence</span>
+<span class="n">gelem</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Element</span><span class="p">();</span>
+<span class="n">gseq</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Sequence</span><span class="p">();</span>
+
+<span class="n">divch1</span><span class="o">=</span><span class="mf">11.5</span><span class="p">;</span><span class="n">divch2</span><span class="o">=</span><span class="mf">11.75</span><span class="p">;</span><span class="n">divch3</span><span class="o">=</span><span class="mf">11.7</span><span class="p">;</span><span class="n">divch4</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="c1">#Hardcoded channel dividers</span>
+<span class="n">divch</span><span class="o">=</span><span class="p">[</span><span class="n">divch1</span><span class="p">,</span><span class="n">divch2</span><span class="p">,</span><span class="n">divch3</span><span class="p">,</span><span class="n">divch4</span><span class="p">];</span>
+
+
+
+<div class="viewcode-block" id="Gelem"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem">[docs]</a><span class="k">class</span> <span class="nc">Gelem</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AWG</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gelem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">libpath</span> <span class="o">=</span> <span class="s1">&#39;pulselib/&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Element</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">awgclock</span><span class="o">=</span><span class="mf">1.2e9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">libpath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">libpath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seq_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libpath</span><span class="p">)</span> <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libpath</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrDflag</span><span class="o">=</span><span class="mi">0</span>
+
+
+<div class="viewcode-block" id="Gelem.generateElement"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem.generateElement">[docs]</a>    <span class="k">def</span> <span class="nf">generateElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">):</span>
+        <span class="c1">#Make element from pulse table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Element</span><span class="p">();</span>
+        <span class="n">h</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="n">table</span><span class="o">.</span><span class="n">columnCount</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">);</span>
+        <span class="n">prevlvl</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">v</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">();</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="n">h</span><span class="o">+</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">chno</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">horizontalHeaderItem</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()[</span><span class="mi">2</span><span class="p">]);</span>
+            <span class="n">gp</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">BluePrint</span><span class="p">()</span>
+            <span class="n">gp</span><span class="o">.</span><span class="n">setSR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">awgclock</span><span class="p">);</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+                <span class="n">nm</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">verticalHeaderItem</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">();</span>
+                <span class="n">dr</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">;</span>
+                <span class="n">rmp</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">());</span>
+                <span class="n">lvl</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">*</span><span class="n">divch</span><span class="p">[</span><span class="n">col</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">;</span>
+                <span class="n">mkr1</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">h</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">());</span>
+                <span class="n">mkr2</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">h</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">());</span>
+                <span class="k">if</span> <span class="n">rmp</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">gp</span><span class="o">.</span><span class="n">insertSegment</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="p">(</span><span class="n">lvl</span><span class="p">,</span> <span class="n">lvl</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">nm</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="n">dr</span><span class="p">);</span>
+                <span class="k">if</span> <span class="n">rmp</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">row</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">gp</span><span class="o">.</span><span class="n">insertSegment</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lvl</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">nm</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="n">dr</span><span class="p">);</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">gp</span><span class="o">.</span><span class="n">insertSegment</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="p">(</span><span class="n">prevlvl</span><span class="p">,</span> <span class="n">lvl</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">nm</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="n">dr</span><span class="p">);</span>
+                <span class="k">if</span> <span class="n">mkr1</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">gp</span><span class="o">.</span><span class="n">setSegmentMarker</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">dr</span><span class="p">),</span> <span class="mi">1</span><span class="p">);</span>
+                <span class="k">if</span> <span class="n">mkr2</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">gp</span><span class="o">.</span><span class="n">setSegmentMarker</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">dr</span><span class="p">),</span> <span class="mi">2</span><span class="p">);</span>
+                <span class="n">prevlvl</span><span class="o">=</span><span class="n">lvl</span><span class="p">;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">addBluePrint</span><span class="p">(</span><span class="n">chno</span><span class="p">,</span> <span class="n">gp</span><span class="p">);</span>
+            <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="o">+</span><span class="mi">2</span><span class="p">;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">validateDurations</span><span class="p">();</span></div>
+
+
+<span class="c1">#############################################################################################</span>
+<span class="c1"># The correction D pulse keeps the centre of gravity of the pulse at the DC value (voltage</span>
+<span class="c1"># seen by the same when there is no pulsing. Not always used or needed.</span>
+<span class="c1">#############################################################################################</span>
+<div class="viewcode-block" id="Gelem.correctionD"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem.correctionD">[docs]</a>    <span class="k">def</span> <span class="nf">correctionD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrDflag</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Correction D pulse already exists.&quot;</span><span class="p">)</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrDflag</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+        <span class="n">awgclockinus</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">awgclock</span><span class="o">/</span><span class="mf">1e6</span><span class="p">;</span>
+        <span class="n">dpulse</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">dpulse</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;corrD&#39;</span><span class="p">);</span>
+        <span class="n">tottime</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">dpos</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="c1">#position of correction D pulse, hardcoded for now</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addPulse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">dpulse</span><span class="p">,</span><span class="n">dpos</span><span class="p">);</span>
+        <span class="c1">#Set D pulse time to 60% of total pulse cycle time</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="n">nm</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">verticalHeaderItem</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">();</span>
+            <span class="k">if</span> <span class="n">nm</span><span class="o">!=</span><span class="s1">&#39;corrD&#39;</span><span class="p">:</span>
+                <span class="n">tottime</span><span class="o">=</span><span class="n">tottime</span><span class="o">+</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()));</span>
+        <span class="n">timeD</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">tottime</span><span class="o">/</span><span class="mf">1.65</span><span class="o">*</span><span class="p">(</span><span class="n">awgclockinus</span><span class="p">))</span><span class="o">/</span><span class="n">awgclockinus</span><span class="p">;</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">dpos</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%f</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">timeD</span><span class="p">));</span>
+        
+        <span class="c1">#Correct all voltages in a loop</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+            <span class="n">tottimevolt</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+            <span class="n">colnm</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">horizontalHeaderItem</span><span class="p">(</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">();</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+                <span class="n">rownm</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">verticalHeaderItem</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">();</span>
+                <span class="n">rmp</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">());</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">rownm</span><span class="o">!=</span><span class="s1">&#39;corrD&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH1&#39;</span> <span class="ow">or</span> <span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH2&#39;</span> <span class="ow">or</span> <span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH3&#39;</span> <span class="ow">or</span> <span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH4&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">rmp</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                        <span class="n">tottimevolt</span><span class="o">=</span><span class="n">tottimevolt</span><span class="o">+</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">*</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">())));</span>
+                    <span class="k">if</span> <span class="n">rmp</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">row</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                            <span class="n">tottimevolt</span><span class="o">=</span><span class="n">tottimevolt</span><span class="o">+</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">*</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">tottimevolt</span><span class="o">=</span><span class="n">tottimevolt</span><span class="o">+</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">*</span><span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">+</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">())))</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+                <span class="n">voltD</span><span class="o">=-</span><span class="n">tottimevolt</span><span class="o">/</span><span class="n">timeD</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">column</span><span class="o">!=</span><span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">column</span><span class="o">!=</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH1&#39;</span> <span class="ow">or</span> <span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH2&#39;</span> <span class="ow">or</span> <span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH3&#39;</span> <span class="ow">or</span> <span class="n">colnm</span><span class="o">==</span><span class="s1">&#39;CH4&#39;</span><span class="p">):</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">dpos</span><span class="p">,</span><span class="n">column</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%f</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">voltD</span><span class="p">));</span></div>
+            
+
+
+<span class="c1">#############################################################################################</span>
+   
+    <span class="c1">#def loadElement(self,path):</span>
+     <span class="c1">#   seq = bb.Sequence.init_from_json(path)</span>
+    
+    
+
+<div class="viewcode-block" id="Gelem.write_element"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem.write_element">[docs]</a>    <span class="k">def</span> <span class="nf">write_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">element</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><span class="n">SR</span><span class="p">:</span><span class="nb">float</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span><span class="n">SeqAmp</span><span class="p">:</span><span class="nb">float</span> <span class="o">=</span> <span class="mf">10e-3</span><span class="p">,</span><span class="n">SeqOffset</span><span class="p">:</span><span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span><span class="c1"># -&gt; None</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">SR</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">element</span><span class="o">.</span><span class="n">setSR</span><span class="p">(</span><span class="n">SR</span><span class="p">)</span>
+        <span class="n">seqtmp</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Sequence</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
+            <span class="n">seqtmp</span><span class="o">.</span><span class="n">addElement</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+            <span class="n">seqtmp</span><span class="o">.</span><span class="n">setChannelAmplitude</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">SeqAmp</span><span class="p">)</span>
+            <span class="n">seqtmp</span><span class="o">.</span><span class="n">setChannelOffset</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">seqtmp</span><span class="o">.</span><span class="n">setSR</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">SR</span><span class="p">)</span>
+        <span class="n">seqtmp</span><span class="o">.</span><span class="n">write_to_json</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Gelem.saveElement"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem.saveElement">[docs]</a>    <span class="k">def</span> <span class="nf">saveElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">path</span><span class="p">):</span>
+        <span class="c1">#self.gelem.write_to_json(path)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="p">,</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seq_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libpath</span><span class="p">)</span> <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libpath</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span>  </div>
+
+
+        <span class="c1"># From Sequence</span>
+<div class="viewcode-block" id="Gelem.from_sequence"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem.from_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">from_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">seq</span><span class="p">):</span>
+         
+        <span class="n">seq_description</span> <span class="o">=</span> <span class="n">seq</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">][</span><span class="s1">&#39;channels&#39;</span><span class="p">]</span>
+        <span class="n">seg_name</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seg_durations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">seg_ramp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">marker1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">marker2</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="n">seq_description</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ch_values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">channels_marker1</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">channels_marker2</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">marker1_rel</span> <span class="o">=</span> <span class="n">seq_description</span><span class="p">[</span><span class="n">chan</span><span class="p">][</span><span class="s1">&#39;marker1_rel&#39;</span><span class="p">]</span>
+            <span class="n">marker2_rel</span> <span class="o">=</span> <span class="n">seq_description</span><span class="p">[</span><span class="n">chan</span><span class="p">][</span><span class="s1">&#39;marker2_rel&#39;</span><span class="p">]</span>
+            <span class="n">seg_mar_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">seq_description</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">seg_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">seg_mar_list</span> <span class="k">if</span> <span class="s1">&#39;segment&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">seg_list</span><span class="p">):</span>
+                <span class="n">seg_digt</span> <span class="o">=</span> <span class="n">seq_description</span><span class="p">[</span><span class="n">chan</span><span class="p">][</span><span class="n">seg</span><span class="p">]</span>
+                <span class="n">tmp_name</span> <span class="o">=</span> <span class="n">seg_digt</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+                <span class="n">tmp_durations</span> <span class="o">=</span> <span class="n">seg_digt</span><span class="p">[</span><span class="s2">&quot;durations&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">tmp_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seg_name</span><span class="p">:</span>
+                    <span class="n">seg_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_name</span><span class="p">)</span>
+                    <span class="n">seg_durations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_durations</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">seg_digt</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">seg_digt</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;stop&#39;</span><span class="p">]:</span>
+                        <span class="n">seg_ramp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">seg_ramp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">ch_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seg_digt</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;stop&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">marker1_rel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">):</span>
+                    <span class="n">channels_marker1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">channels_marker1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    
+                <span class="k">if</span> <span class="n">marker2_rel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">):</span>
+                    <span class="n">channels_marker2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">channels_marker2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>             
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_values</span><span class="p">)</span>
+            <span class="n">marker1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channels_marker1</span><span class="p">)</span>
+            <span class="n">marker2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channels_marker2</span><span class="p">)</span>
+         
+        <span class="bp">self</span><span class="o">.</span><span class="n">nchans</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">nsegs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+        <span class="n">table</span><span class="o">.</span><span class="n">setColumnCount</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="n">nsegs</span><span class="p">)</span>
+        
+        <span class="c1">#Set horizontal headers</span>
+        <span class="n">h</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;Time (us)&quot;</span><span class="p">));</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;Ramp? 1=Yes&quot;</span><span class="p">));</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="p">):</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;CH</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)));</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="n">h</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;CH</span><span class="si">%d</span><span class="s2">M1&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)));</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="n">h</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;CH</span><span class="si">%d</span><span class="s2">M2&quot;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)));</span>
+            <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="o">+</span><span class="mi">2</span><span class="p">;</span>
+        
+        <span class="c1">#Set vertical headers</span>
+        <span class="c1">#nlist= seg_name</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">seg_name</span><span class="p">):</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setVerticalHeaderItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">name</span><span class="p">));</span>
+            
+        
+        <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsegs</span><span class="p">):</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">seg_durations</span><span class="p">[</span><span class="n">seg</span><span class="p">]</span><span class="o">/</span><span class="mf">1e-6</span><span class="p">)</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+            <span class="n">ramp_yes</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">seg_ramp</span><span class="p">[</span><span class="n">seg</span><span class="p">])</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">duration</span><span class="p">))</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">ramp_yes</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="p">):</span>
+               <span class="n">val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="n">seg</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">divch</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">))</span>
+               <span class="n">mark1</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">marker1</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="n">seg</span><span class="p">])</span>
+               <span class="n">mark2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">marker2</span><span class="p">[</span><span class="n">ch</span><span class="p">][</span><span class="n">seg</span><span class="p">])</span>
+               <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span><span class="n">ch</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+               <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span><span class="n">ch</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">mark1</span><span class="p">))</span>
+               <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span><span class="n">ch</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">5</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">mark2</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Gelem.loadElement"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem.loadElement">[docs]</a>    <span class="k">def</span> <span class="nf">loadElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Sequence</span><span class="o">.</span><span class="n">init_from_json</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">from_sequence</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">seq</span><span class="o">=</span><span class="n">seq</span><span class="p">)</span></div>
+    
+        
+<div class="viewcode-block" id="Gelem.plotElement"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.Gelem.plotElement">[docs]</a>    <span class="k">def</span> <span class="nf">plotElement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">plotter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="p">)</span></div></div>
+    
+
+<span class="c1">#############################################################################################</span>
+
+
+
+
+
+      
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

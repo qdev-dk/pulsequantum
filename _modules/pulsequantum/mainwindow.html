@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pulsequantum.mainwindow &mdash; pulsequantum 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pulsequantum
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">pulsequantum API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_notebooks/index.html">Examples of using pulsequantum</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pulsequantum</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pulsequantum.mainwindow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pulsequantum.mainwindow</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">broadbean</span> <span class="k">as</span> <span class="nn">bb</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QLabel</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QCheckBox</span><span class="p">,</span> <span class="n">QTableWidget</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QGridLayout</span>
+<span class="kn">from</span> <span class="nn">pulsequantum.awgsequencing</span> <span class="kn">import</span> <span class="n">Sequencing</span>
+<span class="kn">from</span> <span class="nn">pulsequantum.pulsebuilding</span> <span class="kn">import</span> <span class="n">Gelem</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">listdir</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">pulsequantum.dftable</span> <span class="kn">import</span> <span class="n">QTableWidgetDF</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;QT5Agg&#39;</span><span class="p">)</span>
+
+
+
+<span class="c1">#############################################################################################</span>
+<span class="c1">#Hardcoded stuff, should incorporate into main code</span>
+<span class="c1">#############################################################################################</span>
+
+<span class="n">divch1</span><span class="o">=</span><span class="mf">11.5</span><span class="p">;</span><span class="n">divch2</span><span class="o">=</span><span class="mf">11.75</span><span class="p">;</span><span class="n">divch3</span><span class="o">=</span><span class="mf">11.7</span><span class="p">;</span><span class="n">divch4</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="c1">#Hardcoded channel dividers</span>
+<span class="n">divch</span><span class="o">=</span><span class="p">[</span><span class="n">divch1</span><span class="p">,</span><span class="n">divch2</span><span class="p">,</span><span class="n">divch3</span><span class="p">,</span><span class="n">divch4</span><span class="p">];</span>
+
+<div class="viewcode-block" id="pulsetable"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable">[docs]</a><span class="k">class</span> <span class="nc">pulsetable</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">,</span><span class="n">Gelem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the GUI setup for the main window</span>
+
+<span class="sd">    AWG=None AWG instance</span>
+<span class="sd">    nchans=2 number of channels,</span>
+<span class="sd">    nlines=3 number of elements</span>
+<span class="sd">    corrDflag=0 Global flag: Is correction D pulse already defined in the pulse table?</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AWG</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nchans</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">nlines</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">corrDflag</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">1100</span><span class="p">,</span> <span class="mi">900</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;Pulse Table Panel&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mainwindow</span> <span class="o">=</span> <span class="n">pulsetable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statusBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequencebox</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span> <span class="o">=</span> <span class="n">AWG</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nchans</span> <span class="o">=</span> <span class="n">nchans</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlines</span> <span class="o">=</span> <span class="n">nlines</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrDflag</span> <span class="o">=</span> <span class="n">corrDflag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="pulsetable.home"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seq_files</span><span class="p">)</span>
+        <span class="c1"># Set up initial pulse table</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">QTableWidgetDF</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadElement</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;initfiles/init.json&#39;</span><span class="p">)))</span>
+
+        <span class="c1"># Divider wiget</span>
+        <span class="n">win_divider</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lay_divider</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">win_divider</span><span class="p">)</span>
+        <span class="n">chlabel</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">chbox</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>  <span class="c1"># todo make dynamic with number of channels</span>
+            <span class="n">chlabel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="n">chlabel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Ch</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">chbox</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+            <span class="n">chbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">divch</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">lay_divider</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">chlabel</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">lay_divider</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Set dividers</span>
+        <span class="n">divbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Set Dividers&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">divbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setDividers</span><span class="p">(</span><span class="n">chbox</span><span class="p">))</span>
+        <span class="n">lay_divider</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">divbtn</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">win_divider</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">520</span><span class="p">)</span>
+        <span class="n">win_divider</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> 
+
+        <span class="c1"># AWG clock (&quot;sample rate&quot;)</span>
+        <span class="n">win_AWGclock</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lay_AWGclock</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">win_AWGclock</span><span class="p">)</span>
+        <span class="n">setawgclockbox</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">setawgclockbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;1.2&#39;</span><span class="p">)</span>
+        <span class="n">setawgclocklabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">setawgclocklabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;AWG Clock (GS/s)&#39;</span><span class="p">)</span>
+        <span class="n">setawgclocklabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">setawgclocklabel</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">setawgclockbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Set AWG Clock&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">setawgclockbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setAWGClock</span><span class="p">(</span><span class="n">setawgclockbox</span><span class="p">))</span>
+        <span class="n">setawgclockbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">setawgclockbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">lay_AWGclock</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">setawgclocklabel</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_AWGclock</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">setawgclockbox</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_AWGclock</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">setawgclockbtn</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">win_AWGclock</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">520</span><span class="p">)</span>
+        <span class="n">win_AWGclock</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> 
+        
+        <span class="c1"># Absolute Marker</span>
+        <span class="n">win</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">lay</span><span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">win</span><span class="p">);</span>
+        <span class="n">lay</span><span class="o">.</span><span class="n">addStretch</span><span class="p">();</span>
+        <span class="n">lay1</span><span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">();</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addStretch</span><span class="p">();</span>
+        <span class="n">lay2</span><span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">();</span>
+        <span class="n">lay2</span><span class="o">.</span><span class="n">addStretch</span><span class="p">();</span>
+        <span class="n">absmarkerch</span><span class="o">=</span><span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chbox</span><span class="p">)):</span> 
+            <span class="n">absmarkerch</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;CH</span><span class="si">%d</span><span class="s1">M1&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span><span class="n">absmarkerch</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;CH</span><span class="si">%d</span><span class="s1">M2&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span>
+        <span class="n">absstart</span><span class="o">=</span><span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">absstart</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">);</span><span class="n">absstart</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">absstart</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span><span class="n">absstop</span><span class="o">=</span><span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">absstop</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">);</span><span class="n">absstop</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">absstop</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span>
+        <span class="n">abssetbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Set (us)&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span><span class="n">absrembtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Remove All&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span><span class="n">abssetbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">absMarkerSet</span><span class="p">(</span><span class="n">absmarkerch</span><span class="p">,</span><span class="n">absstart</span><span class="p">,</span><span class="n">absstop</span><span class="p">));</span><span class="n">absrembtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">absMarkerRemove</span><span class="p">(</span><span class="n">absmarkerch</span><span class="p">))</span>
+        <span class="n">lay</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">absmarkerch</span><span class="p">);</span><span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">absstart</span><span class="p">);</span><span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">absstop</span><span class="p">);</span>
+        <span class="n">lay2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">abssetbtn</span><span class="p">);</span><span class="n">lay2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">absrembtn</span><span class="p">);</span><span class="n">lay</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">lay1</span><span class="p">);</span><span class="n">lay</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">lay2</span><span class="p">);</span>
+        <span class="n">win</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span><span class="mi">530</span><span class="p">);</span>
+        <span class="n">win</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">win</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span>
+        <span class="n">absmarkerbox</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">absmarkerbox</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">830</span><span class="p">,</span> <span class="mi">515</span><span class="p">);</span><span class="n">absmarkerbox</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">absMarkerWidget</span><span class="p">(</span><span class="n">absmarkerbox</span><span class="p">,</span><span class="n">win</span><span class="p">))</span>
+        <span class="n">absmarkerboxlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">absmarkerboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Absolute Marker&#39;</span><span class="p">);</span><span class="n">absmarkerboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">720</span><span class="p">,</span> <span class="mi">520</span><span class="p">);</span><span class="n">absmarkerboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">absmarkerboxlabel</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+
+        <span class="c1"># lib box</span>
+        <span class="n">libbox</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">libbox</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s2">&quot;-Load From Lib-&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seq_files</span><span class="p">)):</span>
+            <span class="n">libbox</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seq_files</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">save_to</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">save_to</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;enter file name&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># This is the start of top left buttons</span>
+        <span class="n">win_puls</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">lay_puls</span><span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">win_puls</span><span class="p">);</span>        
+
+        <span class="c1">#Plot Element</span>
+        <span class="n">plotbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Plot Element&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="c1">#plotbtn.resize(plotbtn.sizeHint());plotbtn.move(185, 10)</span>
+        <span class="n">plotbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">plotElement</span><span class="p">())</span>
+        
+        <span class="c1">#Generate Element</span>
+        <span class="n">runbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Generate Element&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span>
+        <span class="c1">#runbtn.resize(runbtn.sizeHint());runbtn.move(40, 10);</span>
+        <span class="n">runbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">generateElement</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+        
+        <span class="c1">#Save Element</span>
+        <span class="n">savebtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Save Element&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">savebtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">saveElement</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libpath</span><span class="p">,</span><span class="n">save_to</span><span class="o">.</span><span class="n">text</span><span class="p">())))</span>
+        
+        <span class="c1">#Load Element</span>
+        <span class="n">loadbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Load Element&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">loadbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">loadElement</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">path</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">libpath</span><span class="p">,</span><span class="n">libbox</span><span class="o">.</span><span class="n">currentText</span><span class="p">())</span> <span class="p">))</span>
+        
+        <span class="c1">#Populate table from Sequence</span>
+        <span class="n">table_from_seq</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Element from Sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">table_from_seq</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_sequence</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">seq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequencebox</span><span class="o">.</span><span class="n">gseq</span><span class="p">))</span>
+        
+        <span class="n">lay_puls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">runbtn</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_puls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">plotbtn</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_puls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">savebtn</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_puls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">save_to</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_puls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">loadbtn</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_puls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">libbox</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_puls</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">table_from_seq</span> <span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">win_puls</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">win_puls</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">win_puls</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        
+        <span class="c1"># This is the end of top left buttons</span>
+
+        <span class="c1">#Add a channel</span>
+        <span class="n">whichch</span><span class="o">=</span><span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">whichch</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">420</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chbox</span><span class="p">)):</span> 
+            <span class="n">whichch</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;CH</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span>
+        <span class="n">addchbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Add Channel&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">addchbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">addChannel</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">whichch</span><span class="p">))</span>
+        <span class="n">addchbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">addchbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">addchbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        
+        <span class="c1">#Remove a channel</span>
+        <span class="n">remchbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Remove Channel&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">remchbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">remChannel</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">whichch</span><span class="p">))</span>
+        <span class="n">remchbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">remchbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">remchbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">470</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        
+        <span class="c1">#Add a pulse</span>
+        <span class="n">addpbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Add Pulse&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">whichp</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">whichp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Set name&#39;</span><span class="p">);</span><span class="n">whichp</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">720</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">70</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span>
+        <span class="n">addpbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">addPulse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">whichp</span><span class="p">))</span>
+        <span class="n">addpbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">addpbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">addpbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">660</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        
+        <span class="c1">#Remove a pulse</span>
+        <span class="n">rempbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Remove Pulse&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">rempbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">remPulse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">whichp</span><span class="p">))</span>
+        <span class="n">rempbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">rempbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">rempbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">760</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        
+        <span class="c1">#Rename a pulse</span>
+        <span class="n">renamepbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Rename Pulse&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span><span class="n">renamepbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">renamepbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span><span class="n">renamepbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">910</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        <span class="n">oldpname</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">oldpname</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Old name&#39;</span><span class="p">);</span><span class="n">oldpname</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">890</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">70</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span>
+        <span class="n">newpname</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">newpname</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;New name&#39;</span><span class="p">);</span><span class="n">newpname</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">965</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">70</span><span class="p">,</span><span class="mi">20</span><span class="p">);</span>
+        <span class="n">renamepbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">renamePulse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">oldpname</span><span class="p">,</span><span class="n">newpname</span><span class="p">))</span>
+        
+        <span class="c1">#Remove a pulse</span>
+        <span class="n">rempbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Remove Pulse&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">rempbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">remPulse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="n">whichp</span><span class="p">))</span>
+        <span class="n">rempbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">rempbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">rempbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">760</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        
+        
+        <span class="c1">#Correction D</span>
+        <span class="n">corrbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Correction D&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">corrbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">correctionD</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+        <span class="n">corrbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">corrbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">corrbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span>
+
+         
+
+        <span class="c1">#Sequence and upload</span>
+        <span class="n">seqbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Upload Sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">seqbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="p">())</span>
+        <span class="n">seqbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">seqbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">seqbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span>   
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">win</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
+        
+        
+<div class="viewcode-block" id="pulsetable.addChannel"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.addChannel">[docs]</a>    <span class="k">def</span> <span class="nf">addChannel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">,</span><span class="n">whichch</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">whichch</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">();</span>
+        <span class="n">ch</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span><span class="n">chno</span><span class="o">=</span><span class="n">ch</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">columnCount</span><span class="p">();</span><span class="n">nchan</span><span class="o">=</span><span class="nb">int</span><span class="p">((</span><span class="n">table</span><span class="o">.</span><span class="n">columnCount</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span><span class="p">);</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">insertColumn</span><span class="p">(</span><span class="n">nchan</span><span class="o">+</span><span class="mi">2</span><span class="p">);</span><span class="n">table</span><span class="o">.</span><span class="n">insertColumn</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="n">table</span><span class="o">.</span><span class="n">insertColumn</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">);</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="n">nchan</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;CH</span><span class="si">%d</span><span class="s2">&quot;</span><span class="o">%</span><span class="n">chno</span><span class="p">));</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;CH</span><span class="si">%d</span><span class="s2">M1&quot;</span><span class="o">%</span><span class="n">chno</span><span class="p">));</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;CH</span><span class="si">%d</span><span class="s2">M2&quot;</span><span class="o">%</span><span class="n">chno</span><span class="p">));</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">nchan</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+            <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span></div>
+    
+<div class="viewcode-block" id="pulsetable.remChannel"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.remChannel">[docs]</a>    <span class="k">def</span> <span class="nf">remChannel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">,</span><span class="n">whichch</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nchans</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">columnCount</span><span class="p">();</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">temp</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">whichch</span><span class="o">.</span><span class="n">currentText</span><span class="p">());</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">horizontalHeaderItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">==</span><span class="n">temp</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">removeColumn</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">horizontalHeaderItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">==</span><span class="n">temp</span><span class="o">+</span><span class="s2">&quot;M1&quot;</span><span class="p">:</span>    
+                <span class="n">table</span><span class="o">.</span><span class="n">removeColumn</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">horizontalHeaderItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">==</span><span class="n">temp</span><span class="o">+</span><span class="s2">&quot;M2&quot;</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">removeColumn</span><span class="p">(</span><span class="n">i</span><span class="p">);</span></div>
+    
+<div class="viewcode-block" id="pulsetable.addPulse"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.addPulse">[docs]</a>    <span class="k">def</span> <span class="nf">addPulse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">,</span><span class="n">whichp</span><span class="p">,</span><span class="n">i</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlines</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nlines</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">==-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">();</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">=</span><span class="n">i</span><span class="p">;</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">insertRow</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">setVerticalHeaderItem</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">whichp</span><span class="o">.</span><span class="n">text</span><span class="p">()));</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">columnCount</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">column</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">column</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">));</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">column</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span></div>
+    
+<div class="viewcode-block" id="pulsetable.remPulse"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.remPulse">[docs]</a>    <span class="k">def</span> <span class="nf">remPulse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">,</span><span class="n">whichp</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlines</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nlines</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">verticalHeaderItem</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="n">whichp</span><span class="o">.</span><span class="n">text</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">whichp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">==</span><span class="s1">&#39;corrD&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">corrDflag</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">removeRow</span><span class="p">(</span><span class="n">n</span><span class="p">);</span></div>
+    
+<div class="viewcode-block" id="pulsetable.renamePulse"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.renamePulse">[docs]</a>    <span class="k">def</span> <span class="nf">renamePulse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">table</span><span class="p">,</span><span class="n">oldpname</span><span class="p">,</span><span class="n">newpname</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">table</span><span class="o">.</span><span class="n">verticalHeaderItem</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">==</span><span class="n">oldpname</span><span class="o">.</span><span class="n">text</span><span class="p">():</span>
+                <span class="n">table</span><span class="o">.</span><span class="n">setVerticalHeaderItem</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">newpname</span><span class="o">.</span><span class="n">text</span><span class="p">()));</span></div>
+    
+    
+        
+<div class="viewcode-block" id="pulsetable.setDividers"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.setDividers">[docs]</a>    <span class="k">def</span> <span class="nf">setDividers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">chbox</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">divch</span><span class="p">)):</span>
+            <span class="n">divch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()));</span></div>
+        
+<div class="viewcode-block" id="pulsetable.setAWGClock"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.setAWGClock">[docs]</a>    <span class="k">def</span> <span class="nf">setAWGClock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">setawgclockbox</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">awgclock</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">setawgclockbox</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">*</span><span class="mf">1e9</span><span class="p">;</span></div>
+        
+<div class="viewcode-block" id="pulsetable.absMarkerWidget"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.absMarkerWidget">[docs]</a>    <span class="k">def</span> <span class="nf">absMarkerWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">absmarkerbox</span><span class="p">,</span><span class="n">win</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">absmarkerbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">win</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="pulsetable.absMarkerSet"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.absMarkerSet">[docs]</a>    <span class="k">def</span> <span class="nf">absMarkerSet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">absmarkerch</span><span class="p">,</span><span class="n">absstart</span><span class="p">,</span><span class="n">absstop</span><span class="p">):</span>
+        <span class="n">tempbp</span><span class="o">=</span><span class="n">bb</span><span class="o">.</span><span class="n">BluePrint</span><span class="p">();</span>
+        <span class="n">mstart</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">absstart</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">);</span>
+        <span class="n">mstop</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">absstop</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">);</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">absmarkerch</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">();</span>
+        <span class="n">ch</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span><span class="n">chno</span><span class="o">=</span><span class="n">ch</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+        <span class="n">mno</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">];</span><span class="n">m</span><span class="o">=</span><span class="n">mno</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+        <span class="n">tempbp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">chno</span><span class="p">][</span><span class="s1">&#39;blueprint&#39;</span><span class="p">];</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">tempbp</span><span class="o">.</span><span class="n">marker1</span><span class="o">=</span><span class="p">[(</span><span class="n">mstart</span><span class="p">,</span><span class="n">mstop</span><span class="p">)];</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+            <span class="n">tempbp</span><span class="o">.</span><span class="n">marker2</span><span class="o">=</span><span class="p">[(</span><span class="n">mstart</span><span class="p">,</span><span class="n">mstop</span><span class="p">)];</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">chno</span><span class="p">][</span><span class="s1">&#39;blueprint&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">tempbp</span><span class="p">;</span></div>
+    
+<div class="viewcode-block" id="pulsetable.absMarkerRemove"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.absMarkerRemove">[docs]</a>    <span class="k">def</span> <span class="nf">absMarkerRemove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">absmarkerch</span><span class="p">):</span>
+        <span class="n">tempbp</span><span class="o">=</span><span class="n">bb</span><span class="o">.</span><span class="n">BluePrint</span><span class="p">();</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">absmarkerch</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">();</span>
+        <span class="n">ch</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span><span class="n">chno</span><span class="o">=</span><span class="n">ch</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+        <span class="n">mno</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">];</span><span class="n">m</span><span class="o">=</span><span class="n">mno</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+        <span class="n">tempbp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">chno</span><span class="p">][</span><span class="s1">&#39;blueprint&#39;</span><span class="p">];</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">tempbp</span><span class="o">.</span><span class="n">marker1</span><span class="o">=</span><span class="p">[];</span>
+        <span class="k">if</span> <span class="n">m</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+            <span class="n">tempbp</span><span class="o">.</span><span class="n">marker2</span><span class="o">=</span><span class="p">[];</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">chno</span><span class="p">][</span><span class="s1">&#39;blueprint&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">tempbp</span><span class="p">;</span></div>
+        
+        
+
+
+    
+<div class="viewcode-block" id="pulsetable.sequence"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.sequence">[docs]</a>    <span class="k">def</span> <span class="nf">sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequencebox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sequencebox</span> <span class="o">=</span> <span class="n">Sequencing</span><span class="p">(</span><span class="n">AWG</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="p">,</span> <span class="n">gelem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sequencebox</span><span class="o">.</span><span class="n">exec_</span><span class="p">();</span>
+        <span class="k">else</span><span class="p">:</span>
+<span class="c1">#            global_point = callWidget.mapToGlobal(point)</span>
+<span class="c1">#            self._sequencebox.move(global_point - QtCore.QPoint(self.width(), 0))</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">SetForegroundWindow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sequencebox</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="pulsetable.close_application"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.mainwindow.pulsetable.close_application">[docs]</a>    <span class="k">def</span> <span class="nf">close_application</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">choice</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;Message&#39;</span><span class="p">,</span>
+                                     <span class="s2">&quot;Are you sure to quit?&quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span> <span class="o">|</span>
+                                     <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;quit application&#39;</span><span class="p">)</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div></div>
+    
+
+    
+
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

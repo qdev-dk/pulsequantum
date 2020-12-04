@@ -14,10 +14,66 @@ Subpackages
 Submodules
 ----------
 
+pulsequantum.PulseGUI module
+----------------------------
+
+.. automodule:: pulsequantum.PulseGUI
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulsequantum.app module
+-----------------------
+
+.. automodule:: pulsequantum.app
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulsequantum.awgsequencing module
+---------------------------------
+
+.. automodule:: pulsequantum.awgsequencing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulsequantum.dftable module
+---------------------------
+
+.. automodule:: pulsequantum.dftable
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pulsequantum.hello\_world module
 --------------------------------
 
 .. automodule:: pulsequantum.hello_world
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulsequantum.mainwindow module
+------------------------------
+
+.. automodule:: pulsequantum.mainwindow
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulsequantum.pulsebuilding module
+---------------------------------
+
+.. automodule:: pulsequantum.pulsebuilding
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulsequantum.sequencebuilding module
+------------------------------------
+
+.. automodule:: pulsequantum.sequencebuilding
    :members:
    :undoc-members:
    :show-inheritance:

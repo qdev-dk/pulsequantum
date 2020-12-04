@@ -20,6 +20,14 @@ pulsequantum.tests.test\_config module
    :undoc-members:
    :show-inheritance:
 
+pulsequantum.tests.test\_dftable module
+---------------------------------------
+
+.. automodule:: pulsequantum.tests.test_dftable
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pulsequantum.tests.test\_installation module
 --------------------------------------------
 

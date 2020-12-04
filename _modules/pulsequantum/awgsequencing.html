@@ -1,0 +1,494 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pulsequantum.awgsequencing &mdash; pulsequantum 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pulsequantum
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">pulsequantum API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_notebooks/index.html">Examples of using pulsequantum</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pulsequantum</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pulsequantum.awgsequencing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pulsequantum.awgsequencing</h1><div class="highlight"><pre>
+<span></span><span class="c1">#todo: </span>
+<span class="c1">#- fix sampling rate to match clock speed when changed</span>
+
+<span class="c1"># import and initialise the driver and ensure that the sample</span>
+<span class="c1"># rate and channel voltage is correct</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QFrame</span><span class="p">,</span>  <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QLabel</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QCheckBox</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QTableWidget</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">,</span> <span class="n">QVBoxLayout</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QGridLayout</span>
+<span class="kn">from</span> <span class="nn">broadbean.plotting</span> <span class="kn">import</span> <span class="n">plotter</span>
+<span class="kn">from</span> <span class="nn">pulsequantum.sequencebuilding</span> <span class="kn">import</span> <span class="n">Gseq</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;QT5Agg&#39;</span><span class="p">)</span>
+
+
+
+<span class="c1">#Any new parameter defined for the &quot;Special&quot; sequencing tab needs to go here in order to appear in the dropdown menu</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;det&quot;</span><span class="p">,</span> <span class="s2">&quot;psm_load&quot;</span><span class="p">,</span> <span class="s2">&quot;psm_unload&quot;</span><span class="p">,</span> <span class="s2">&quot;psm_load_sym&quot;</span><span class="p">,</span> <span class="s2">&quot;psm_unload_sym&quot;</span><span class="p">,</span> <span class="s2">&quot;dephasing_corrD&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Sequencing"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Sequencing">[docs]</a><span class="k">class</span> <span class="nc">Sequencing</span><span class="p">(</span><span class="n">QDialog</span><span class="p">,</span> <span class="n">Gseq</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for sequencing (secondary) window</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AWG</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gelem</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">AWG</span><span class="o">=</span><span class="n">AWG</span><span class="p">,</span> <span class="n">gelem</span><span class="o">=</span><span class="n">gelem</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Sequencing&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">350</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">home</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Sequencing.home"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Sequencing.home">[docs]</a>    <span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c1"># Create channel voltage, divider and offset boxes and buttons</span>
+        <span class="n">win4</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lay4</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">win4</span><span class="p">)</span>
+        <span class="n">vpp</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">vpp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Vpp&#39;</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">offset</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Offset&#39;</span><span class="p">)</span>
+        <span class="n">lay4</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">vpp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay4</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">number_channels</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">chlabel</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">number_channels</span><span class="p">))</span>
+        <span class="n">chbox</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">number_channels</span><span class="p">))</span>
+        <span class="n">offbox</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">number_channels</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_channels</span><span class="p">):</span>
+            <span class="n">chlabel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">chlabel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Ch</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">chbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">chbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;4.5&#39;</span><span class="p">)</span>
+            <span class="n">offbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">offbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+            <span class="n">lay4</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">chlabel</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">lay4</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">lay4</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">offbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">win4</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+        <span class="c1"># Continuous sequence?</span>
+        <span class="n">contseq</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lay_contseq</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">contseq</span><span class="p">)</span>
+        <span class="n">contseqboxlabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">contseqboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Simple continuous element?&#39;</span><span class="p">)</span>
+        <span class="n">contseqboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">contseqboxlabel</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">contseqbox</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lay_contseq</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">contseqboxlabel</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay_contseq</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">contseqbox</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">contseq</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">280</span><span class="p">)</span>
+
+        <span class="c1"># Upload to AWG</span>
+        <span class="c1"># Function</span>
+        <span class="n">uploadbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Upload To AWG&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">uploadbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uploadToAWG</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Choose_awg</span><span class="o">.</span><span class="n">currentText</span><span class="p">()),</span> <span class="n">chbox</span><span class="p">))</span>
+        
+        <span class="c1"># Choose awg</span>
+        <span class="n">Choose_awg</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">Choose_awg</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;AWG5014&#39;</span><span class="p">)</span>
+        <span class="n">Choose_awg</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s1">&#39;AWG5208&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Update sequencing parameters: table and update button</span>
+        <span class="n">win2</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lay2</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">win2</span><span class="p">)</span>
+        <span class="n">seqtable</span> <span class="o">=</span> <span class="n">QTableWidget</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">seqtable</span><span class="o">.</span><span class="n">setColumnCount</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="c1"># Set top headers</span>
+        <span class="n">hlist</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TrigWait&quot;</span><span class="p">,</span> <span class="s2">&quot;NumReps&quot;</span><span class="p">,</span> <span class="s2">&quot;JumpTarget&quot;</span><span class="p">,</span> <span class="s2">&quot;Goto&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hlist</span><span class="p">)):</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setColumnWidth</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setHorizontalHeaderItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">hlist</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">seqtable</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">updateseqbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Update sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">updateseqbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">changedSeqTable</span><span class="p">(</span><span class="n">seqtable</span><span class="p">))</span>
+        <span class="n">updateseqbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">updateseqbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">lay2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">seqtable</span><span class="p">)</span>
+        <span class="n">lay2</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">updateseqbtn</span><span class="p">)</span>
+        <span class="n">win2</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">450</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="n">win2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">win2</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        
+        <span class="c1"># Update sequencing parameters: do this?</span>
+        <span class="n">changeseqbox</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">changeseqbox</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">630</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">changeseqbox</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">seqchangeWidget</span><span class="p">(</span><span class="n">changeseqbox</span><span class="p">,</span> <span class="n">win2</span><span class="p">,</span> <span class="n">seqtable</span><span class="p">,</span> <span class="n">seqpts</span><span class="p">))</span>
+        <span class="n">changeseqboxlabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">changeseqboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Change sequencing options?&#39;</span><span class="p">)</span>
+        <span class="n">changeseqboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">450</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">changeseqboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">changeseqboxlabel</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        
+        <span class="c1"># Build Sequence and take parameters</span>
+        <span class="n">win3</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lay3</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">win3</span><span class="p">)</span>
+        <span class="n">buildseqlabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">buildseqlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Select a parameter to build the sequence:&#39;</span><span class="p">)</span>
+        <span class="n">buildseqlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">buildseqlabel</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">buildseqbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Build sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">buildseqbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildSequenceWrap</span><span class="p">(</span><span class="n">chbox</span><span class="p">,</span> <span class="n">offbox</span><span class="p">,</span> <span class="n">contseqbox</span><span class="p">,</span> <span class="n">timevoltbox</span><span class="p">,</span> <span class="n">whichpulse</span><span class="p">,</span> <span class="n">sparambox</span><span class="p">,</span> <span class="n">seqstart</span><span class="p">,</span> <span class="n">seqstop</span><span class="p">,</span> <span class="n">seqpts</span><span class="p">))</span>
+        <span class="n">buildseqbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">buildseqbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">buildseqbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        
+        <span class="c1"># Native and special parameters</span>
+        <span class="n">timevoltbox</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">timevoltbox</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_channels</span><span class="p">):</span>
+            <span class="n">timevoltbox</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s2">&quot;Ch%</span><span class="si">{}</span><span class="s2"> Voltage&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">whichpulse</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">whichpulse</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Which pulse?&#39;</span><span class="p">)</span>
+        <span class="n">whichpulse</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">whichpulse</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">sparambox</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">sparambox</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s2">&quot;-Special-&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)):</span>
+            <span class="n">sparambox</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="c1"># Start/stop and build</span>
+        <span class="n">lay32</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">lay32</span><span class="o">.</span><span class="n">addStretch</span><span class="p">()</span>
+        <span class="n">startslabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">startslabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Start:&#39;</span><span class="p">)</span>
+        <span class="n">stopslabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">stopslabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Stop:&#39;</span><span class="p">)</span>
+        <span class="n">pointsslabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">pointsslabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Points:&#39;</span><span class="p">)</span>
+        <span class="n">seqstart</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">seqstart</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+        <span class="n">seqstart</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">seqstart</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">seqstop</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">seqstop</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+        <span class="n">seqstop</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">seqstop</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">seqpts</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">seqpts</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+        <span class="n">seqpts</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">seqpts</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">buildseqlabel</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">timevoltbox</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">whichpulse</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">sparambox</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">startslabel</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">stopslabel</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">pointsslabel</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">seqstart</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">seqstop</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">seqpts</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">buildseqbtn</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">uploadbtn</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">lay3</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">Choose_awg</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">win3</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="n">win3</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">win3</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        
+        
+        <span class="c1">#Element and sequence saving and loading</span>
+        <span class="c1">#Functions</span>
+        <span class="n">win1</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">win1</span><span class="p">);</span>
+        <span class="n">loadebtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Load Element&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span>
+        <span class="c1">#loadebtn.clicked.connect(lambda state:self.sloadElement())</span>
+        <span class="n">saveebtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Save Element&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span>
+        <span class="c1">#saveebtn.clicked.connect(lambda state: self.ssaveElement())</span>
+        <span class="n">plotebtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Plot Element&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span>
+        <span class="n">plotebtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">splotElement</span><span class="p">())</span>
+        <span class="c1"># load sequence</span>
+        <span class="n">whichSeq</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">whichSeq</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;enter file name&#39;</span><span class="p">)</span>
+        <span class="c1">#whichSeq.setGeometry(110,60,70,20)</span>
+        <span class="n">loadsbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Load Sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">loadsbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">loadSequence</span><span class="p">(</span><span class="n">whichSeq</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+        <span class="c1"># save sequence</span>
+        <span class="n">SeqTo</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">SeqTo</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;enter file name&#39;</span><span class="p">)</span>
+       <span class="c1">#SeqTo.setGeometry(20,60,70,20)</span>
+        <span class="n">savesbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Save Sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">savesbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">write_to_json</span><span class="p">(</span><span class="n">SeqTo</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+        <span class="c1"># plot sequence</span>
+        <span class="n">plotsbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Plot Sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span>
+        <span class="n">plotsbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">plotter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="p">))</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">loadebtn</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">saveebtn</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">plotebtn</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">savesbtn</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">loadsbtn</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">plotsbtn</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">SeqTo</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay1</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">whichSeq</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">win1</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">win1</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">win1</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span>
+        
+        <span class="c1">#AWG Panel stuff</span>
+        <span class="c1"># Create channel voltage, divider and offset boxes and buttons</span>
+        <span class="c1">#Divider linked to base GUI!!</span>
+        <span class="n">win5</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">lay5</span><span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="n">win5</span><span class="p">);</span>
+        <span class="n">awgframeh</span><span class="o">=</span><span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">awgframeh</span><span class="o">.</span><span class="n">setFrameShape</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="mh">0x0004</span><span class="p">));</span>
+        <span class="n">awgframeh2</span><span class="o">=</span><span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">awgframeh2</span><span class="o">.</span><span class="n">setFrameShape</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="mh">0x0004</span><span class="p">));</span>
+        <span class="n">awgframev</span><span class="o">=</span><span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">awgframev</span><span class="o">.</span><span class="n">setFrameShape</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="mh">0x0005</span><span class="p">));</span>
+        <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">awgframeh</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">);</span>
+        <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">awgframev</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">awglabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">awglabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;AWG Tools:&#39;</span><span class="p">);</span>
+        <span class="n">allonlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">allonlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;All on:&#39;</span><span class="p">);</span>
+        <span class="n">allonbox</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">allonbox</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runChan</span><span class="p">(</span><span class="n">allonbox</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+        <span class="n">achlabel1</span><span class="o">=</span><span class="s1">&#39;Ch1&#39;</span><span class="p">;</span>
+        <span class="n">achlabel2</span><span class="o">=</span><span class="s1">&#39;Ch2&#39;</span><span class="p">;</span>
+        <span class="n">achlabel3</span><span class="o">=</span><span class="s1">&#39;Ch3&#39;</span><span class="p">;</span>
+        <span class="n">achlabel4</span><span class="o">=</span><span class="s1">&#39;Ch4&#39;</span><span class="p">;</span>
+        <span class="n">achlabel</span><span class="o">=</span><span class="p">[</span><span class="n">achlabel1</span><span class="p">,</span><span class="n">achlabel2</span><span class="p">,</span><span class="n">achlabel3</span><span class="p">,</span><span class="n">achlabel4</span><span class="p">];</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">achlabel</span><span class="p">)):</span>
+            <span class="n">achlabel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">achlabel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Ch</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span>
+        <span class="n">avpp</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">avpp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Vpp&#39;</span><span class="p">);</span>
+        <span class="n">aoffset</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoffset</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Offset&#39;</span><span class="p">);</span>
+        <span class="n">aoutput</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoutput</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Output&#39;</span><span class="p">);</span>
+        <span class="n">achbox1</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">achbox2</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">achbox3</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">achbox4</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">achbox</span><span class="o">=</span><span class="p">[</span><span class="n">achbox1</span><span class="p">,</span><span class="n">achbox2</span><span class="p">,</span><span class="n">achbox3</span><span class="p">,</span><span class="n">achbox4</span><span class="p">];</span>
+        <span class="n">aoffbox1</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoffbox2</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoffbox3</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoffbox4</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">aoffbox</span><span class="o">=</span><span class="p">[</span><span class="n">aoffbox1</span><span class="p">,</span><span class="n">aoffbox2</span><span class="p">,</span><span class="n">aoffbox3</span><span class="p">,</span><span class="n">aoffbox4</span><span class="p">];</span>
+        <span class="n">aoutbox1</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoutbox2</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoutbox3</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">aoutbox4</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span>
+        <span class="n">aoutbox</span><span class="o">=</span><span class="p">[</span><span class="n">aoutbox1</span><span class="p">,</span><span class="n">aoutbox2</span><span class="p">,</span><span class="n">aoutbox3</span><span class="p">,</span><span class="n">aoutbox4</span><span class="p">];</span>
+        <span class="n">aoutbox1</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runChan</span><span class="p">(</span><span class="n">aoutbox1</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+        <span class="n">aoutbox2</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runChan</span><span class="p">(</span><span class="n">aoutbox2</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+        <span class="n">aoutbox3</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runChan</span><span class="p">(</span><span class="n">aoutbox3</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span>
+        <span class="n">aoutbox4</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runChan</span><span class="p">(</span><span class="n">aoutbox4</span><span class="p">,</span> <span class="mi">4</span><span class="p">));</span>
+        <span class="n">runAWGtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Run AWG&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">);</span>
+        <span class="n">runAWGtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">runAWG</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Choose_awg</span><span class="o">.</span><span class="n">currentText</span><span class="p">())))</span>
+        <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">awglabel</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">runAWGtn</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">achbox</span><span class="p">)):</span>
+            <span class="n">achbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;4.5&#39;</span><span class="p">);</span><span class="n">aoffbox</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">);</span>
+            <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">achbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">achlabel</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+            <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">aoffbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">aoutbox</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">avpp</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">aoffset</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">aoutput</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">allonlabel</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="n">lay5</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">allonbox</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+        <span class="n">win5</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">win5</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">win5</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">450</span><span class="p">,</span><span class="mi">270</span><span class="p">);</span>
+
+        
+        <span class="c1">#Filter Correction</span>
+        <span class="n">filtbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Filter correction&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">hfiltboxlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;High pass (us):&#39;</span><span class="p">);</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">235</span><span class="p">);</span>
+        <span class="n">lfiltboxlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Low pass (us):&#39;</span><span class="p">);</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span><span class="mi">235</span><span class="p">);</span>
+        <span class="n">hfiltbox</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;80&#39;</span><span class="p">);</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">250</span><span class="p">);</span>
+        <span class="n">lfiltbox</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">);</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">());</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span><span class="mi">250</span><span class="p">);</span>
+        <span class="n">filtbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filterCorrection</span><span class="p">(</span><span class="n">hfiltbox</span><span class="p">,</span><span class="n">lfiltbox</span><span class="p">))</span>
+        <span class="n">filtbtn</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">filtbtn</span><span class="o">.</span><span class="n">sizeHint</span><span class="p">())</span>
+        <span class="n">filtbtn</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">320</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">win2</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
+<span class="c1">############################################################################################################################################################################################################</span>
+
+
+   
+<div class="viewcode-block" id="Sequencing.seqchangeWidget"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Sequencing.seqchangeWidget">[docs]</a>    <span class="k">def</span> <span class="nf">seqchangeWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">changeseqbox</span><span class="p">,</span><span class="n">win2</span><span class="p">,</span><span class="n">seqtable</span><span class="p">,</span><span class="n">seqpts</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">changeseqbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateSeqTable</span><span class="p">(</span><span class="n">seqtable</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">seqpts</span><span class="o">.</span><span class="n">text</span><span class="p">()));</span>
+            <span class="n">win2</span><span class="o">.</span><span class="n">show</span><span class="p">();</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">win2</span><span class="o">.</span><span class="n">hide</span><span class="p">();</span></div>
+    
+<div class="viewcode-block" id="Sequencing.updateSeqTable"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Sequencing.updateSeqTable">[docs]</a>    <span class="k">def</span> <span class="nf">updateSeqTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">seqtable</span><span class="p">,</span><span class="n">seqpts</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">points</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">seqpts</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">));</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">seqtable</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="n">seqpts</span><span class="p">);</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">seqpts</span><span class="p">):</span>
+                <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+                <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">));</span>
+                <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+                <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">));</span>
+                <span class="n">seqtable</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">));</span></div></div>
+    
+    
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

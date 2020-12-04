@@ -1,0 +1,581 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pulsequantum.sequencebuilding &mdash; pulsequantum 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pulsequantum
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">pulsequantum API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_notebooks/index.html">Examples of using pulsequantum</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pulsequantum</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pulsequantum.sequencebuilding</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pulsequantum.sequencebuilding</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">broadbean</span> <span class="k">as</span> <span class="nn">bb</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<div class="viewcode-block" id="Gseq"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq">[docs]</a><span class="k">class</span> <span class="nc">Gseq</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for sequencing </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AWG</span><span class="p">,</span> <span class="n">gelem</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span> <span class="o">=</span> <span class="n">AWG</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span> <span class="o">=</span> <span class="n">gelem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Sequence</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Gseq.loadSequence"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.loadSequence">[docs]</a>    <span class="k">def</span> <span class="nf">loadSequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pathseq</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads af sequence from as json file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Sequence</span><span class="o">.</span><span class="n">init_from_json</span><span class="p">(</span><span class="n">pathseq</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Gseq.changedSeqTable"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.changedSeqTable">[docs]</a>    <span class="k">def</span> <span class="nf">changedSeqTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seqtable</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Updates gseg from seqtable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">points</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">seqtable</span><span class="o">.</span><span class="n">rowCount</span><span class="p">()):</span>
+            <span class="n">seqlist</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">seqlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">seqtable</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updategseq</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">seqlist</span><span class="p">)</span>   </div>
+            
+<div class="viewcode-block" id="Gseq.updategseq"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.updategseq">[docs]</a>    <span class="k">def</span> <span class="nf">updategseq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">seqlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the repetition pattern of the sequence  </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingTriggerWait</span><span class="p">(</span><span class="n">row</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">seqlist</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingNumberOfRepetitions</span><span class="p">(</span><span class="n">row</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">seqlist</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingEventJumpTarget</span><span class="p">(</span><span class="n">row</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">seqlist</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingGoto</span><span class="p">(</span><span class="n">row</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">seqlist</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span></div>
+    
+<div class="viewcode-block" id="Gseq.buildSequenceWrap"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.buildSequenceWrap">[docs]</a>    <span class="k">def</span> <span class="nf">buildSequenceWrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chbox</span><span class="p">,</span> <span class="n">offbox</span><span class="p">,</span> <span class="n">contseqbox</span><span class="p">,</span> <span class="n">timevoltbox</span><span class="p">,</span> <span class="n">whichpulse</span><span class="p">,</span> <span class="n">sparambox</span><span class="p">,</span> <span class="n">seqstart</span><span class="p">,</span> <span class="n">seqstop</span><span class="p">,</span> <span class="n">seqpts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build gseq from gelem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Sequence</span><span class="p">()</span>
+        <span class="n">timevolt</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">timevoltbox</span><span class="o">.</span><span class="n">currentText</span><span class="p">())</span>
+        <span class="n">whichp</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">whichpulse</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="n">sparam</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">sparambox</span><span class="o">.</span><span class="n">currentText</span><span class="p">())</span>
+        <span class="n">sstart</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">seqstart</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="n">sstop</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">seqstop</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="n">spts</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">seqpts</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">timevolt</span><span class="o">==</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span>
+            <span class="n">newparam</span><span class="o">=</span><span class="s2">&quot;N-&quot;</span><span class="o">+</span><span class="n">timevolt</span><span class="o">+</span><span class="s2">&quot;-0-&quot;</span><span class="o">+</span><span class="n">whichp</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">newparam</span><span class="o">=</span><span class="s2">&quot;N-&quot;</span><span class="o">+</span><span class="s2">&quot;Volt&quot;</span><span class="o">+</span><span class="s2">&quot;-&quot;</span><span class="o">+</span><span class="n">timevolt</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="s2">&quot;-&quot;</span><span class="o">+</span><span class="n">whichp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">SR</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">contseqbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">addElement</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingTriggerWait</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingNumberOfRepetitions</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingEventJumpTarget</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequencingGoto</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setChannelAmplitude</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">())))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setChannelOffset</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">offbox</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">())))</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">sparam</span><span class="o">!=</span><span class="s2">&quot;-Special-&quot;</span><span class="p">:</span>
+            <span class="n">buildsequencetable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="p">,</span> <span class="n">sparam</span><span class="p">,</span> <span class="n">sstart</span><span class="p">,</span> <span class="n">sstop</span><span class="p">,</span> <span class="n">spts</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">buildsequencetable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="p">,</span> <span class="n">newparam</span><span class="p">,</span> <span class="n">sstart</span><span class="p">,</span> <span class="n">sstop</span><span class="p">,</span> <span class="n">spts</span><span class="p">)</span>
+          
+        <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setChannelAmplitude</span><span class="p">(</span><span class="n">chan</span><span class="p">,(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">())))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setChannelOffset</span><span class="p">(</span><span class="n">chan</span><span class="p">,(</span><span class="nb">float</span><span class="p">(</span><span class="n">offbox</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">())))</span>  </div>
+
+
+<div class="viewcode-block" id="Gseq.filterCorrection"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.filterCorrection">[docs]</a>    <span class="k">def</span> <span class="nf">filterCorrection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">hfiltbox</span><span class="p">,</span><span class="n">lfiltbox</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">points</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No sequence defined&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">hptau</span><span class="o">=</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span><span class="o">*</span><span class="mf">1e-6</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setChannelFilterCompensation</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;HP&#39;</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">tau</span><span class="o">=</span><span class="n">hptau</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Gseq.buildsequencetable"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.buildsequencetable">[docs]</a>    <span class="k">def</span> <span class="nf">buildsequencetable</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">param</span><span class="p">,</span><span class="n">start</span><span class="p">,</span><span class="n">stop</span><span class="p">,</span><span class="n">points</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSR</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">SR</span><span class="p">);</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">stop</span><span class="p">,</span><span class="n">points</span><span class="p">);</span>
+        <span class="c1">#if first letter is &quot;N&quot;</span>
+        <span class="c1">#if second word is time</span>
+        <span class="c1">#setpulseduration</span>
+        <span class="c1">#if second word is volt</span>
+        <span class="c1">#setpulselevel</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+            <span class="n">setpulseparameter</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">param</span><span class="p">,</span><span class="n">value</span><span class="p">[</span><span class="n">n</span><span class="p">]);</span> <span class="c1"># tjek </span>
+            <span class="n">correctionDelem</span><span class="p">(</span><span class="n">elem</span><span class="p">);</span>  <span class="c1"># tjek</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">addElement</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">elem</span><span class="p">);</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequenceSettings</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+            <span class="c1"># Arguments are position, wait for trigger (0 means OFF), number of repetitions </span>
+            <span class="c1">#(0 is infinite, 1 is one), jump target (0 is off), goto (0 means next)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setSequenceSettings</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>                </div>
+               
+<span class="c1">#############################################################################################</span>
+<span class="c1"># AWG functions (uploading, running AWG, turning on outputs. Note that in this section </span>
+<span class="c1"># the AWG name is hardcoded. Probably first thing that needs to be changed.</span>
+<span class="c1">#############################################################################################</span>
+<div class="viewcode-block" id="Gseq.uploadToAWG"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.uploadToAWG">[docs]</a>    <span class="k">def</span> <span class="nf">uploadToAWG</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Choose_awg</span><span class="p">,</span><span class="n">chbox</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">Choose_awg</span> <span class="o">==</span> <span class="s1">&#39;AWG5014&#39;</span><span class="p">:</span>
+            <span class="c1">#for i,  chan in enumerate(self.gseq.channels):</span>
+            <span class="c1">#    self.AWG.channels[chan].AMP(float(chbox[chan-1].text()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_amp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_amp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_amp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_amp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+            <span class="n">package</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">outputForAWGFile</span><span class="p">()</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">();</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">make_send_and_load_awg_file</span><span class="p">(</span><span class="o">*</span><span class="n">package</span><span class="p">[:])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sequence uploaded in </span><span class="si">%s</span><span class="s2"> seconds&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">));</span>
+        <span class="k">elif</span> <span class="n">Choose_awg</span> <span class="o">==</span> <span class="s1">&#39;AWG5208&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;sequence_from_gui&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="s1">&#39;AWG&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">chan</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">resolution</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">awg_amplitude</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">setChannelAmplitude</span><span class="p">(</span><span class="n">chan</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">awg_amplitude</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">clearSequenceList</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">clearWaveformList</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">SR</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">sample_rate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">SR</span><span class="p">)</span>
+            
+            <span class="n">seqx_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">outputForSEQXFile</span><span class="p">()</span>
+            <span class="n">start_time</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">();</span>
+            <span class="n">seqx_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">makeSEQXFile</span><span class="p">(</span><span class="o">*</span><span class="n">seqx_input</span><span class="p">)</span>
+            <span class="c1"># transfer it to the awg harddrive</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">sendSEQXFile</span><span class="p">(</span><span class="n">seqx_output</span><span class="p">,</span> <span class="s1">&#39;sequence_from_gui.seqx&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">loadSEQXFile</span><span class="p">(</span><span class="s1">&#39;sequence_from_gui.seqx&#39;</span><span class="p">)</span>
+            <span class="c1">#time.sleep(1.300)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span>  <span class="n">chan</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">channels</span><span class="p">):</span>       
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">setSequenceTrack</span><span class="p">(</span><span class="s1">&#39;sequence_from_gui&#39;</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">chan</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sequence uploaded in </span><span class="si">%s</span><span class="s2"> seconds&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">));</span>
+ 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Choose an AWG model&#39;</span><span class="p">)</span></div>
+  
+        
+<div class="viewcode-block" id="Gseq.runAWG"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.runAWG">[docs]</a>    <span class="k">def</span> <span class="nf">runAWG</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Choose_awg</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">Choose_awg</span> <span class="o">==</span> <span class="s1">&#39;AWG5014&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;Idle&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run</span><span class="p">();</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AWGs Running&quot;</span><span class="p">);</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;Running&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">stop</span><span class="p">();</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AWGs Stopped&quot;</span><span class="p">);</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Running&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Waiting for trigger&#39;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>  
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">())</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">stop</span><span class="p">();</span></div>
+
+
+<div class="viewcode-block" id="Gseq.runChan"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.runChan">[docs]</a>    <span class="k">def</span> <span class="nf">runChan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">outputbox</span><span class="p">,</span><span class="n">whichbox</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></div>
+
+
+<span class="c1"># not sure were functions below belong </span>
+<span class="c1">#############################################################################################</span>
+<span class="c1">###################            SET PULSE PARAMETER          #################################</span>
+<span class="c1">#############################################################################################</span>
+
+<div class="viewcode-block" id="Gseq.setpulseparameter"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.setpulseparameter">[docs]</a>    <span class="k">def</span> <span class="nf">setpulseparameter</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">param</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>
+        <span class="c1">#Define your own parameters here! For setting a segment name use setpulse()</span>
+        <span class="n">ch</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;N&#39;</span><span class="p">:</span>
+            <span class="n">ch</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="mi">7</span><span class="p">]);</span>
+            <span class="n">seg</span><span class="o">=</span><span class="n">param</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">param</span><span class="p">)];</span>
+            <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;Time&quot;</span><span class="p">:</span>
+                <span class="n">setpulseduration</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">ch</span><span class="p">,</span><span class="n">seg</span><span class="p">,</span><span class="n">value</span><span class="p">);</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">ch</span><span class="p">,</span><span class="n">seg</span><span class="p">,</span><span class="n">value</span><span class="p">);</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">==</span><span class="s1">&#39;det&#39;</span><span class="p">:</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;separate&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="mf">0.8552</span><span class="p">);</span><span class="c1">#For 20-11</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;separate&#39;</span><span class="p">,</span><span class="o">-</span><span class="n">value</span><span class="o">*</span><span class="mf">0.5183</span><span class="p">);</span><span class="c1">#For 20-11</span>
+            <span class="c1">#setpulselevel(elem,1,&#39;separate&#39;,value*0.9558);#For 40-31</span>
+            <span class="c1">#setpulselevel(elem,2,&#39;separate&#39;,-value*0.2940);#For 40-31</span>
+            
+        <span class="k">if</span> <span class="n">param</span><span class="o">==</span><span class="s1">&#39;psm&#39;</span><span class="p">:</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="mf">0.8</span><span class="p">);</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning&#39;</span><span class="p">,</span><span class="o">-</span><span class="n">value</span><span class="o">*</span><span class="mf">0.5</span><span class="p">);</span>
+    <span class="c1">##detuning load        </span>
+    <span class="c1">#    if param==&#39;psm_load&#39;:</span>
+    <span class="c1">#        alpha_x = -0.6597</span>
+    <span class="c1">#        beta_y = 0.7516</span>
+    <span class="c1">#        setpulselevel(elem,1,&#39;detuning_up&#39;,value*(1)*alpha_x); #BNC43</span>
+    <span class="c1">#        setpulselevel(elem,2,&#39;detuning_up&#39;,value*(1)*beta_y); #BNC17</span>
+    <span class="c1">#        setpulselevel(elem,1,&#39;detuning_up_b&#39;,value*(1)*alpha_x); #BNC43</span>
+    <span class="c1">#        setpulselevel(elem,2,&#39;detuning_up_b&#39;,value*(1)*beta_y); #BNC17</span>
+
+        <span class="k">if</span> <span class="n">param</span><span class="o">==</span><span class="s1">&#39;dephasing_corrD&#39;</span><span class="p">:</span>
+            <span class="n">corrD_K0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.8102</span>
+            <span class="n">corrD_K1</span> <span class="o">=</span> <span class="mf">0.44531</span>
+            <span class="n">corrD_K2</span> <span class="o">=</span> <span class="mf">0.0004064</span>
+            <span class="n">corrD_K3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0403e-7</span>
+            
+            <span class="n">corrD_X</span> <span class="o">=</span> <span class="n">corrD_K0</span> <span class="o">+</span> <span class="n">corrD_K1</span><span class="o">*</span><span class="n">value</span> <span class="o">+</span> <span class="n">corrD_K2</span><span class="o">*</span><span class="n">value</span><span class="o">*</span><span class="n">value</span> <span class="o">+</span> <span class="n">corrD_K3</span><span class="o">*</span><span class="n">value</span><span class="o">*</span><span class="n">value</span><span class="o">*</span><span class="n">value</span>
+            <span class="n">corrD_y</span> <span class="o">=</span> <span class="n">corrD_K0</span> <span class="o">+</span> <span class="n">corrD_K1</span><span class="o">*</span><span class="n">value</span> <span class="o">+</span> <span class="n">corrD_K2</span><span class="o">*</span><span class="n">value</span><span class="o">*</span><span class="n">value</span> <span class="o">+</span> <span class="n">corrD_K3</span><span class="o">*</span><span class="n">value</span><span class="o">*</span><span class="n">value</span><span class="o">*</span><span class="n">value</span>
+
+            <span class="c1">#corr amplitudes for 2ms separation</span>
+            <span class="c1"># corrD_amp_BNC12 = -7.3569</span>
+            <span class="c1"># corrD_amp_BNC17 = 3.07129</span>
+            <span class="n">setpulseduration</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;corrD&#39;</span><span class="p">,</span> <span class="n">corrD_X</span><span class="p">)</span>
+            <span class="n">setpulseduration</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;corrD&#39;</span><span class="p">,</span> <span class="n">corrD_Y</span><span class="p">)</span>
+            <span class="n">setpulseduration</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;Separate&#39;</span><span class="p">,</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">setpulseduration</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;Separate&#39;</span><span class="p">,</span><span class="n">value</span><span class="p">)</span>
+
+
+
+    <span class="c1">#detuning load        </span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">==</span><span class="s1">&#39;psm_load&#39;</span><span class="p">:</span>
+            <span class="n">alpha_x</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.621</span>
+            <span class="n">beta_y</span> <span class="o">=</span> <span class="mf">0.7838</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+
+    <span class="c1">#detuning load symmetric       </span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">==</span><span class="s1">&#39;psm_load_sym&#39;</span><span class="p">:</span>
+            <span class="n">alpha_x</span> <span class="o">=</span> <span class="mf">0.974</span>
+            <span class="n">beta_y</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.226</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC12</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC12</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;down&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC12</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;down&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;down_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC12</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;down_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17        </span>
+            
+            
+
+
+    <span class="c1">#detuning unload symmetric       </span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">==</span><span class="s1">&#39;psm_unload_sym&#39;</span><span class="p">:</span>
+            <span class="n">alpha_x</span> <span class="o">=</span> <span class="mf">0.4832</span>
+            <span class="n">beta_y</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.8755</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;down&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;down&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;down_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;down_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17     </span>
+            
+            
+            
+                    
+    <span class="c1">#detuning unload        </span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">==</span><span class="s1">&#39;psm_unload&#39;</span><span class="p">:</span>
+            <span class="n">alpha_x</span> <span class="o">=</span> <span class="mf">0.6761</span>
+            <span class="n">beta_y</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.7368</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">alpha_x</span><span class="p">);</span> <span class="c1">#BNC43</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;detuning_up_b&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">beta_y</span><span class="p">);</span> <span class="c1">#BNC17</span></div>
+                    
+
+                
+
+
+    <span class="c1">#############################################################################################</span>
+    <span class="c1">###################    CHANGE PULSE LEVEL OR DURATION       #################################</span>
+    <span class="c1">#############################################################################################</span>
+<div class="viewcode-block" id="Gseq.setpulselevel"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.setpulselevel">[docs]</a>    <span class="k">def</span> <span class="nf">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">ch</span><span class="p">,</span><span class="n">seg</span><span class="p">,</span><span class="n">lvl</span><span class="p">,</span><span class="n">div</span><span class="o">=</span><span class="mf">11.7</span><span class="p">):</span>
+        <span class="c1">#Change a pulse within an element</span>
+        <span class="n">lvl</span><span class="o">=</span><span class="n">lvl</span><span class="o">*</span><span class="n">divch</span><span class="p">[</span><span class="n">ch</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">1e-3</span><span class="p">;</span>
+    <span class="c1">#    print(lvl);</span>
+        <span class="n">elem</span><span class="o">.</span><span class="n">changeArg</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span><span class="n">seg</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">lvl</span><span class="p">,</span><span class="kc">False</span><span class="p">);</span>
+        <span class="n">elem</span><span class="o">.</span><span class="n">changeArg</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span><span class="n">seg</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">lvl</span><span class="p">,</span><span class="kc">False</span><span class="p">);</span></div>
+
+<div class="viewcode-block" id="Gseq.setpulseduration"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.setpulseduration">[docs]</a>    <span class="k">def</span> <span class="nf">setpulseduration</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">ch</span><span class="p">,</span><span class="n">seg</span><span class="p">,</span><span class="n">dur</span><span class="p">):</span>
+        <span class="n">dur</span><span class="o">=</span><span class="n">dur</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">;</span>
+        <span class="n">ch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">channels</span><span class="p">;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ch</span><span class="p">)):</span>
+            <span class="n">elem</span><span class="o">.</span><span class="n">changeDuration</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">seg</span><span class="p">,</span><span class="n">dur</span><span class="p">,</span><span class="kc">False</span><span class="p">);</span></div>
+
+    <span class="c1">#############################################################################################</span>
+    <span class="c1">###################            correctionD Pulse            #################################</span>
+    <span class="c1">#############################################################################################</span>
+<div class="viewcode-block" id="Gseq.correctionDelem"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awgsequencing.Gseq.correctionDelem">[docs]</a>    <span class="k">def</span> <span class="nf">correctionDelem</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
+        <span class="n">awgclock</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gelem</span><span class="o">.</span><span class="n">SR</span>
+        <span class="k">global</span> <span class="n">corrDflag</span><span class="p">;</span>
+        
+        
+        <span class="c1">#If no correctionD pulse exists print error and just return</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">corrDflag</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="c1">#Set up variables</span>
+        <span class="n">start</span><span class="o">=</span><span class="p">[];</span>
+        <span class="n">stop</span><span class="o">=</span><span class="p">[];</span>
+        <span class="n">ramp</span><span class="o">=</span><span class="p">[];</span>
+        <span class="n">name</span><span class="o">=</span><span class="p">[];</span>
+        <span class="n">seg_dur</span><span class="o">=</span><span class="p">[];</span>
+        <span class="n">tottime</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+        <span class="n">awgclockinus</span><span class="o">=</span><span class="n">awgclock</span><span class="o">/</span><span class="mf">1e6</span><span class="p">;</span>
+        
+        
+        <span class="c1">#Number of pulses in element</span>
+        <span class="n">num</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">])])</span><span class="o">-</span><span class="mi">4</span>
+        <span class="n">chs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
+        <span class="c1">#Get all pulses in element</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chs</span><span class="p">):</span>
+            <span class="c1">#Reinitialise pulses and total time</span>
+            <span class="n">start</span><span class="o">=</span><span class="p">[];</span><span class="n">stop</span><span class="o">=</span><span class="p">[];</span><span class="n">ramp</span><span class="o">=</span><span class="p">[];</span><span class="n">name</span><span class="o">=</span><span class="p">[];</span><span class="n">seg_dur</span><span class="o">=</span><span class="p">[];</span>
+            <span class="n">tottime</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+            <span class="n">tottimevolt</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+            <span class="n">timeD</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">voltD</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+            <span class="c1">#Get all pulses for that channel</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+                <span class="n">pulsestart</span><span class="o">=</span><span class="mf">1e3</span><span class="o">*</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;segment_</span><span class="si">%02d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">/</span><span class="n">divch</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">pulsestop</span><span class="o">=</span><span class="mf">1e3</span><span class="o">*</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;segment_</span><span class="si">%02d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;stop&#39;</span><span class="p">])</span><span class="o">/</span><span class="n">divch</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#Need correct channel dividers!</span>
+                <span class="n">start</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulsestart</span><span class="p">)</span>
+                <span class="n">stop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulsestop</span><span class="p">)</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">pulsestart</span><span class="o">==</span><span class="n">pulsestop</span><span class="p">):</span>
+                    <span class="n">ramp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ramp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="n">pulsedur</span><span class="o">=</span><span class="mf">1e6</span><span class="o">*</span><span class="n">elem</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;segment_</span><span class="si">%02d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;durations&#39;</span><span class="p">]</span>
+                <span class="n">seg_dur</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulsedur</span><span class="p">)</span>
+                <span class="n">pulsename</span><span class="o">=</span><span class="n">elem</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;segment_</span><span class="si">%02d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+                <span class="n">name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pulsename</span><span class="p">)</span>
+                <span class="c1">#Add duration to total time</span>
+                <span class="k">if</span> <span class="n">pulsename</span><span class="o">!=</span><span class="s1">&#39;corrD&#39;</span><span class="p">:</span>
+                    <span class="n">tottime</span><span class="o">=</span><span class="n">tottime</span><span class="o">+</span><span class="n">pulsedur</span><span class="p">;</span> <span class="c1">#In us  </span>
+            <span class="c1">#Calculate correctionD time, 65% of the total pulse cycle time</span>
+            <span class="n">timeD</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">tottime</span><span class="o">/</span><span class="mf">1.65</span><span class="o">*</span><span class="p">(</span><span class="n">awgclockinus</span><span class="p">))</span><span class="o">/</span><span class="n">awgclockinus</span><span class="p">;</span>
+            <span class="n">setpulseduration</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;corrD&#39;</span><span class="p">,</span><span class="n">timeD</span><span class="p">);</span>
+            <span class="c1">#Calculate tottimevolt</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">!=</span><span class="s1">&#39;corrD&#39;</span><span class="p">:</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">ramp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+                        <span class="n">tottimevolt</span><span class="o">=</span><span class="n">tottimevolt</span><span class="o">+</span><span class="p">(</span><span class="n">start</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="n">seg_dur</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span> <span class="c1">#If not ramp take start or stop</span>
+                    <span class="k">if</span><span class="p">(</span><span class="n">ramp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">tottimevolt</span><span class="o">=</span><span class="n">tottimevolt</span><span class="o">+</span><span class="p">(((</span><span class="n">start</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">stop</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">seg_dur</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span> <span class="c1">#If ramp take midpoint of start and stop</span>
+            <span class="c1">#Calculate correctionD for that channel</span>
+            <span class="n">voltD</span><span class="o">=-</span><span class="n">tottimevolt</span><span class="o">/</span><span class="n">timeD</span><span class="p">;</span>
+            <span class="c1">#Change level of correctionD pulse</span>
+            <span class="n">setpulselevel</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;corrD&#39;</span><span class="p">,</span><span class="n">voltD</span><span class="p">)</span>            </div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
