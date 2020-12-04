@@ -77,7 +77,7 @@ target/
 !pulsequantum/pulselib/Dephasing.json
 !pulsequantum/pulselib/Pulse_Triangle.json
 !pulsequantum/pulselib/Spin_Funnel.json
-!initfiles/*
+!pulsequantum/initfiles/*
 
 # Temporary files
 *.md~
