@@ -59,5 +59,3 @@ def test_dftable():
 
 
 
-
-test_dftable()
