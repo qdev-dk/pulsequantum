@@ -334,7 +334,7 @@ class pulsetable(QMainWindow,Gelem):
     def sequence(self):
         if self._sequencebox is None:
             self._sequencebox = Sequencing(AWG = self.AWG, gelem = self.gelem)
-            self._sequencebox.exec_()
+            self._sequencebox.show() #exec_()
         else:
 #            global_point = callWidget.mapToGlobal(point)
 #            self._sequencebox.move(global_point - QtCore.QPoint(self.width(), 0))
