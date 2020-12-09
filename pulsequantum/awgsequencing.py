@@ -27,6 +27,7 @@ class Sequencing(QDialog, Gseq):
         self.setGeometry(200, 200, 900, 500)
         self.setWindowTitle("Sequencing")
         self.setMinimumWidth(350)
+        self.setStyleSheet("QLineEdit, QLabel, QPushButton,QComboBox     {font: 10pt Arial}")
         self.home()
 
     def home(self):
@@ -61,7 +62,7 @@ class Sequencing(QDialog, Gseq):
         lay_contseq = QGridLayout(contseq)
         contseqboxlabel = QLabel(self)
         contseqboxlabel.setText('Simple continuous element?')
-        contseqboxlabel.resize(contseqboxlabel.sizeHint())
+        contseqboxlabel.resize(contseqboxlabel.minimumSizeHint())
         contseqbox = QCheckBox(self)
         lay_contseq.addWidget(contseqboxlabel, 0, 0, 1, 1)
         lay_contseq.addWidget(contseqbox, 0, 1, 1, 1)
@@ -90,11 +91,11 @@ class Sequencing(QDialog, Gseq):
         seqtable.setRowCount(0)
         updateseqbtn = QPushButton('Update sequence', self)
         updateseqbtn.clicked.connect(lambda state: self.changedSeqTable(seqtable))
-        updateseqbtn.resize(updateseqbtn.sizeHint())
+        updateseqbtn.resize(updateseqbtn.minimumSizeHint())
         lay2.addWidget(seqtable)
         lay2.addWidget(updateseqbtn)
         win2.move(450, 30)
-        win2.resize(win2.sizeHint())
+        win2.resize(win2.minimumSizeHint())
         
         # Update sequencing parameters: do this?
         changeseqbox = QCheckBox(self)
@@ -103,17 +104,17 @@ class Sequencing(QDialog, Gseq):
         changeseqboxlabel = QLabel(self)
         changeseqboxlabel.setText('Change sequencing options?')
         changeseqboxlabel.move(450, 10)
-        changeseqboxlabel.resize(changeseqboxlabel.sizeHint())
+        changeseqboxlabel.resize(changeseqboxlabel.minimumSizeHint())
         
         # Build Sequence and take parameters
         win3 = QWidget(self)
         lay3 = QGridLayout(win3)
         buildseqlabel = QLabel(self)
         buildseqlabel.setText('Select a parameter to build the sequence:')
-        buildseqlabel.resize(buildseqlabel.sizeHint())
+        buildseqlabel.resize(buildseqlabel.minimumSizeHint())
         buildseqbtn = QPushButton('Build sequence', self)
         buildseqbtn.clicked.connect(lambda state: self.buildSequenceWrap(chbox, offbox, contseqbox, timevoltbox, whichpulse, sparambox, seqstart, seqstop, seqpts))
-        buildseqbtn.resize(buildseqbtn.sizeHint())
+        buildseqbtn.resize(buildseqbtn.minimumSizeHint())
         buildseqbtn.move(350, 100)
         
         # Native and special parameters
@@ -139,13 +140,13 @@ class Sequencing(QDialog, Gseq):
         pointsslabel.setText('Points:')
         seqstart = QLineEdit(self)
         seqstart.setText('0')
-        seqstart.resize(seqstart.sizeHint())
+        seqstart.resize(seqstart.minimumSizeHint())
         seqstop = QLineEdit(self)
         seqstop.setText('0')
-        seqstop.resize(seqstop.sizeHint())
+        seqstop.resize(seqstop.minimumSizeHint())
         seqpts = QLineEdit(self)
         seqpts.setText('0')
-        seqpts.resize(seqpts.sizeHint())
+        seqpts.resize(seqpts.minimumSizeHint())
         
         lay3.addWidget(buildseqlabel, 0, 0, 1, 3)
         lay3.addWidget(timevoltbox, 1, 0, 1, 1)
@@ -161,7 +162,7 @@ class Sequencing(QDialog, Gseq):
         lay3.addWidget(uploadbtn, 5, 0, 1, 3)
         lay3.addWidget(Choose_awg, 6, 0, 1, 2)
         win3.move(10, 300)
-        win3.resize(win3.sizeHint())
+        win3.resize(win3.minimumSizeHint())
         
         
         #Element and sequence saving and loading
@@ -198,7 +199,7 @@ class Sequencing(QDialog, Gseq):
         lay1.addWidget(SeqTo,2,0,1,1);
         lay1.addWidget(whichSeq,2,1,1,1);
         win1.move(10,0);
-        win1.resize(win1.sizeHint());
+        win1.resize(win1.minimumSizeHint());
         
         #AWG Panel stuff
         # Create channel voltage, divider and offset boxes and buttons
@@ -207,8 +208,8 @@ class Sequencing(QDialog, Gseq):
         lay5= QGridLayout(win5);
         awgframeh=QFrame(self);
         awgframeh.setFrameShape(QFrame.Shape(0x0004));
-        awgframeh2=QFrame(self);
-        awgframeh2.setFrameShape(QFrame.Shape(0x0004));
+        #awgframeh2=QFrame(self);
+        #awgframeh2.setFrameShape(QFrame.Shape(0x0004));
         awgframev=QFrame(self);
         awgframev.setFrameShape(QFrame.Shape(0x0005));
         lay5.addWidget(awgframeh,0,0,1,6);
@@ -248,18 +249,18 @@ class Sequencing(QDialog, Gseq):
             lay5.addWidget(aoffbox[i],i+3,3,1,1);lay5.addWidget(aoutbox[i],i+3,4,1,1);
         lay5.addWidget(avpp,2,2,1,1);lay5.addWidget(aoffset,2,3,1,1);lay5.addWidget(aoutput,2,4,1,1);
         lay5.addWidget(allonlabel,1,3,1,1);lay5.addWidget(allonbox,1,4,1,1);
-        win5.resize(win5.sizeHint())
+        win5.resize(win5.minimumSizeHint())
         win5.move(450,270);
 
         
         #Filter Correction
         filtbtn = QPushButton('Filter correction', self)
-        hfiltboxlabel= QLabel(self);hfiltboxlabel.setText('High pass (us):');hfiltboxlabel.resize(hfiltboxlabel.sizeHint());hfiltboxlabel.move(20,235);
-        lfiltboxlabel= QLabel(self);lfiltboxlabel.setText('Low pass (us):');lfiltboxlabel.resize(lfiltboxlabel.sizeHint());lfiltboxlabel.move(170,235);
-        hfiltbox = QLineEdit(self);hfiltbox.setText('80');hfiltbox.resize(hfiltbox.sizeHint());hfiltbox.move(20,250);
-        lfiltbox = QLineEdit(self);lfiltbox.setText('-');lfiltbox.resize(lfiltbox.sizeHint());lfiltbox.move(170,250);
+        hfiltboxlabel= QLabel(self);hfiltboxlabel.setText('High pass (us):');hfiltboxlabel.resize(hfiltboxlabel.minimumSizeHint());hfiltboxlabel.move(20,235);
+        lfiltboxlabel= QLabel(self);lfiltboxlabel.setText('Low pass (us):');lfiltboxlabel.resize(lfiltboxlabel.minimumSizeHint());lfiltboxlabel.move(170,235);
+        hfiltbox = QLineEdit(self);hfiltbox.setText('80');hfiltbox.resize(hfiltbox.minimumSizeHint());hfiltbox.move(20,250);
+        lfiltbox = QLineEdit(self);lfiltbox.setText('-');lfiltbox.resize(lfiltbox.minimumSizeHint());lfiltbox.move(170,250);
         filtbtn.clicked.connect(lambda state: self.filterCorrection(hfiltbox,lfiltbox))
-        filtbtn.resize(filtbtn.sizeHint())
+        filtbtn.resize(filtbtn.minimumSizeHint())
         filtbtn.move(320, 250)
         
         

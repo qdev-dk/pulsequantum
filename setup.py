@@ -15,7 +15,8 @@ required_packages = ['opencensus-ext-azure',
                      # broadbean,
                      'PyQt5',
                      'matplotlib',
-                     'broadbean @ git+https://github.com/QCoDeS/broadbean@master#egg=broadbean']
+                     'broadbean @ git+https://github.com/QCoDeS/broadbean@master#egg=broadbean',
+                     pyyaml]
 package_data = {"pulsequantum": ["conf/telemetry.ini"]}
 
 

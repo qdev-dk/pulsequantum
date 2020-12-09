@@ -1,0 +1,7 @@
+dividers:
+  channels:
+    ch1: '11.7'
+    ch2: '11.7'
+    ch3: '11.7'
+    ch4: '1.0'
+awgcloc: '1.2' 

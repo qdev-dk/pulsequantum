@@ -2,24 +2,18 @@ import broadbean as bb
 import matplotlib
 import pandas as pd
 import pathlib
+import yaml
 from PyQt5.QtWidgets import QWidget, QMainWindow, QPushButton, QMessageBox, QLineEdit, QLabel
 from PyQt5.QtWidgets import QCheckBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QComboBox, QGridLayout
 from pulsequantum.awgsequencing import Sequencing
 from pulsequantum.pulsebuilding import Gelem
-from os import listdir
+from os import listdir, path
 from os.path import isfile, join
 from pulsequantum.dftable import QTableWidgetDF
 from pathlib import Path
 matplotlib.use('QT5Agg')
 
 
-
-#############################################################################################
-#Hardcoded stuff, should incorporate into main code
-#############################################################################################
-
-divch1=11.5;divch2=11.75;divch3=11.7;divch4=1; #Hardcoded channel dividers
-divch=[divch1,divch2,divch3,divch4];
 
 class pulsetable(QMainWindow,Gelem):
     """
@@ -43,11 +37,31 @@ class pulsetable(QMainWindow,Gelem):
         self.nchans = nchans
         self.nlines = nlines
         self.corrDflag = corrDflag
+       
+        #self.setStyleSheet("QLabel {font: 11pt Arial}")
+        self.setStyleSheet("QLineEdit, QLabel, QPushButton,QComboBox {font: 10pt Arial}")
+        #self.setStyleSheet(" {font: 8pt Arial}")
+
+        
+        
+        #, "QLabel {font: 11pt Arial}")
         self.home()
 
-
     def home(self):
-        print(self.seq_files)
+
+        # read in default values
+        if path.exists(join(pathlib.Path(__file__).parents[0], 'initfiles/mydefault.yaml')):
+            defalutfile = join(pathlib.Path(__file__).parents[0], 'initfiles/mydefault.yaml')
+        else:
+            defalutfile = join(pathlib.Path(__file__).parents[0], 'initfiles/setupdefault.yaml')
+        with open(defalutfile) as file:
+            # The FullLoader parameter handles the conversion from YAML
+            # scalar values to Python the dictionary format
+            init_list = yaml.load(file, Loader=yaml.FullLoader)
+
+        divch = list(init_list['dividers']['channels'].values())
+        awgcloc_init = init_list['awgcloc']
+
         # Set up initial pulse table
         table = QTableWidgetDF(self)
         table.setGeometry(50, 100, 1000, 400)
@@ -71,13 +85,14 @@ class pulsetable(QMainWindow,Gelem):
         divbtn.clicked.connect(lambda state: self.setDividers(chbox))
         lay_divider.addWidget(divbtn, 2, 0, 1, 4)
         win_divider.move(100, 520)
-        win_divider.resize(200, 100) 
+        win_divider.resize(win_divider.minimumSizeHint())
+        #win_divider.resize(200, 100) 
 
         # AWG clock ("sample rate")
         win_AWGclock = QWidget(self)
         lay_AWGclock = QGridLayout(win_AWGclock)
         setawgclockbox = QLineEdit(self)
-        setawgclockbox.setText('1.2')
+        setawgclockbox.setText(awgcloc_init)
         setawgclocklabel = QLabel(self)
         setawgclocklabel.setText('AWG Clock (GS/s)')
         setawgclocklabel.resize(setawgclocklabel.sizeHint())
@@ -88,7 +103,7 @@ class pulsetable(QMainWindow,Gelem):
         lay_AWGclock.addWidget(setawgclockbox, 1, 0, 1, 1)
         lay_AWGclock.addWidget(setawgclockbtn, 1, 1, 1, 1)
         win_AWGclock.move(500, 520)
-        win_AWGclock.resize(200, 100) 
+        win_AWGclock.resize(win_AWGclock.minimumSizeHint()) 
         
         # Absolute Marker
         win = QWidget(self);
@@ -210,7 +225,7 @@ class pulsetable(QMainWindow,Gelem):
         seqbtn.clicked.connect(lambda state:self.sequence())
         seqbtn.resize(seqbtn.sizeHint())
         seqbtn.move(400, 700)   
-        
+
         self.show()
         win.hide()
         
