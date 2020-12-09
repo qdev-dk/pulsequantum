@@ -11,6 +11,7 @@ from os import listdir, path
 from os.path import isfile, join
 from pulsequantum.dftable import QTableWidgetDF
 from pathlib import Path
+from pulsequantum.annotateshape import annotateshape
 matplotlib.use('QT5Agg')
 
 
@@ -224,8 +225,9 @@ class pulsetable(QMainWindow,Gelem):
         seqbtn = QPushButton('Upload Sequence', self)
         seqbtn.clicked.connect(lambda state:self.sequence())
         seqbtn.resize(seqbtn.sizeHint())
-        seqbtn.move(400, 700)   
+        seqbtn.move(400, 700)
 
+        
         self.show()
         win.hide()
         
@@ -332,11 +334,15 @@ class pulsetable(QMainWindow,Gelem):
     def sequence(self):
         if self._sequencebox is None:
             self._sequencebox = Sequencing(AWG = self.AWG, gelem = self.gelem)
-            self._sequencebox.exec_();
+            self._sequencebox.exec_()
         else:
 #            global_point = callWidget.mapToGlobal(point)
 #            self._sequencebox.move(global_point - QtCore.QPoint(self.width(), 0))
-             self.SetForegroundWindow(self._sequencebox)
+             #self.SetForegroundWindow(self._sequencebox)
+             self._sequencebox.show()
+             #self._sequencebox.close()  # Close window.
+             #self._sequencebox = None  # Discard reference.
+
     
     def close_application(self):
 
