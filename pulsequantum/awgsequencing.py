@@ -55,7 +55,7 @@ class Sequencing(QDialog, Gseq):
             lay4.addWidget(chlabel[i], i+1, 0, 1, 1)
             lay4.addWidget(chbox[i], i+1, 1, 1, 1)
             lay4.addWidget(offbox[i], i+1, 2, 1, 1)
-        win4.move(10, 100)
+        win4.move(10, 75)
 
         # Continuous sequence?
         contseq = QWidget(self)
@@ -169,12 +169,7 @@ class Sequencing(QDialog, Gseq):
         #Functions
         win1 = QWidget(self);
         lay1= QGridLayout(win1);
-        loadebtn = QPushButton('Load Element', self);
-        #loadebtn.clicked.connect(lambda state:self.sloadElement())
-        saveebtn = QPushButton('Save Element', self);
-        #saveebtn.clicked.connect(lambda state: self.ssaveElement())
-        plotebtn = QPushButton('Plot Element', self);
-        plotebtn.clicked.connect(lambda state: self.splotElement())
+
         # load sequence
         whichSeq = QLineEdit(self)
         whichSeq.setText('enter file name')
@@ -190,14 +185,12 @@ class Sequencing(QDialog, Gseq):
         # plot sequence
         plotsbtn = QPushButton('Plot Sequence', self);
         plotsbtn.clicked.connect(lambda state: plotter(self.gseq))
-        lay1.addWidget(loadebtn,0,0,1,1);
-        lay1.addWidget(saveebtn,0,1,1,1);
-        lay1.addWidget(plotebtn,0,2,1,1);
-        lay1.addWidget(savesbtn,1,0,1,1);
-        lay1.addWidget(loadsbtn,1,1,1,1);
-        lay1.addWidget(plotsbtn,1,2,1,1);
-        lay1.addWidget(SeqTo,2,0,1,1);
-        lay1.addWidget(whichSeq,2,1,1,1);
+
+        lay1.addWidget(savesbtn, 0, 0)
+        lay1.addWidget(loadsbtn, 0, 1)
+        lay1.addWidget(plotsbtn, 0, 2)   
+        lay1.addWidget(SeqTo, 1, 0)
+        lay1.addWidget(whichSeq, 1, 1)
         win1.move(10,0);
         win1.resize(win1.minimumSizeHint());
         

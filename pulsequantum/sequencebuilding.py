@@ -1,14 +1,18 @@
 import broadbean as bb
 import time
-class Gseq():
+import numpy as np
+from pulsequantum.awg import AWG
+class Gseq(AWG):
     """
     Class for sequencing 
     """
 
     def __init__(self, AWG, gelem):
+        super().__init__()
         self.AWG = AWG
         self.gelem = gelem
         self.gseq = bb.Sequence()
+
 
     def loadSequence(self, pathseq):
         """
@@ -60,14 +64,14 @@ class Gseq():
             self.gseq.setSequencingNumberOfRepetitions(1, 0)
             self.gseq.setSequencingEventJumpTarget(1, 0)
             self.gseq.setSequencingGoto(1, 0)
-            for chan in self.gseq.channels:
-                self.gseq.setChannelAmplitude(chan, (float(chbox[chan-1].text())))
-                self.gseq.setChannelOffset(chan, (float(offbox[chan-1].text())))
+           # for chan in self.gseq.channels:
+            #    self.gseq.setChannelAmplitude(chan, (float(chbox[chan-1].text())))
+            #    self.gseq.setChannelOffset(chan, (float(offbox[chan-1].text())))
             return
         elif sparam!="-Special-":
-            buildsequencetable(self.gelem, sparam, sstart, sstop, spts)
+            self.buildsequencetable(self.gelem, sparam, sstart, sstop, spts)
         else:
-            buildsequencetable(self.gelem, newparam, sstart, sstop, spts)
+            self.buildsequencetable(self.gelem, newparam, sstart, sstop, spts)
           
         for chan in self.gseq.channels:
             self.gseq.setChannelAmplitude(chan,(float(chbox[chan-1].text())))
@@ -82,7 +86,7 @@ class Gseq():
         for i in range(4):
             self.gseq.setChannelFilterCompensation(i+1,'HP',order=1,tau=hptau)
 
-    def buildsequencetable(elem,param,start,stop,points):
+    def buildsequencetable(self,elem,param,start,stop,points):
         self.gseq.setSR(elem.SR);
         value=np.linspace(start,stop,points);
         #if first letter is "N"
@@ -91,111 +95,15 @@ class Gseq():
         #if second word is volt
         #setpulselevel
         for n in range(points):
-            setpulseparameter(elem,param,value[n]); # tjek 
-            correctionDelem(elem);  # tjek
-            self.gseq.addElement(n+1, elem);
-            self.gseq.setSequenceSettings(n+1,0,1,0,0);
-            # Arguments are position, wait for trigger (0 means OFF), number of repetitions 
-            #(0 is infinite, 1 is one), jump target (0 is off), goto (0 means next)
-        self.gseq.setSequenceSettings(n+1,0,1,0,1);                
+            self.setpulseparameter(elem,param,value[n]); # tjek 
+            self.correctionDelem(elem);  # tjek
+            self.gseq.addElement(n+1, elem)
+            self.gseq.setSequencingTriggerWait(n+1, 0)
+            self.gseq.setSequencingNumberOfRepetitions(n+1, 1)
+            self.gseq.setSequencingEventJumpTarget(n+1, 0)
+            self.gseq.setSequencingGoto(n+1, 0)
+              
                
-#############################################################################################
-# AWG functions (uploading, running AWG, turning on outputs. Note that in this section 
-# the AWG name is hardcoded. Probably first thing that needs to be changed.
-#############################################################################################
-    def uploadToAWG(self,Choose_awg,chbox):
-        if Choose_awg == 'AWG5014':
-            #for i,  chan in enumerate(self.gseq.channels):
-            #    self.AWG.channels[chan].AMP(float(chbox[chan-1].text()))
-            self.AWG.ch1_amp(float(chbox[0].text()))
-            self.AWG.ch2_amp(float(chbox[1].text()))
-            self.AWG.ch3_amp(float(chbox[2].text()))
-            self.AWG.ch4_amp(float(chbox[3].text()))
-            package = self.gseq.outputForAWGFile()
-            start_time=time.time();
-            self.AWG.make_send_and_load_awg_file(*package[:])
-            print("Sequence uploaded in %s seconds" %(time.time()-start_time));
-        elif Choose_awg == 'AWG5208':
-            self.gseq.name = 'sequence_from_gui'
-            self.AWG.mode('AWG')
-            for chan in self.gseq.channels:
-                self.AWG.channels[chan-1].resolution(12)
-                self.AWG.channels[chan-1].awg_amplitude(0.5)
-                self.gseq.setChannelAmplitude(chan, self.AWG.channels[chan-1].awg_amplitude())
-            self.AWG.clearSequenceList()
-            self.AWG.clearWaveformList()
-            self.AWG.sample_rate(self.gseq.SR)
-            self.AWG.sample_rate(self.gseq.SR)
-            
-            seqx_input = self.gseq.outputForSEQXFile()
-            start_time=time.time();
-            seqx_output = self.AWG.makeSEQXFile(*seqx_input)
-            # transfer it to the awg harddrive
-            self.AWG.sendSEQXFile(seqx_output, 'sequence_from_gui.seqx')
-            self.AWG.loadSEQXFile('sequence_from_gui.seqx')
-            #time.sleep(1.300)
-            for i,  chan in enumerate(self.gseq.channels):       
-                self.AWG.channels[chan-1].setSequenceTrack('sequence_from_gui', i+1)
-                self.AWG.channels[chan-1].state(1)
-            print("Sequence uploaded in %s seconds" %(time.time()-start_time));
- 
-        else:
-            print('Choose an AWG model')
-  
-        
-    def runAWG(self,Choose_awg):
-        if Choose_awg == 'AWG5014':
-            if self.AWG.get_state()=='Idle':
-                self.AWG.run();
-                print("AWGs Running");
-            elif self.AWG.get_state()=='Running':
-                self.AWG.stop();
-                print("AWGs Stopped");
-        else:
-            if self.AWG.run_state() == 'Running':
-                self.AWG.stop()
-                print(self.AWG.run_state())
-            elif self.AWG.run_state() == 'Waiting for trigger':
-                print(self.AWG.run_state())
-            else:  
-                self.AWG.play()
-                print(self.AWG.run_state())
-            
-            self.AWG.stop();
-
-
-    def runChan(self,outputbox,whichbox):
-        if whichbox==0:
-            if outputbox.isChecked():
-                self.AWG.ch1_state(1);
-                self.AWG.ch2_state(1);
-                self.AWG.ch3_state(1);
-                self.AWG.ch4_state(1);
-            else:
-                self.AWG.ch1_state(0);
-                self.AWG.ch2_state(0);
-                self.AWG.ch3_state(0);
-                self.AWG.ch4_state(0);
-        if whichbox==1:
-            if outputbox.isChecked():
-                self.AWG.ch1_state(1);
-            else:
-                self.AWG.ch1_state(0);
-        if whichbox==2:
-            if outputbox.isChecked():
-                self.AWG.ch2_state(1);
-            else:
-                self.AWG.ch2_state(0);
-        if whichbox==3:
-            if outputbox.isChecked():
-                self.AWG.ch3_state(1);
-            else:
-                self.AWG.ch3_state(0);
-        if whichbox==4:
-            if outputbox.isChecked():
-                self.AWG.ch4_state(1);
-            else:
-                self.AWG.ch4_state(0);
 
 
 # not sure were functions below belong 
@@ -203,7 +111,7 @@ class Gseq():
 ###################            SET PULSE PARAMETER          #################################
 #############################################################################################
 
-    def setpulseparameter(elem,param,value):
+    def setpulseparameter(self, elem,param,value):
         #Define your own parameters here! For setting a segment name use setpulse()
         ch=0;
         if param[0]=='N':
@@ -309,7 +217,7 @@ class Gseq():
     #############################################################################################
     def setpulselevel(elem,ch,seg,lvl,div=11.7):
         #Change a pulse within an element
-        lvl=lvl*divch[ch-1]*1e-3;
+        lvl=lvl*self.divch[ch-1]*1e-3;
     #    print(lvl);
         elem.changeArg(ch,seg,0,lvl,False);
         elem.changeArg(ch,seg,1,lvl,False);
@@ -323,7 +231,7 @@ class Gseq():
     #############################################################################################
     ###################            correctionD Pulse            #################################
     #############################################################################################
-    def correctionDelem(elem):
+    def correctionDelem(self, elem):
         awgclock = self.gelem.SR
         global corrDflag;
         
@@ -353,8 +261,8 @@ class Gseq():
             timeD=0;voltD=0;
             #Get all pulses for that channel
             for i in range(num):
-                pulsestart=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['start'])/divch[j+1]
-                pulsestop=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['stop'])/divch[j+1] #Need correct channel dividers!
+                pulsestart=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['start'])/self.divch[j+1]
+                pulsestop=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['stop'])/self.divch[j+1] #Need correct channel dividers!
                 start.append(pulsestart)
                 stop.append(pulsestop)
                 if(pulsestart==pulsestop):
