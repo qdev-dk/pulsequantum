@@ -8,6 +8,8 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame,QMainWindow, QPushButton, QAction, QMessageBox, QLineEdit, QLabel, QSizePolicy
 from PyQt5.QtWidgets import QCheckBox,QDialog,QTableWidget,QTableWidgetItem,QVBoxLayout,QHBoxLayout,QComboBox,QGridLayout
 from broadbean.plotting import plotter
+from pulsequantum.annotateshape import annotateshape
+from pulsequantum.plotelem import PlotWindow
 
 nchans=2;
 
@@ -27,6 +29,7 @@ class Gelem():
         self.libpath = join(pathlib.Path(__file__).parents[0], libpath)
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]
         self.corrDflag=0
+        self.w = None
 
 
     def generateElement(self,table):
@@ -213,10 +216,16 @@ class Gelem():
     def loadElement(self,table, path):
         seq = bb.Sequence.init_from_json(path)
         self.from_sequence(table, seq=seq)
-    
+        self.generateElement(table)
         
-    def plotElement(self):
+    def plotElement(self,table,plotid,gatex,gatey,channelx,channely,dividerx,dividery):
+        #if self.w is None:
+        #    self.w = PlotWindow(pulse=self.gelem)
+        #    self.w.show()
+        self.generateElement(table)
         plotter(self.gelem)
+        if plotid != 0:
+            annotateshape(plotid,gatex,gatey,self.gelem,channelx,channely,dividerx,dividery)
     
 
 #############################################################################################

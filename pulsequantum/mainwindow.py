@@ -152,8 +152,15 @@ class pulsetable(QWidget, Gelem):
         #Plot Element
         plotbtn = QPushButton('Plot Element', self)
         #plotbtn.resize(plotbtn.sizeHint());plotbtn.move(185, 10)
-        plotbtn.clicked.connect(lambda state:self.plotElement())
-        
+        plotbtn.clicked.connect(lambda state:self.plotElement(table,
+                                                             int(plotid_box.text()),
+                                                             float(gate_box[0].text())*1e-3,
+                                                             float(gate_box[1].text())*1e-3,
+                                                             int(channel_mapping_box[0].text()),
+                                                             int(channel_mapping_box[1].text()),
+                                                             float(chbox[int(channel_mapping_box[0].text())].text()),
+                                                             float(chbox[int(channel_mapping_box[0].text())].text())
+                                                             ))
         # Generate Element
         runbtn = QPushButton('Generate Element', self)
         # runbtn.resize(runbtn.sizeHint());runbtn.move(40, 10);
@@ -174,6 +181,39 @@ class pulsetable(QWidget, Gelem):
         lay_puls.addWidget(loadbtn, 1, 0, 1, 1)
         lay_puls.addWidget(libbox, 1, 1, 1, 1)
 
+###################################################################
+        # gate plot options
+        win_gateplot = QWidget(self)
+        lay_gateplot = QGridLayout(win_gateplot)
+        gate_label = []
+        gate_box = []
+        channel_mapping_label = []
+        channel_mapping_box = []
+        gate_names = ['x','y']
+        for i, gate_name in enumerate(gate_names):  # todo make dynamic with number of channels
+            gate_label.append(QLabel(self))
+            gate_label[i].setText('Gate_'+gate_name)
+            gate_box.append(QLineEdit(self))
+            gate_box[i].setText(str(0))
+            channel_mapping_label.append(QLabel(self))
+            channel_mapping_label[i].setText('Channel_'+gate_name)
+            channel_mapping_box.append(QLineEdit(self))
+            channel_mapping_box[i].setText(str(1+i))
+            lay_gateplot.addWidget(gate_label[i], 0, i, 1, 1)
+            lay_gateplot.addWidget(gate_box[i], 1, i, 1, 1)
+            lay_gateplot.addWidget(channel_mapping_label[i], 0, i+2, 1, 1)
+            lay_gateplot.addWidget(channel_mapping_box[i], 1, i+2, 1, 1)
+
+        plotid_label = QLabel(self)
+        plotid_label.setText('plot_id')
+        plotid_box = QLineEdit(self)
+        plotid_box.setText('0')
+        lay_gateplot.addWidget(plotid_label, 2, 0, 1, 1)
+        lay_gateplot.addWidget(plotid_box, 2, 1, 1, 1)
+
+
+        #lay_puls.addWidget(win_gateplot, 1, 2, 1, 1)
+##########################################################################
 
     
         #Add  or Remove a channel
@@ -210,7 +250,7 @@ class pulsetable(QWidget, Gelem):
         # Rename a puls
         win_rename = QWidget(self)
         lay_rename = QGridLayout(win_rename)
-        renamepbtn = QPushButton('Rename Pulse', self);renamepbtn.resize(renamepbtn.sizeHint())
+        renamepbtn = QPushButton('Rename Pulse', self)
         oldpname = QLineEdit(self);oldpname.setText('Old name')
         newpname = QLineEdit(self);newpname.setText('New name')
         renamepbtn.clicked.connect(lambda state: self.renamePulse(table,oldpname,newpname))
@@ -267,6 +307,7 @@ class pulsetable(QWidget, Gelem):
         mainlayout.setColumnStretch(2, 1)
 
         mainlayout.addWidget(win_puls,0,0)
+        mainlayout.addWidget(win_gateplot,0,1)
         mainlayout.addWidget(table, 1, 0, 1, 2)
         mainlayout.addWidget(win_RM, 1, 2, 1, 1)
         mainlayout.addWidget(win_LB, 2, 0)

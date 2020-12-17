@@ -5,3 +5,4 @@ dividers:
     ch3: '11.7'
     ch4: '1.0'
 awgcloc: '1.2' 
+db_location: 'C:\\Users\\rbcma\\repos\\PulsedMeasurementCode\\Amber.db'
