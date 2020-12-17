@@ -22,21 +22,17 @@ class pulsetable(QWidget, Gelem):
     This is the GUI setup for the main window
 
     AWG=None AWG instance
-    nchans=2 number of channels,
-    nlines=3 number of elements
     corrDflag=0 Global flag: Is correction D pulse already defined in the pulse table?
 
     """
 
-    def __init__(self, AWG=None, nchans=2, nlines=3, corrDflag=0):
+    def __init__(self, AWG=None, corrDflag=0):
         super().__init__()
         self.setGeometry(50, 50, 1200, 700)
         self.setWindowTitle('Pulse Table Panel')
         self.mainwindow = pulsetable
         self._sequencebox = None
         self.AWG = AWG
-        self.nchans = nchans
-        self.nlines = nlines
         self.corrDflag = corrDflag    
         self.setStyleSheet("QLineEdit, QLabel, QPushButton,QComboBox {font: 10pt Arial}")
         self.home()
@@ -56,16 +52,12 @@ class pulsetable(QWidget, Gelem):
 
         self.divch = list(init_list['dividers']['channels'].values())
         self.awgcloc_init = init_list['awgcloc']
-
-
-        
+       
 
         # Set up initial pulse table
         table = QTableWidgetDF(self)
         self.loadElement(table, path=join(join(pathlib.Path(__file__).parents[0], 'initfiles/init.json')))
         
-
-
 
         # Divider wiget
         win_divider = QWidget(self)
@@ -223,10 +215,10 @@ class pulsetable(QWidget, Gelem):
         for i in range(len(chbox)): 
             whichch.addItem('CH%d'%(i+1))
         addchbtn = QPushButton('Add Channel', self)
-        addchbtn.clicked.connect(lambda state: self.addChannel(table,whichch))
+        addchbtn.clicked.connect(lambda state: table.addChannel(whichch.currentIndex()))
 
         remchbtn = QPushButton('Remove Channel', self)
-        remchbtn.clicked.connect(lambda state: self.remChannel(table,whichch))
+        remchbtn.clicked.connect(lambda state: table.remChannel(str(whichch.currentText())))
 
         lay_add_remove_channel.addWidget(whichch, 0, 0, 0, 2)
         lay_add_remove_channel.addWidget(addchbtn, 1, 0)
@@ -239,9 +231,9 @@ class pulsetable(QWidget, Gelem):
 
         whichp = QLineEdit(self);whichp.setText('Set name')        
         addpbtn = QPushButton('Add Pulse', self)
-        addpbtn.clicked.connect(lambda state: self.addPulse(table,whichp))
+        addpbtn.clicked.connect(lambda state: table.addPulse(whichp.text()))
         rempbtn = QPushButton('Remove Pulse', self)
-        rempbtn.clicked.connect(lambda state: self.remPulse(table,whichp))
+        rempbtn.clicked.connect(lambda state: table.remPulse(str(whichp.text())))
 
         lay_add_remove_pulse.addWidget(whichp, 0, 0, 1, 2)
         lay_add_remove_pulse.addWidget(addpbtn, 1, 0)
@@ -251,9 +243,11 @@ class pulsetable(QWidget, Gelem):
         win_rename = QWidget(self)
         lay_rename = QGridLayout(win_rename)
         renamepbtn = QPushButton('Rename Pulse', self)
-        oldpname = QLineEdit(self);oldpname.setText('Old name')
-        newpname = QLineEdit(self);newpname.setText('New name')
-        renamepbtn.clicked.connect(lambda state: self.renamePulse(table,oldpname,newpname))
+        oldpname = QLineEdit(self)
+        oldpname.setText('Old name')
+        newpname = QLineEdit(self)
+        newpname.setText('New name')
+        renamepbtn.clicked.connect(lambda state: table.renamePulse(oldpname,newpname))
         lay_rename.addWidget(renamepbtn, 0, 0, 1, 2)
         lay_rename.addWidget(oldpname, 1, 0)
         lay_rename.addWidget(newpname, 1, 1)
@@ -319,61 +313,7 @@ class pulsetable(QWidget, Gelem):
         win_absmarker.hide()
         
         
-    def addChannel(self,table,whichch):
-        self.nchans=self.nchans+1;
-        index=whichch.currentIndex();
-        ch=[1,2,3,4];chno=ch[index];
-        n=table.columnCount();nchan=int((table.columnCount()-2)/3);
-        table.insertColumn(nchan+2);table.insertColumn(n+1);table.insertColumn(n+2);
-        table.setHorizontalHeaderItem(nchan+2, QTableWidgetItem("CH%d"%chno));
-        table.setHorizontalHeaderItem(n+1, QTableWidgetItem("CH%dM1"%chno));
-        table.setHorizontalHeaderItem(n+2, QTableWidgetItem("CH%dM2"%chno));
-        for row in range(table.rowCount()):
-            table.setItem(row,nchan+2, QTableWidgetItem("0"));
-            table.setItem(row,n+1, QTableWidgetItem("0"));
-            table.setItem(row,n+2, QTableWidgetItem("0"));
-    
-    # TODO fix this function
-    def remChannel(self,table,whichch): 
-        self.nchans=self.nchans-1;
-        n=table.columnCount();
-        n=n-1-2;
-        for i in range(n):
-            print(str(table.horizontalHeaderItem(i).text()))
-            temp=str(whichch.currentText());
-            if str(table.horizontalHeaderItem(i).text())==temp:
-               table.removeColumn(i);
-            if str(table.horizontalHeaderItem(i).text())==temp+"M1":    
-                table.removeColumn(i);
-            if str(table.horizontalHeaderItem(i).text())==temp+"M2":
-               table.removeColumn(i);
-    
-    def addPulse(self,table,whichp,i=-1):
-        self.nlines=self.nlines+1;
-        if i==-1:
-            n=table.rowCount();
-        else:
-            n=i;
-        table.insertRow(n);
-        table.setVerticalHeaderItem(n,QTableWidgetItem(whichp.text()));
-        for column in range(table.columnCount()):
-            if column==0:
-                table.setItem(n,column, QTableWidgetItem("1"));
-            else:
-                table.setItem(n,column, QTableWidgetItem("0"));
-    
-    def remPulse(self,table,whichp):
-        self.nlines=self.nlines-1;
-        for n in range(table.rowCount()):
-            if table.verticalHeaderItem(n).text()==whichp.text():
-                if str(whichp.text())=='corrD':
-                    self.corrDflag=0;
-                table.removeRow(n);
-    
-    def renamePulse(self,table,oldpname,newpname):
-        for n in range(table.rowCount()):
-            if table.verticalHeaderItem(n).text()==oldpname.text():
-                table.setVerticalHeaderItem(n,QTableWidgetItem(newpname.text()));
+
     
     
         

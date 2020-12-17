@@ -76,10 +76,9 @@ class Gelem():
             return;
         self.corrDflag=1;
         awgclockinus=self.awgclock/1e6;
-        dpulse = QLineEdit(self);dpulse.setText('corrD');
         tottime=0;
         dpos=1;#position of correction D pulse, hardcoded for now
-        self.addPulse(table,dpulse,dpos);
+        table.addPulse('corrD',dpos);
         #Set D pulse time to 60% of total pulse cycle time
         for row in range(table.rowCount()):
             nm=table.verticalHeaderItem(row).text();
