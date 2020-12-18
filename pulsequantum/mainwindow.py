@@ -50,7 +50,7 @@ class pulsetable(QWidget, Gelem):
             # scalar values to Python the dictionary format
             init_list = yaml.load(file, Loader=yaml.FullLoader)
 
-        self.divch = list(init_list['dividers']['channels'].values())
+        self.divch = [float(x) for x in list(init_list['dividers']['channels'].values())]
         self.awgcloc_init = init_list['awgcloc']
        
 

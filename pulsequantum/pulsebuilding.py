@@ -12,13 +12,9 @@ from pulsequantum.annotateshape import annotateshape
 
 nchans=2;
 
-ramp = bb.PulseAtoms.ramp; #Globally defined ramp, element, and sequence
-gelem = bb.Element();
-gseq = bb.Sequence();
-
-divch1=11.5;divch2=11.75;divch3=11.7;divch4=1; #Hardcoded channel dividers
-divch=[divch1,divch2,divch3,divch4];
-
+ramp = bb.PulseAtoms.ramp # Globally defined ramp, element, and sequence
+gelem = bb.Element()
+gseq = bb.Sequence()
 
 
 class Gelem():
@@ -45,7 +41,7 @@ class Gelem():
                 nm=table.verticalHeaderItem(row).text();
                 dr=(float(table.item(row,0).text()))*1e-6;
                 rmp=int(table.item(row,1).text());
-                lvl=(float(table.item(row,col).text()))*divch[col-2]*1e-3;
+                lvl=(float(table.item(row,col).text()))*self.divch[col-2]*1e-3;
                 mkr1=int(table.item(row,h+2).text());
                 mkr2=int(table.item(row,h+3).text());
                 if rmp==0:
@@ -204,7 +200,7 @@ class Gelem():
             table.setItem(seg,0, QTableWidgetItem(duration))
             table.setItem(seg,1, QTableWidgetItem(ramp_yes))
             for ch in range(self.nchans):
-               val = str(values[ch][seg]/(divch[ch]*1e-3))
+               val = str(values[ch][seg]/(self.divch[ch]*1e-3))
                mark1 = str(marker1[ch][seg])
                mark2 = str(marker2[ch][seg])
                table.setItem(seg,ch+2, QTableWidgetItem(val))
