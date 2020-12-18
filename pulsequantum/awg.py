@@ -71,7 +71,7 @@ class AWG():
             
 
 
-    def runChan(self,outputbox,whichbox):
+    def runChan(self,outputbox,whichbox, Choose_awg):
         if Choose_awg == 'AWG5014':
             if whichbox==0:
                 if outputbox.isChecked():
