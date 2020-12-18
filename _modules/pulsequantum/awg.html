@@ -217,43 +217,75 @@
                 <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">())</span>
             <span class="k">else</span><span class="p">:</span>  
                 <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
-                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">())</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">run_state</span><span class="p">())</span></div>
             
-            <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">stop</span><span class="p">();</span></div>
 
 
 <div class="viewcode-block" id="AWG.runChan"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awg.AWG.runChan">[docs]</a>    <span class="k">def</span> <span class="nf">runChan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">outputbox</span><span class="p">,</span><span class="n">whichbox</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-        <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></div></div>
+        <span class="k">if</span> <span class="n">Choose_awg</span> <span class="o">==</span> <span class="s1">&#39;AWG5014&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch1</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch2</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">whichbox</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">outputbox</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4</span><span class="o">.</span><span class="n">state</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></div></div>
 </pre></div>
 
            </div>
