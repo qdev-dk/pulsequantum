@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFrame,QMainWindow, QPushButt
 from PyQt5.QtWidgets import QCheckBox,QDialog,QTableWidget,QTableWidgetItem,QVBoxLayout,QHBoxLayout,QComboBox,QGridLayout
 from broadbean.plotting import plotter
 from pulsequantum.annotateshape import annotateshape
-from pulsequantum.plotelem import PlotWindow
 
 nchans=2;
 
