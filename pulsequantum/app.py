@@ -13,7 +13,7 @@ def run(AWG=None):
         app = QApplication.instance()
     
     app.aboutToQuit.connect(app.deleteLater)
-    pulsetable(AWG = None)
+    pulsetable(AWG)
     app.exec_()    
 if __name__ == "__main__": 
     run()       

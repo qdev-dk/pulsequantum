@@ -4,14 +4,14 @@ class AWG():
     Class for AWG control
     """
 
-    def __init__(self, AWG, gseq):
+    def __init__(self, AWG=None, gseq=None):
         self.AWG = AWG
         self.gseq = gseq
 #############################################################################################
 # AWG functions (uploading, running AWG, turning on outputs. Note that in this section 
 # the AWG name is hardcoded. Probably first thing that needs to be changed.
 #############################################################################################
-    def uploadToAWG(self,Choose_awg,chbox):
+    def uploadToAWG(self, Choose_awg, chbox):
         if Choose_awg == 'AWG5014':
             #for i,  chan in enumerate(self.gseq.channels):
             #    self.AWG.channels[chan].AMP(float(chbox[chan-1].text()))
@@ -20,7 +20,7 @@ class AWG():
             self.AWG.ch3_amp(float(chbox[2].text()))
             self.AWG.ch4_amp(float(chbox[3].text()))
             package = self.gseq.outputForAWGFile()
-            start_time=time.time()
+            start_time = time.time()
             self.AWG.make_send_and_load_awg_file(*package[:])
             print("Sequence uploaded in %s seconds" %(time.time()-start_time));
         elif Choose_awg == 'AWG5208':
