@@ -154,14 +154,14 @@
 <span class="sd">    Class for AWG control</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AWG</span><span class="p">,</span> <span class="n">gseq</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">AWG</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gseq</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span> <span class="o">=</span> <span class="n">AWG</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span> <span class="o">=</span> <span class="n">gseq</span>
 <span class="c1">#############################################################################################</span>
 <span class="c1"># AWG functions (uploading, running AWG, turning on outputs. Note that in this section </span>
 <span class="c1"># the AWG name is hardcoded. Probably first thing that needs to be changed.</span>
 <span class="c1">#############################################################################################</span>
-<div class="viewcode-block" id="AWG.uploadToAWG"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awg.AWG.uploadToAWG">[docs]</a>    <span class="k">def</span> <span class="nf">uploadToAWG</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Choose_awg</span><span class="p">,</span><span class="n">chbox</span><span class="p">):</span>
+<div class="viewcode-block" id="AWG.uploadToAWG"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.awg.AWG.uploadToAWG">[docs]</a>    <span class="k">def</span> <span class="nf">uploadToAWG</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Choose_awg</span><span class="p">,</span> <span class="n">chbox</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">Choose_awg</span> <span class="o">==</span> <span class="s1">&#39;AWG5014&#39;</span><span class="p">:</span>
             <span class="c1">#for i,  chan in enumerate(self.gseq.channels):</span>
             <span class="c1">#    self.AWG.channels[chan].AMP(float(chbox[chan-1].text()))</span>
@@ -170,7 +170,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch3_amp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">ch4_amp</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">chbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
             <span class="n">package</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gseq</span><span class="o">.</span><span class="n">outputForAWGFile</span><span class="p">()</span>
-            <span class="n">start_time</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">AWG</span><span class="o">.</span><span class="n">make_send_and_load_awg_file</span><span class="p">(</span><span class="o">*</span><span class="n">package</span><span class="p">[:])</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sequence uploaded in </span><span class="si">%s</span><span class="s2"> seconds&quot;</span> <span class="o">%</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start_time</span><span class="p">));</span>
         <span class="k">elif</span> <span class="n">Choose_awg</span> <span class="o">==</span> <span class="s1">&#39;AWG5208&#39;</span><span class="p">:</span>
