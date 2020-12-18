@@ -22,10 +22,26 @@ pulsequantum.PulseGUI module
    :undoc-members:
    :show-inheritance:
 
+pulsequantum.annotateshape module
+---------------------------------
+
+.. automodule:: pulsequantum.annotateshape
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pulsequantum.app module
 -----------------------
 
 .. automodule:: pulsequantum.app
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pulsequantum.awg module
+-----------------------
+
+.. automodule:: pulsequantum.awg
    :members:
    :undoc-members:
    :show-inheritance:
