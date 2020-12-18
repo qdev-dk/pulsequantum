@@ -4,7 +4,7 @@ class AWG():
     Class for AWG control
     """
 
-    def __init__(self, AWG = None, gseq = None):
+    def __init__(self, AWG, gseq):
         self.AWG = AWG
         self.gseq = gseq
 #############################################################################################
