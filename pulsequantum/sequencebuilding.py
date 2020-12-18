@@ -67,7 +67,7 @@ class Gseq(AWG):
            # for chan in self.gseq.channels:
             #    self.gseq.setChannelAmplitude(chan, (float(chbox[chan-1].text())))
             #    self.gseq.setChannelOffset(chan, (float(offbox[chan-1].text())))
-            return
+            #return
         elif sparam!="-Special-":
             self.buildsequencetable(self.gelem, sparam, sstart, sstop, spts)
         else:

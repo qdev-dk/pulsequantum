@@ -211,7 +211,7 @@ class Sequencing(QDialog, Gseq):
         awglabel.setText('AWG Tools:');
         allonlabel= QLabel(self);allonlabel.setText('All on:');
         allonbox = QCheckBox(self);
-        allonbox.stateChanged.connect(lambda state: self.runChan(allonbox, 0));
+        allonbox.stateChanged.connect(lambda state: self.runChan(allonbox, 0, str(Choose_awg.currentText())))
         achlabel1='Ch1';
         achlabel2='Ch2';
         achlabel3='Ch3';
@@ -228,10 +228,10 @@ class Sequencing(QDialog, Gseq):
         aoffbox=[aoffbox1,aoffbox2,aoffbox3,aoffbox4];
         aoutbox1 = QCheckBox(self);aoutbox2 = QCheckBox(self);aoutbox3 = QCheckBox(self);aoutbox4 = QCheckBox(self);
         aoutbox=[aoutbox1,aoutbox2,aoutbox3,aoutbox4];
-        aoutbox1.stateChanged.connect(lambda state: self.runChan(aoutbox1, 1));
-        aoutbox2.stateChanged.connect(lambda state: self.runChan(aoutbox2, 2));
-        aoutbox3.stateChanged.connect(lambda state: self.runChan(aoutbox3, 3));
-        aoutbox4.stateChanged.connect(lambda state: self.runChan(aoutbox4, 4));
+        aoutbox1.stateChanged.connect(lambda state: self.runChan(aoutbox1, 1, str(Choose_awg.currentText())));
+        aoutbox2.stateChanged.connect(lambda state: self.runChan(aoutbox2, 2, str(Choose_awg.currentText())));
+        aoutbox3.stateChanged.connect(lambda state: self.runChan(aoutbox3, 3, str(Choose_awg.currentText())));
+        aoutbox4.stateChanged.connect(lambda state: self.runChan(aoutbox4, 4, str(Choose_awg.currentText())));
         runAWGtn = QPushButton('Run AWG', self);
         runAWGtn.clicked.connect(lambda state: self.runAWG(str(Choose_awg.currentText())))
         lay5.addWidget(awglabel,1,1,1,1);

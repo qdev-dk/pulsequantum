@@ -7,7 +7,7 @@ from qcodes.dataset.plotting import plot_by_id
 import broadbean as bb
 from broadbean.plotting import plotter
 
-qc.config["core"]["db_location"] = 'C:\\Users\\rbcma\\repos\\PulsedMeasurementCode\\Amber.db' 
+#qc.config["core"]["db_location"] = 'C:\\Users\\rbcma\\repos\\PulsedMeasurementCode\\Amber.db' 
 
 def annotateshape(plotid,x1,y1,elem,chx,chy,divx,divy):
     '''

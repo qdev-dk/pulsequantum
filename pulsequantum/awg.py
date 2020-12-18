@@ -69,38 +69,70 @@ class AWG():
                 self.AWG.play()
                 print(self.AWG.run_state())
             
-            self.AWG.stop();
 
 
     def runChan(self,outputbox,whichbox):
-        if whichbox==0:
-            if outputbox.isChecked():
-                self.AWG.ch1_state(1);
-                self.AWG.ch2_state(1);
-                self.AWG.ch3_state(1);
-                self.AWG.ch4_state(1);
-            else:
-                self.AWG.ch1_state(0);
-                self.AWG.ch2_state(0);
-                self.AWG.ch3_state(0);
-                self.AWG.ch4_state(0);
-        if whichbox==1:
-            if outputbox.isChecked():
-                self.AWG.ch1_state(1);
-            else:
-                self.AWG.ch1_state(0);
-        if whichbox==2:
-            if outputbox.isChecked():
-                self.AWG.ch2_state(1);
-            else:
-                self.AWG.ch2_state(0);
-        if whichbox==3:
-            if outputbox.isChecked():
-                self.AWG.ch3_state(1);
-            else:
-                self.AWG.ch3_state(0);
-        if whichbox==4:
-            if outputbox.isChecked():
-                self.AWG.ch4_state(1);
-            else:
-                self.AWG.ch4_state(0);
+        if Choose_awg == 'AWG5014':
+            if whichbox==0:
+                if outputbox.isChecked():
+                    self.AWG.ch1_state(1);
+                    self.AWG.ch2_state(1);
+                    self.AWG.ch3_state(1);
+                    self.AWG.ch4_state(1);
+                else:
+                    self.AWG.ch1_state(0);
+                    self.AWG.ch2_state(0);
+                    self.AWG.ch3_state(0);
+                    self.AWG.ch4_state(0);
+            if whichbox==1:
+                if outputbox.isChecked():
+                    self.AWG.ch1_state(1);
+                else:
+                    self.AWG.ch1_state(0);
+            if whichbox==2:
+                if outputbox.isChecked():
+                    self.AWG.ch2_state(1);
+                else:
+                    self.AWG.ch2_state(0);
+            if whichbox==3:
+                if outputbox.isChecked():
+                    self.AWG.ch3_state(1);
+                else:
+                    self.AWG.ch3_state(0);
+            if whichbox==4:
+                if outputbox.isChecked():
+                    self.AWG.ch4_state(1);
+                else:
+                    self.AWG.ch4_state(0);
+        else:
+            if whichbox==0:
+                if outputbox.isChecked():
+                    self.AWG.ch1.state(1);
+                    self.AWG.ch2.state(1);
+                    self.AWG.ch3.state(1);
+                    self.AWG.ch4.state(1);
+                else:
+                    self.AWG.ch1.state(0);
+                    self.AWG.ch2.state(0);
+                    self.AWG.ch3.state(0);
+                    self.AWG.ch4.state(0);
+            if whichbox==1:
+                if outputbox.isChecked():
+                    self.AWG.ch1.state(1);
+                else:
+                    self.AWG.ch1.state(0);
+            if whichbox==2:
+                if outputbox.isChecked():
+                    self.AWG.ch2.state(1);
+                else:
+                    self.AWG.ch2.state(0);
+            if whichbox==3:
+                if outputbox.isChecked():
+                    self.AWG.ch3.state(1);
+                else:
+                    self.AWG.ch3.state(0);
+            if whichbox==4:
+                if outputbox.isChecked():
+                    self.AWG.ch4.state(1);
+                else:
+                    self.AWG.ch4.state(0);
