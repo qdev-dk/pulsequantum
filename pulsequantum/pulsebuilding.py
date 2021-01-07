@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QFrame,QMainWindow, QPushButt
 from PyQt5.QtWidgets import QCheckBox,QDialog,QTableWidget,QTableWidgetItem,QVBoxLayout,QHBoxLayout,QComboBox,QGridLayout
 from broadbean.plotting import plotter
 from pulsequantum.annotateshape import annotateshape
+from pulsequantum.elem_from_plot import elem_on_plot
+from pulsequantum.elem_from_plot import elem_from_lists
 
 nchans=2;
 
@@ -25,6 +27,8 @@ class Gelem():
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]
         self.corrDflag=0
         self.w = None
+        self.ch_x = None
+        self.ch_y = None
 
 
     def generateElement(self,table):
@@ -60,6 +64,17 @@ class Gelem():
             h=h+2;
         self.gelem.validateDurations();
 
+    def coordinates_from_plot(self, id: int) -> None:
+        self.ch_x, self.ch_y = elem_on_plot(id)
+
+    def elem_from_lists_update_table(self,
+                                     duration: float = 1e-6, dac_a: float = 0, dac_b: float = 0,
+                                     divider_a: float = 1.0, divider_b: float = 1.0,
+                                     SR: float = 1e9,
+                                     chx: int = 1, chy: int = 2) -> None:    
+        self.gelem = elem_from_lists(self.ch_x, self.ch_y, duration, dac_a, dac_b,
+                                     divider_a, divider_b, SR, chx, chy)
+        # TODO self.from_element(table, elem=self.gelem)
 
 #############################################################################################
 # The correction D pulse keeps the centre of gravity of the pulse at the DC value (voltage
