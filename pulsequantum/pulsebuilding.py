@@ -74,7 +74,7 @@ class Gelem():
                                      chx: int = 1, chy: int = 2) -> None:    
         self.gelem = elem_from_lists(self.ch_x, self.ch_y, duration, dac_a, dac_b,
                                      divider_a, divider_b, SR, chx, chy)
-        # TODO self.from_element(table, elem=self.gelem)
+        self.from_element(table, elem=self.gelem)
 
 #############################################################################################
 # The correction D pulse keeps the centre of gravity of the pulse at the DC value (voltage
@@ -142,26 +142,26 @@ class Gelem():
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]  
 
 
-        # From Sequence
-    def from_sequence(self, table, seq):
+    # From Element
+    def from_element(self, table, elem: bb.Element):
          
-        seq_description = seq.description['1']['channels']
+        elem_description = elem.description
         seg_name = []
         seg_durations = []
         seg_ramp = []
         values = []
         marker1 = []
         marker2 = []
-        for chan in seq_description.keys():
+        for chan in elem_description.keys():
             ch_values = []
             channels_marker1 = []
             channels_marker2 = []
-            marker1_rel = seq_description[chan]['marker1_rel']
-            marker2_rel = seq_description[chan]['marker2_rel']
-            seg_mar_list = list(seq_description[chan].keys())
+            marker1_rel = elem_description[chan]['marker1_rel']
+            marker2_rel = elem_description[chan]['marker2_rel']
+            seg_mar_list = list(elem_description[chan].keys())
             seg_list = [s for s in seg_mar_list if 'segment' in s]
             for i, seg in enumerate(seg_list):
-                seg_digt = seq_description[chan][seg]
+                seg_digt = elem_description[chan][seg]
                 tmp_name = seg_digt['name']
                 tmp_durations = seg_digt["durations"]
                 if tmp_name not in seg_name:
@@ -224,7 +224,8 @@ class Gelem():
 
     def loadElement(self,table, path):
         seq = bb.Sequence.init_from_json(path)
-        self.from_sequence(table, seq=seq)
+        self.gelem = seq.element(1)
+        self.from_element(table, elem=self.gelem)
         self.generateElement(table)
         
     def plotElement(self,table,plotid,gatex,gatey,channelx,channely,dividerx,dividery):
