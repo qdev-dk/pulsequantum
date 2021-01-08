@@ -67,7 +67,7 @@ class Gelem():
     def coordinates_from_plot(self, id: int) -> None:
         self.ch_x, self.ch_y = elem_on_plot(id)
 
-    def elem_from_lists_update_table(self,
+    def elem_from_lists_update_table(self,table,
                                      duration: float = 1e-6, dac_a: float = 0, dac_b: float = 0,
                                      divider_a: float = 1.0, divider_b: float = 1.0,
                                      SR: float = 1e9,
@@ -196,7 +196,7 @@ class Gelem():
         h=self.nchans+1;
         table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
         table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
-        for i in range(self.nchans):
+        for i in range(self.nchans): # TODO use the correct channel number as name
             table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
             table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
             table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));

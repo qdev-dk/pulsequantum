@@ -151,7 +151,7 @@ class pulsetable(QWidget, Gelem):
                                                              int(channel_mapping_box[0].text()),
                                                              int(channel_mapping_box[1].text()),
                                                              float(chbox[int(channel_mapping_box[0].text())].text()),
-                                                             float(chbox[int(channel_mapping_box[0].text())].text())
+                                                             float(chbox[int(channel_mapping_box[1].text())].text())
                                                              ))
         # Generate Element
         runbtn = QPushButton('Generate Element', self)
@@ -166,12 +166,29 @@ class pulsetable(QWidget, Gelem):
         loadbtn = QPushButton('Load Element', self)
         loadbtn.clicked.connect(lambda state: self.loadElement(table, path=join(self.libpath,libbox.currentText())))
  
+        show_gate_plot = QPushButton('Show Gateplot', self)
+        show_gate_plot.clicked.connect(lambda state: self.coordinates_from_plot(int(plotid_box.text())))
+
+        elem_from_plot = QPushButton('Plot to Element', self)
+        elem_from_plot.clicked.connect(lambda state:
+                                       self.elem_from_lists_update_table(table,
+                                                                         duration=1e-6,
+                                                                         dac_a=float(gate_box[0].text())*1e-3,
+                                                                         dac_b=float(gate_box[1].text())*1e-3,
+                                                                         divider_a=float(chbox[int(channel_mapping_box[0].text())].text()),
+                                                                         divider_b=float(chbox[int(channel_mapping_box[1].text())].text()),
+                                                                         SR=1e9,
+                                                                         chx=int(channel_mapping_box[0].text()),
+                                                                         chy=int(channel_mapping_box[1].text())))
+
         lay_puls.addWidget(runbtn, 0, 0, 1, 1)
         lay_puls.addWidget(plotbtn, 0, 1, 1, 1)
         lay_puls.addWidget(savebtn, 2, 0, 1, 1)
         lay_puls.addWidget(save_to, 2, 1, 1, 1)
         lay_puls.addWidget(loadbtn, 1, 0, 1, 1)
         lay_puls.addWidget(libbox, 1, 1, 1, 1)
+        lay_puls.addWidget(show_gate_plot, 0, 2, 1, 1)
+        lay_puls.addWidget(elem_from_plot, 1, 2, 1, 1)
 
 ###################################################################
         # gate plot options
