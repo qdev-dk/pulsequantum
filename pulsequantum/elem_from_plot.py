@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from qcodes.dataset.plotting import plot_by_id
 import broadbean as bb
-
+from string import ascii_lowercase
+from qcodes.dataset.plotting import plot_by_id
 
 class LineBuilder:
     def __init__(self, line, ax, color):
@@ -68,10 +68,10 @@ def elem_from_lists(step_list_a: list, step_list_b: list,
     blueprint_b = bb.BluePrint()
     blueprint_b.setSR(SR)
     for i in range(len(step_list_a)):
-        step_a = step_list_a[i]*divider_a
-        step_b = step_list_b[i]*divider_b
-        blueprint_a.insertSegment(i, ramp, (step_a, step_a), name="", dur=duration)
-        blueprint_b.insertSegment(i, ramp, (step_b, step_b), name="", dur=duration)
+        step_a = (step_list_a[i]-dac_a)*divider_a
+        step_b = (step_list_b[i]-dac_b)*divider_b
+        blueprint_a.insertSegment(i, ramp, (step_a, step_a), name=ascii_lowercase[i], dur=duration)
+        blueprint_b.insertSegment(i, ramp, (step_b, step_b), name=ascii_lowercase[i], dur=duration)
 
     elem.addBluePrint(chx, blueprint_a)
     elem.addBluePrint(chy, blueprint_b)
