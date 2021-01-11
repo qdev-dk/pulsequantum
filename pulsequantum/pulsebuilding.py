@@ -29,6 +29,7 @@ class Gelem():
         self.w = None
         self.ch_x = None
         self.ch_y = None
+        self.ramp = None
 
 
     def generateElement(self,table):
@@ -65,14 +66,14 @@ class Gelem():
         self.gelem.validateDurations();
 
     def coordinates_from_plot(self, id: int) -> None:
-        self.ch_x, self.ch_y = elem_on_plot(id)
+        self.ch_x, self.ch_y, self.ramp = elem_on_plot(id)
 
-    def elem_from_lists_update_table(self,table,
+    def elem_from_lists_update_table(self, table,
                                      duration: float = 1e-6, dac_a: float = 0, dac_b: float = 0,
                                      divider_a: float = 1.0, divider_b: float = 1.0,
                                      SR: float = 1e9,
                                      chx: int = 1, chy: int = 2) -> None:    
-        self.gelem = elem_from_lists(self.ch_x, self.ch_y, duration, dac_a, dac_b,
+        self.gelem = elem_from_lists(self.ch_x, self.ch_y, self.ramp, duration, dac_a, dac_b,
                                      divider_a, divider_b, SR, chx, chy)
         self.from_element(table, elem=self.gelem)
 
@@ -152,7 +153,8 @@ class Gelem():
         values = []
         marker1 = []
         marker2 = []
-        for chan in elem_description.keys():
+        chan_names = list(elem_description.keys())
+        for chan in chan_names:
             ch_values = []
             channels_marker1 = []
             channels_marker2 = []
@@ -197,9 +199,9 @@ class Gelem():
         table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
         table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
         for i in range(self.nchans): # TODO use the correct channel number as name
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH%d"%(i+1)));
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH%dM1"%(i+1)));
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH%dM2"%(i+1)));
+            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH{}".format(chan_names[i])))
+            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH{}M1".format(chan_names[i])))
+            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH{}M2".format(chan_names[i])))
             h=h+2;
         
         #Set vertical headers
