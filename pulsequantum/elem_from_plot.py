@@ -14,48 +14,54 @@ class LineBuilder:
         self.ramp = []
         self.cid = line.figure.canvas.mpl_connect('button_press_event', self)
         self.counter = 0
-        self.shape_counter = 0
-        self.shape = {}
-        self.precision = 0.001
+        self.precision = 0.0005
 
     def __call__(self, event):
         if event.inaxes != self.line.axes:
             return
         if event.dblclick:
-            print(event.button)
-            print(str(event.button))
             if self.counter == 0:
                 self.xs.append(event.xdata)
                 self.ys.append(event.ydata)
-                if str(event.button) == 'MouseButton.RIGHT':
-                    self.ramp.append(1)
-                else:
-                    self.ramp.append(0)
-            if np.abs(event.xdata-self.xs[0])<=self.precision and np.abs(event.ydata-self.ys[0])<=self.precision and self.counter != 0:
-                self.xs.append(self.xs[0])
-                self.ys.append(self.ys[0])
-                self.ax.scatter(self.xs,self.ys,s=120,color=self.color)
-                self.ax.scatter(self.xs[0],self.ys[0],s=80,color='blue')
-                self.ax.plot(self.xs,self.ys,color=self.color)
-                self.line.figure.canvas.draw()
-                self.shape[self.shape_counter] = [self.xs,self.ys]
-                self.shape_counter = self.shape_counter + 1
-                self.xs = []
-                self.ys = []
-                self.ramp = []
-                self.counter = 0
+                self.right_or_left(str(event.button))
+            if np.abs(event.xdata-self.xs[self.counter - 1]) <= self.precision and np.abs(event.ydata-self.ys[self.counter - 1]) <= self.precision and self.counter != 0:
+                self.xs.append(self.xs[self.counter - 1])
+                self.ys.append(self.ys[self.counter - 1])
+                self.right_or_left(str(event.button))
+                self.plot_line()
+                self.counter = self.counter + 1
             else:
                 if self.counter != 0:
                     self.xs.append(event.xdata)
                     self.ys.append(event.ydata)
-                    if str(event.button) == 'MouseButton.RIGHT':
-                        self.ramp.append(1)
-                    else:
-                        self.ramp.append(0)
-                self.ax.scatter(self.xs,self.ys,s=120,color=self.color)
-                self.ax.plot(self.xs,self.ys,color=self.color)
-                self.line.figure.canvas.draw()
+                    self.right_or_left(str(event.button))
+                self.plot_line()
                 self.counter = self.counter + 1
+
+    def right_or_left(self, rightleftmouse: str) -> None:
+        if rightleftmouse == 'MouseButton.RIGHT':
+            self.ramp.append(1)
+        else:
+            self.ramp.append(0)
+
+    def plot_line(self) -> None:
+        plateau = list(zip(*[(self.xs[i], self.ys[i]) for i in range(len(self.ramp)) if self.ramp[i] == 0]))
+        ramp = list(zip(*[(self.xs[i], self.ys[i]) for i in range(len(self.ramp)) if self.ramp[i] == 1]))
+        if plateau != []:
+            self.ax.scatter(plateau[0], plateau[1], s=120, color=self.color, marker='o')
+        if ramp != []:
+            self.ax.scatter(ramp[0], ramp[1], s=120, color='black', marker='x')
+        self.plot_line_segment()
+        self.line.figure.canvas.draw()
+
+    def plot_line_segment(self):
+        for i in range(len(self.xs)):
+            if i > 0:
+                if self.ramp[i] == 1:
+                    linestyle = '-'
+                else:
+                    linestyle = '--'
+                self.ax.plot(self.xs[i-1:i+1], self.ys[i-1:i+1], color=self.color, linestyle=linestyle)
 
 
 def elem_on_plot(id: int) -> tuple:
@@ -87,7 +93,7 @@ def elem_from_lists(step_list_a: list, step_list_b: list, ramplist: list,
             step_a = (step_list_a[i]-dac_a)*divider_a
             step_b = (step_list_b[i]-dac_b)*divider_b
             blueprint_a.insertSegment(i, ramp, (step_a_old, step_a), name=ascii_lowercase[i], dur=duration)
-            blueprint_b.insertSegment(i, ramp, (step_b_old, step_b), name=ascii_lowercase[i], dur=duration)        
+            blueprint_b.insertSegment(i, ramp, (step_b_old, step_b), name=ascii_lowercase[i], dur=duration)
         else:
             step_a = (step_list_a[i]-dac_a)*divider_a
             step_b = (step_list_b[i]-dac_b)*divider_b
