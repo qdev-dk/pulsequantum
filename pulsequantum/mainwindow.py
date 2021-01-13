@@ -50,7 +50,7 @@ class pulsetable(QWidget, Gelem):
             # scalar values to Python the dictionary format
             init_list = yaml.load(file, Loader=yaml.FullLoader)
 
-        self.divch = [float(x) for x in list(init_list['dividers']['channels'].values())]
+        self.divider_ch = [float(x) for x in list(init_list['dividers']['channels'].values())]
         self.awgcloc_init = init_list['awgcloc']
        
 
@@ -68,7 +68,7 @@ class pulsetable(QWidget, Gelem):
             chlabel.append(QLabel(self))
             chlabel[i].setText('Ch%d'%(i+1))
             chbox.append(QLineEdit(self))
-            chbox[i].setText('{}'.format(self.divch[i]))
+            chbox[i].setText('{}'.format(self.divider_ch[i]))
             lay_divider.addWidget(chlabel[i], 0, i, 1, 1)
             lay_divider.addWidget(chbox[i], 1, i, 1, 1)
 
@@ -335,8 +335,8 @@ class pulsetable(QWidget, Gelem):
     
         
     def setDividers(self,chbox):
-        for i in range(len(self.divch)):
-            self.divch[i]=(float(chbox[i].text()));
+        for i in range(len(self.divider_ch)):
+            self.divider_ch[i]=(float(chbox[i].text()));
         
     def setAWGClock(self,setawgclockbox):
         self.awgclock=(float(setawgclockbox.text()))*1e9;

@@ -217,7 +217,7 @@ class Gseq(AWG):
     #############################################################################################
     def setpulselevel(elem,ch,seg,lvl,div=11.7):
         #Change a pulse within an element
-        lvl=lvl*self.divch[ch-1]*1e-3;
+        lvl=lvl*self.divider_ch[ch-1]*1e-3;
     #    print(lvl);
         elem.changeArg(ch,seg,0,lvl,False);
         elem.changeArg(ch,seg,1,lvl,False);
@@ -261,8 +261,8 @@ class Gseq(AWG):
             timeD=0;voltD=0;
             #Get all pulses for that channel
             for i in range(num):
-                pulsestart=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['start'])/self.divch[j+1]
-                pulsestop=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['stop'])/self.divch[j+1] #Need correct channel dividers!
+                pulsestart=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['start'])/self.divider_ch[j+1]
+                pulsestop=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['stop'])/self.divider_ch[j+1] #Need correct channel dividers!
                 start.append(pulsestart)
                 stop.append(pulsestop)
                 if(pulsestart==pulsestop):
