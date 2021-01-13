@@ -86,8 +86,8 @@ class Gseq(AWG):
         for i in range(4):
             self.gseq.setChannelFilterCompensation(i+1,'HP',order=1,tau=hptau)
 
-    def buildsequencetable(self,elem,param,start,stop,points):
-        self.gseq.setSR(elem.SR);
+    def buildsequencetable(self,param,start,stop,points):
+        self.gseq.setSR(self.gelem.SR);
         value=np.linspace(start,stop,points);
         #if first letter is "N"
         #if second word is time
@@ -95,9 +95,9 @@ class Gseq(AWG):
         #if second word is volt
         #setpulselevel
         for n in range(points):
-            self.setpulseparameter(elem,param,value[n]); # tjek 
-            self.correctionDelem(elem);  # tjek
-            self.gseq.addElement(n+1, elem)
+            self.setpulseparameter(param,value[n]); # tjek 
+            self.correctionDelem() # tjek
+            self.gseq.addElement(n+1, self.gelem)
             self.gseq.setSequencingTriggerWait(n+1, 0)
             self.gseq.setSequencingNumberOfRepetitions(n+1, 1)
             self.gseq.setSequencingEventJumpTarget(n+1, 0)
@@ -111,33 +111,33 @@ class Gseq(AWG):
 ###################            SET PULSE PARAMETER          #################################
 #############################################################################################
 
-    def setpulseparameter(self, elem,param,value):
+    def setpulseparameter(self,param,value):
         #Define your own parameters here! For setting a segment name use setpulse()
         ch=0;
         if param[0]=='N':
             ch=int(param[7]);
             seg=param[9:len(param)];
             if param[2:6]=="Time":
-                setpulseduration(elem,ch,seg,value);
+                self.setpulseduration(ch,seg,value);
             else:
-                setpulselevel(elem,ch,seg,value);
+                self.setpulselevel(ch,seg,value);
         if param=='det':
-            setpulselevel(elem,1,'separate',value*0.8552);#For 20-11
-            setpulselevel(elem,2,'separate',-value*0.5183);#For 20-11
-            #setpulselevel(elem,1,'separate',value*0.9558);#For 40-31
-            #setpulselevel(elem,2,'separate',-value*0.2940);#For 40-31
+            self.setpulselevel(1,'separate',value*0.8552);#For 20-11
+            self.setpulselevel(2,'separate',-value*0.5183);#For 20-11
+            #self.setpulselevel(1,'separate',value*0.9558);#For 40-31
+            #self.setpulselevel(2,'separate',-value*0.2940);#For 40-31
             
         if param=='psm':
-            setpulselevel(elem,1,'detuning',value*0.8);
-            setpulselevel(elem,2,'detuning',-value*0.5);
+            self.setpulselevel(1,'detuning',value*0.8);
+            self.setpulselevel(2,'detuning',-value*0.5);
     ##detuning load        
     #    if param=='psm_load':
     #        alpha_x = -0.6597
     #        beta_y = 0.7516
-    #        setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
-    #        setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
-    #        setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
-    #        setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+    #        self.setpulselevel(1,'detuning_up',value*(1)*alpha_x); #BNC43
+    #        self.setpulselevel(2,'detuning_up',value*(1)*beta_y); #BNC17
+    #        self.setpulselevel(1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+    #        self.setpulselevel(2,'detuning_up_b',value*(1)*beta_y); #BNC17
 
         if param=='dephasing_corrD':
             corrD_K0 = -1.8102
@@ -151,10 +151,10 @@ class Gseq(AWG):
             #corr amplitudes for 2ms separation
             # corrD_amp_BNC12 = -7.3569
             # corrD_amp_BNC17 = 3.07129
-            setpulseduration(elem,1,'corrD', corrD_X)
-            setpulseduration(elem,2,'corrD', corrD_Y)
-            setpulseduration(elem,1,'Separate',value)
-            setpulseduration(elem,2,'Separate',value)
+            self.setpulseduration(1,'corrD', corrD_X)
+            self.setpulseduration(2,'corrD', corrD_Y)
+            self.setpulseduration(1,'Separate',value)
+            self.setpulseduration(2,'Separate',value)
 
 
 
@@ -162,23 +162,23 @@ class Gseq(AWG):
         if param=='psm_load':
             alpha_x = -0.621
             beta_y = 0.7838
-            setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+            self.setpulselevel(1,'detuning_up',value*(1)*alpha_x); #BNC43
+            self.setpulselevel(2,'detuning_up',value*(1)*beta_y); #BNC17
+            self.setpulselevel(1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+            self.setpulselevel(2,'detuning_up_b',value*(1)*beta_y); #BNC17
 
     #detuning load symmetric       
         if param=='psm_load_sym':
             alpha_x = 0.974
             beta_y = -0.226
-            setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC12
-            setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17        
+            self.setpulselevel(1,'detuning_up',value*(0.5)*alpha_x); #BNC12
+            self.setpulselevel(2,'detuning_up',value*(0.5)*beta_y); #BNC17
+            self.setpulselevel(1,'detuning_up_b',value*(0.5)*alpha_x); #BNC12
+            self.setpulselevel(2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
+            self.setpulselevel(1,'down',value*(-0.5)*alpha_x); #BNC12
+            self.setpulselevel(2,'down',value*(-0.5)*beta_y); #BNC17
+            self.setpulselevel(1,'down_b',value*(-0.5)*alpha_x); #BNC12
+            self.setpulselevel(2,'down_b',value*(-0.5)*beta_y); #BNC17        
             
             
 
@@ -187,14 +187,14 @@ class Gseq(AWG):
         if param=='psm_unload_sym':
             alpha_x = 0.4832
             beta_y = -0.8755
-            setpulselevel(elem,1,'detuning_up',value*(0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down',value*(-0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'down',value*(-0.5)*beta_y); #BNC17
-            setpulselevel(elem,1,'down_b',value*(-0.5)*alpha_x); #BNC43
-            setpulselevel(elem,2,'down_b',value*(-0.5)*beta_y); #BNC17     
+            self.setpulselevel(1,'detuning_up',value*(0.5)*alpha_x); #BNC43
+            self.setpulselevel(2,'detuning_up',value*(0.5)*beta_y); #BNC17
+            self.setpulselevel(1,'detuning_up_b',value*(0.5)*alpha_x); #BNC43
+            self.setpulselevel(2,'detuning_up_b',value*(0.5)*beta_y); #BNC17
+            self.setpulselevel(1,'down',value*(-0.5)*alpha_x); #BNC43
+            self.setpulselevel(2,'down',value*(-0.5)*beta_y); #BNC17
+            self.setpulselevel(1,'down_b',value*(-0.5)*alpha_x); #BNC43
+            self.setpulselevel(2,'down_b',value*(-0.5)*beta_y); #BNC17     
             
             
             
@@ -203,10 +203,10 @@ class Gseq(AWG):
         if param=='psm_unload':
             alpha_x = 0.6761
             beta_y = -0.7368
-            setpulselevel(elem,1,'detuning_up',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up',value*(1)*beta_y); #BNC17
-            setpulselevel(elem,1,'detuning_up_b',value*(1)*alpha_x); #BNC43
-            setpulselevel(elem,2,'detuning_up_b',value*(1)*beta_y); #BNC17
+            self.setpulselevel(1,'detuning_up',value*(1)*alpha_x); #BNC43
+            self.setpulselevel(2,'detuning_up',value*(1)*beta_y); #BNC17
+            self.setpulselevel(1,'detuning_up_b',value*(1)*alpha_x); #BNC43
+            self.setpulselevel(2,'detuning_up_b',value*(1)*beta_y); #BNC17
                     
 
                 
@@ -215,23 +215,23 @@ class Gseq(AWG):
     #############################################################################################
     ###################    CHANGE PULSE LEVEL OR DURATION       #################################
     #############################################################################################
-    def setpulselevel(elem,ch,seg,lvl,div=11.7):
+    def setpulselevel(self,ch,seg,lvl,div=11.7):
         #Change a pulse within an element
         lvl=lvl*self.divider_ch[ch-1]*1e-3;
     #    print(lvl);
-        elem.changeArg(ch,seg,0,lvl,False);
-        elem.changeArg(ch,seg,1,lvl,False);
+        self.gelem.changeArg(ch,seg,0,lvl,False);
+        self.gelem.changeArg(ch,seg,1,lvl,False);
 
-    def setpulseduration(elem,ch,seg,dur):
+    def setpulseduration(ch,seg,dur):
         dur=dur*1e-6;
         ch=self.gelem.channels;
         for i in range(len(ch)):
-            elem.changeDuration(ch[i],seg,dur,False);
+            gelem.changeDuration(ch[i],seg,dur,False);
 
     #############################################################################################
     ###################            correctionD Pulse            #################################
     #############################################################################################
-    def correctionDelem(self, elem):
+    def correctionDelem(self):
         awgclock = self.gelem.SR
         global corrDflag;
         
@@ -250,8 +250,8 @@ class Gseq(AWG):
         
         
         #Number of pulses in element
-        num=len(elem.description['{}'.format(elem.channels[0])])-4
-        chs=len(elem.channels)
+        num=len(self.gelem.description['{}'.format(self.gelem.channels[0])])-4
+        chs=len(self.gelem.channels)
         #Get all pulses in element
         for j in range(chs):
             #Reinitialise pulses and total time
@@ -261,24 +261,24 @@ class Gseq(AWG):
             timeD=0;voltD=0;
             #Get all pulses for that channel
             for i in range(num):
-                pulsestart=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['start'])/self.divider_ch[j+1]
-                pulsestop=1e3*(elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['stop'])/self.divider_ch[j+1] #Need correct channel dividers!
+                pulsestart=1e3*(self.gelem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['start'])/self.divider_ch[j+1]
+                pulsestop=1e3*(self.gelem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['arguments']['stop'])/self.divider_ch[j+1] #Need correct channel dividers!
                 start.append(pulsestart)
                 stop.append(pulsestop)
                 if(pulsestart==pulsestop):
                     ramp.append(0);
                 else:
                     ramp.append(1);
-                pulsedur=1e6*elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['durations']
+                pulsedur=1e6*self.gelem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['durations']
                 seg_dur.append(pulsedur)
-                pulsename=elem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['name']
+                pulsename=self.gelem.description['{}'.format(j+1)]['segment_%02d'%(i+1)]['name']
                 name.append(pulsename)
                 #Add duration to total time
                 if pulsename!='corrD':
                     tottime=tottime+pulsedur; #In us  
             #Calculate correctionD time, 65% of the total pulse cycle time
             timeD=round(tottime/1.65*(awgclockinus))/awgclockinus;
-            setpulseduration(elem,j+1,'corrD',timeD);
+            self.setpulseduration(j+1,'corrD',timeD);
             #Calculate tottimevolt
             for i in range(num):
                 if name[i]!='corrD':
@@ -289,4 +289,4 @@ class Gseq(AWG):
             #Calculate correctionD for that channel
             voltD=-tottimevolt/timeD;
             #Change level of correctionD pulse
-            setpulselevel(elem,j+1,'corrD',voltD)            
+            setpulselevel(self.gelem,j+1,'corrD',voltD)            

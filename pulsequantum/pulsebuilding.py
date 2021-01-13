@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QApplication, QWidget, QFrame,QMainWindow, QPushButton, QAction, QMessageBox, QLineEdit, QLabel, QSizePolicy
 from PyQt5.QtWidgets import QCheckBox,QDialog,QTableWidget,QTableWidgetItem,QVBoxLayout,QHBoxLayout,QComboBox,QGridLayout
 from broadbean.plotting import plotter
+from pulsequantum.dftable import QTableWidgetDF
 from pulsequantum.annotateshape import annotateshape
 from pulsequantum.elem_from_plot import elem_on_plot
 from pulsequantum.elem_from_plot import elem_from_lists
@@ -22,6 +23,7 @@ gseq = bb.Sequence()
 class Gelem():
     def __init__(self, AWG=None, gelem=None, libpath = 'pulselib/'):
         self.gelem = bb.Element()
+        self.table = QTableWidgetDF()
         self.awgclock=1.2e9
         self.libpath = join(pathlib.Path(__file__).parents[0], libpath)
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]
@@ -31,24 +33,23 @@ class Gelem():
         self.ch_y = None
         self.ramp = None
 
-
-    def generateElement(self,table):
-        #Make element from pulse table
-        self.gelem= bb.Element();
-        h=int((table.columnCount()-2)/3);
-        prevlvl=0;
-        v=table.rowCount();
+    def generateElement(self):
+        # Make element from pulse table
+        self.gelem = bb.Element()
+        h = int((self.table.columnCount()-2)/3)
+        prevlvl = 0
+        v = self.table.rowCount()
         for col in range(2,h+2):
-            chno=int(table.horizontalHeaderItem(col).text()[2]);
+            chno=int(self.table.horizontalHeaderItem(col).text()[2]);
             gp = bb.BluePrint()
             gp.setSR(self.awgclock);
             for row in range(v):
-                nm=table.verticalHeaderItem(row).text();
-                dr=(float(table.item(row,0).text()))*1e-6;
-                rmp=int(table.item(row,1).text());
-                lvl=(float(table.item(row,col).text()))*self.divider_ch[col-2]*1e-3;
-                mkr1=int(table.item(row,h+2).text());
-                mkr2=int(table.item(row,h+3).text());
+                nm=self.table.verticalHeaderItem(row).text();
+                dr=(float(self.table.item(row,0).text()))*1e-6;
+                rmp=int(self.table.item(row,1).text());
+                lvl=(float(self.table.item(row,col).text()))*self.divider_ch[col-2]*1e-3;
+                mkr1=int(self.table.item(row,h+2).text());
+                mkr2=int(self.table.item(row,h+3).text());
                 if rmp==0:
                     gp.insertSegment(row, ramp, (lvl, lvl), name=nm, dur=dr);
                 if rmp==1:
@@ -68,20 +69,20 @@ class Gelem():
     def coordinates_from_plot(self, id: int) -> None:
         self.ch_x, self.ch_y, self.ramp = elem_on_plot(id)
 
-    def elem_from_lists_update_table(self, table,
+    def elem_from_lists_update_table(self,
                                      duration: float = 1e-6, dac_a: float = 0, dac_b: float = 0,
                                      divider_a: float = 1.0, divider_b: float = 1.0,
                                      SR: float = 1e9,
                                      chx: int = 1, chy: int = 2) -> None:    
         self.gelem = elem_from_lists(self.ch_x, self.ch_y, self.ramp, duration, dac_a, dac_b,
                                      divider_a, divider_b, SR, chx, chy)
-        self.from_element(table, elem=self.gelem)
+        self.from_element()
 
 #############################################################################################
 # The correction D pulse keeps the centre of gravity of the pulse at the DC value (voltage
 # seen by the same when there is no pulsing. Not always used or needed.
 #############################################################################################
-    def correctionD(self,table):
+    def correctionD(self):
         if self.corrDflag==1:
             print("Correction D pulse already exists.")
             return;
@@ -89,64 +90,59 @@ class Gelem():
         awgclockinus=self.awgclock/1e6;
         tottime=0;
         dpos=1;#position of correction D pulse, hardcoded for now
-        table.addPulse('corrD',dpos);
+        self.table.addPulse('corrD',dpos);
         #Set D pulse time to 60% of total pulse cycle time
-        for row in range(table.rowCount()):
-            nm=table.verticalHeaderItem(row).text();
+        for row in range(self.table.rowCount()):
+            nm=self.table.verticalHeaderItem(row).text();
             if nm!='corrD':
-                tottime=tottime+(float(table.item(row,0).text()));
+                tottime=tottime+(float(self.table.item(row,0).text()));
         timeD=round(tottime/1.65*(awgclockinus))/awgclockinus;
-        table.setItem(dpos,0, QTableWidgetItem("%f"%timeD));
+        self.table.setItem(dpos,0, QTableWidgetItem("%f"%timeD));
         
         #Correct all voltages in a loop
         for column in range(6):
             tottimevolt=0;
-            colnm=table.horizontalHeaderItem(column).text();
-            for row in range(table.rowCount()):
-                rownm=table.verticalHeaderItem(row).text();
-                rmp=int(table.item(row,1).text());
+            colnm=self.table.horizontalHeaderItem(column).text();
+            for row in range(self.table.rowCount()):
+                rownm=self.table.verticalHeaderItem(row).text();
+                rmp=int(self.table.item(row,1).text());
                 if (rownm!='corrD') and (colnm=='CH1' or colnm=='CH2' or colnm=='CH3' or colnm=='CH4'):
                     if rmp==0:
-                        tottimevolt=tottimevolt+((float(table.item(row,0).text()))*(float(table.item(row,column).text())));
+                        tottimevolt=tottimevolt+((float(self.table.item(row,0).text()))*(float(self.table.item(row,column).text())));
                     if rmp==1:
                         if row==0:
-                            tottimevolt=tottimevolt+((float(table.item(row,0).text()))*(float(table.item(row,column).text()))/2);
+                            tottimevolt=tottimevolt+((float(self.table.item(row,0).text()))*(float(self.table.item(row,column).text()))/2);
                         else:
-                            tottimevolt=tottimevolt+((float(table.item(row,0).text()))*((float(table.item(row,column).text()))+(float(table.item(row-1,column).text())))/2);
+                            tottimevolt=tottimevolt+((float(self.table.item(row,0).text()))*((float(self.table.item(row,column).text()))+(float(self.table.item(row-1,column).text())))/2);
                 voltD=-tottimevolt/timeD;
             if (column!=0) and (column!=1) and (colnm=='CH1' or colnm=='CH2' or colnm=='CH3' or colnm=='CH4'):
-                table.setItem(dpos,column, QTableWidgetItem("%f"%voltD));
+                self.table.setItem(dpos,column, QTableWidgetItem("%f"%voltD));
             
 
 
-#############################################################################################
-   
-    #def loadElement(self,path):
-     #   seq = bb.Sequence.init_from_json(path)
-    
-    
+############################################################################################    
 
-    def write_element(self,element, path:str,SR:float = 1e9,SeqAmp:float = 10e-3,SeqOffset:float = 0):# -> None
-        if element.SR == None:
-            element.setSR(SR)
+    def write_element(self, path:str,SR:float = 1e9,SeqAmp:float = 10e-3,SeqOffset:float = 0):# -> None
+        if self.gelem.SR == None:
+            self.gelem.setSR(SR)
         seqtmp = bb.Sequence()
-        for ch in element.channels:
+        for ch in self.gelem.channels:
             seqtmp.addElement(ch, element)
             seqtmp.setChannelAmplitude(ch, SeqAmp)
             seqtmp.setChannelOffset(ch, 0)
-        seqtmp.setSR(element.SR)
+        seqtmp.setSR(self.gelem.SR)
         seqtmp.write_to_json(path)
 
     def saveElement(self,path):
         #self.gelem.write_to_json(path)
-        self.write_element(self.gelem,path)
+        self.write_element(path)
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]  
 
 
     # From Element
-    def from_element(self, table, elem: bb.Element):
+    def from_element(self):
          
-        elem_description = elem.description
+        elem_description = self.gelem.description
         seg_name = []
         seg_durations = []
         seg_ramp = []
@@ -191,50 +187,50 @@ class Gelem():
         nsegs = len(values[0])
 
 
-        table.setColumnCount((self.nchans*3)+2)
-        table.setRowCount(nsegs)
+        self.table.setColumnCount((self.nchans*3)+2)
+        self.table.setRowCount(nsegs)
         
         #Set horizontal headers
         h=self.nchans+1;
-        table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
-        table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
+        self.table.setHorizontalHeaderItem(0, QTableWidgetItem("Time (us)"));
+        self.table.setHorizontalHeaderItem(1, QTableWidgetItem("Ramp? 1=Yes"));
         for i in range(self.nchans): # TODO use the correct channel number as name
-            table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH{}".format(chan_names[i])))
-            table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH{}M1".format(chan_names[i])))
-            table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH{}M2".format(chan_names[i])))
+            self.table.setHorizontalHeaderItem(i+2, QTableWidgetItem("CH{}".format(chan_names[i])))
+            self.table.setHorizontalHeaderItem(h+1, QTableWidgetItem("CH{}M1".format(chan_names[i])))
+            self.table.setHorizontalHeaderItem(h+2, QTableWidgetItem("CH{}M2".format(chan_names[i])))
             h=h+2;
         
         #Set vertical headers
         #nlist= seg_name
         for i, name in enumerate(seg_name):
-            table.setVerticalHeaderItem(i, QTableWidgetItem(name));
+            self.table.setVerticalHeaderItem(i, QTableWidgetItem(name));
             
         
         for seg in range(nsegs):
             duration = str(seg_durations[seg]/1e-6)
-            table.setItem(seg,0, QTableWidgetItem(duration))
+            self.table.setItem(seg,0, QTableWidgetItem(duration))
             ramp_yes = str(seg_ramp[seg])
-            table.setItem(seg,0, QTableWidgetItem(duration))
-            table.setItem(seg,1, QTableWidgetItem(ramp_yes))
+            self.table.setItem(seg,0, QTableWidgetItem(duration))
+            self.table.setItem(seg,1, QTableWidgetItem(ramp_yes))
             for ch in range(self.nchans):
                val = str(values[ch][seg]/(self.divider_ch[ch]*1e-3))
                mark1 = str(marker1[ch][seg])
                mark2 = str(marker2[ch][seg])
-               table.setItem(seg,ch+2, QTableWidgetItem(val))
-               table.setItem(seg,ch*2+4, QTableWidgetItem(mark1))
-               table.setItem(seg,ch*2+5, QTableWidgetItem(mark2))
+               self.table.setItem(seg,ch+2, QTableWidgetItem(val))
+               self.table.setItem(seg,ch*2+4, QTableWidgetItem(mark1))
+               self.table.setItem(seg,ch*2+5, QTableWidgetItem(mark2))
 
-    def loadElement(self,table, path):
+    def loadElement(self, path):
         seq = bb.Sequence.init_from_json(path)
         self.gelem = seq.element(1)
-        self.from_element(table, elem=self.gelem)
-        self.generateElement(table)
+        self.from_element()
+        self.generateElement() # TODO IS THIS NEEDED 
         
-    def plotElement(self,table,plotid,gatex,gatey,channelx,channely,dividerx,dividery):
+    def plotElement(self,plotid,gatex,gatey,channelx,channely,dividerx,dividery):
         #if self.w is None:
         #    self.w = PlotWindow(pulse=self.gelem)
         #    self.w.show()
-        self.generateElement(table)
+        self.generateElement()
         plotter(self.gelem)
         if plotid != 0:
             annotateshape(plotid,gatex,gatey,self.gelem,channelx,channely,dividerx,dividery)

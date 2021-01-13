@@ -9,7 +9,6 @@ from pulsequantum.awgsequencing import Sequencing
 from pulsequantum.pulsebuilding import Gelem
 from os import listdir, path
 from os.path import isfile, join
-from pulsequantum.dftable import QTableWidgetDF
 from pathlib import Path
 from pulsequantum.annotateshape import annotateshape
 matplotlib.use('QT5Agg')
@@ -54,9 +53,8 @@ class pulsetable(QWidget, Gelem):
         self.awgcloc_init = init_list['awgcloc']
        
 
-        # Set up initial pulse table
-        table = QTableWidgetDF(self)
-        self.loadElement(table, path=join(join(pathlib.Path(__file__).parents[0], 'initfiles/init.json')))
+        # Set up initial pulse Gelem (table and element) 
+        self.loadElement(path=join(join(pathlib.Path(__file__).parents[0], 'initfiles/init.json')))
         
 
         # Divider wiget
@@ -107,8 +105,8 @@ class pulsetable(QWidget, Gelem):
         absstop.setText('0');
         abssetbtn = QPushButton('Set (us)', self);
         absrembtn = QPushButton('Remove All', self);
-        abssetbtn.clicked.connect(lambda state: self.absMarkerSet(absmarkerch,absstart,absstop));
-        absrembtn.clicked.connect(lambda state: self.absMarkerRemove(absmarkerch))      
+        abssetbtn.clicked.connect(lambda state: self.absMarkerSet(absmarkerch,absstart,absstop))
+        absrembtn.clicked.connect(lambda state: self.absMarkerRemove(absmarkerch))
         
         win_absmarker = QWidget(self);      
         lay_absmarker= QGridLayout(win_absmarker)
@@ -144,8 +142,7 @@ class pulsetable(QWidget, Gelem):
         #Plot Element
         plotbtn = QPushButton('Plot Element', self)
         #plotbtn.resize(plotbtn.sizeHint());plotbtn.move(185, 10)
-        plotbtn.clicked.connect(lambda state:self.plotElement(table,
-                                                             int(plotid_box.text()),
+        plotbtn.clicked.connect(lambda state:self.plotElement(int(plotid_box.text()),
                                                              float(gate_box[0].text())*1e-3,
                                                              float(gate_box[1].text())*1e-3,
                                                              int(channel_mapping_box[0].text()),
@@ -156,7 +153,7 @@ class pulsetable(QWidget, Gelem):
         # Generate Element
         runbtn = QPushButton('Generate Element', self)
         # runbtn.resize(runbtn.sizeHint());runbtn.move(40, 10);
-        runbtn.clicked.connect(lambda state: self.generateElement(table))
+        runbtn.clicked.connect(lambda state: self.generateElement())
         
         # Save Element
         savebtn = QPushButton('Save Element', self)
@@ -164,15 +161,14 @@ class pulsetable(QWidget, Gelem):
         
         # Load Element
         loadbtn = QPushButton('Load Element', self)
-        loadbtn.clicked.connect(lambda state: self.loadElement(table, path=join(self.libpath,libbox.currentText())))
+        loadbtn.clicked.connect(lambda state: self.loadElement(path=join(self.libpath,libbox.currentText())))
  
         show_gate_plot = QPushButton('Show Gateplot', self)
         show_gate_plot.clicked.connect(lambda state: self.coordinates_from_plot(int(plotid_box.text())))
 
         elem_from_plot = QPushButton('Plot to Element', self)
         elem_from_plot.clicked.connect(lambda state:
-                                       self.elem_from_lists_update_table(table,
-                                                                         duration=1e-6,
+                                       self.elem_from_lists_update_table(duration=1e-6,
                                                                          dac_a=float(gate_box[0].text())*1e-3,
                                                                          dac_b=float(gate_box[1].text())*1e-3,
                                                                          divider_a=float(chbox[int(channel_mapping_box[0].text())].text()),
@@ -232,10 +228,10 @@ class pulsetable(QWidget, Gelem):
         for i in range(len(chbox)): 
             whichch.addItem('CH%d'%(i+1))
         addchbtn = QPushButton('Add Channel', self)
-        addchbtn.clicked.connect(lambda state: table.addChannel(whichch.currentIndex()))
+        addchbtn.clicked.connect(lambda state: self.table.addChannel(whichch.currentIndex()))
 
         remchbtn = QPushButton('Remove Channel', self)
-        remchbtn.clicked.connect(lambda state: table.remChannel(str(whichch.currentText())))
+        remchbtn.clicked.connect(lambda state: self.table.remChannel(str(whichch.currentText())))
 
         lay_add_remove_channel.addWidget(whichch, 0, 0, 0, 2)
         lay_add_remove_channel.addWidget(addchbtn, 1, 0)
@@ -248,9 +244,9 @@ class pulsetable(QWidget, Gelem):
 
         whichp = QLineEdit(self);whichp.setText('Set name')        
         addpbtn = QPushButton('Add Pulse', self)
-        addpbtn.clicked.connect(lambda state: table.addPulse(whichp.text()))
+        addpbtn.clicked.connect(lambda state: self.table.addPulse(whichp.text()))
         rempbtn = QPushButton('Remove Pulse', self)
-        rempbtn.clicked.connect(lambda state: table.remPulse(str(whichp.text())))
+        rempbtn.clicked.connect(lambda state: self.table.remPulse(str(whichp.text())))
 
         lay_add_remove_pulse.addWidget(whichp, 0, 0, 1, 2)
         lay_add_remove_pulse.addWidget(addpbtn, 1, 0)
@@ -264,7 +260,7 @@ class pulsetable(QWidget, Gelem):
         oldpname.setText('Old name')
         newpname = QLineEdit(self)
         newpname.setText('New name')
-        renamepbtn.clicked.connect(lambda state: table.renamePulse(oldpname,newpname))
+        renamepbtn.clicked.connect(lambda state: self.table.renamePulse(oldpname,newpname))
         lay_rename.addWidget(renamepbtn, 0, 0, 1, 2)
         lay_rename.addWidget(oldpname, 1, 0)
         lay_rename.addWidget(newpname, 1, 1)
@@ -272,7 +268,7 @@ class pulsetable(QWidget, Gelem):
         
         #Correction D
         corrbtn = QPushButton('Correction D', self)
-        corrbtn.clicked.connect(lambda state: self.correctionD(table))
+        corrbtn.clicked.connect(lambda state: self.correctionD())
 
         # Sequence and upload
 
@@ -319,7 +315,7 @@ class pulsetable(QWidget, Gelem):
 
         mainlayout.addWidget(win_puls,0,0)
         mainlayout.addWidget(win_gateplot,0,1)
-        mainlayout.addWidget(table, 1, 0, 1, 2)
+        mainlayout.addWidget(self.table, 1, 0, 1, 2)
         mainlayout.addWidget(win_RM, 1, 2, 1, 1)
         mainlayout.addWidget(win_LB, 2, 0)
         mainlayout.addWidget(win_MB,2,1)
@@ -385,6 +381,7 @@ class pulsetable(QWidget, Gelem):
 #            global_point = callWidget.mapToGlobal(point)
 #            self._sequencebox.move(global_point - QtCore.QPoint(self.width(), 0))
              #self.SetForegroundWindow(self._sequencebox)
+             self._sequencebox.gelem = self.gelem
              self._sequencebox.show()
              #self._sequencebox.close()  # Close window.
              #self._sequencebox = None  # Discard reference.
