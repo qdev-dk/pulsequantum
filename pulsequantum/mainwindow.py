@@ -2,7 +2,7 @@ import broadbean as bb
 import matplotlib
 import pandas as pd
 import pathlib
-import yaml
+from ruamel.yaml import YAML
 from PyQt5.QtWidgets import QWidget, QMainWindow, QPushButton, QMessageBox, QLineEdit, QLabel
 from PyQt5.QtWidgets import QCheckBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QComboBox, QGridLayout
 from pulsequantum.awgsequencing import Sequencing
@@ -47,7 +47,8 @@ class pulsetable(QWidget, Gelem):
         with open(defalutfile) as file:
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
-            init_list = yaml.load(file, Loader=yaml.FullLoader)
+            yaml = YAML()
+            init_list = yaml.load(file)
 
         self.divider_ch = [float(x) for x in list(init_list['dividers']['channels'].values())]
         self.awgcloc_init = init_list['awgcloc']
