@@ -132,6 +132,7 @@ class pulsetable(QWidget, Gelem):
         libbox.addItem(" -Load From Lib- ")
         for i in range(len(self.seq_files)):
             libbox.addItem(self.seq_files[i])
+
         save_to = QLineEdit(self)
         save_to.setText('enter file name')
         
@@ -157,7 +158,9 @@ class pulsetable(QWidget, Gelem):
         
         # Save Element
         savebtn = QPushButton('Save Element', self)
-        savebtn.clicked.connect(lambda state:self.saveElement(join(self.libpath,save_to.text())))
+        savebtn.clicked.connect(lambda state: self.save_elem_update_lib(save_to.text(), libbox))
+        
+
         
         # Load Element
         loadbtn = QPushButton('Load Element', self)
@@ -327,7 +330,10 @@ class pulsetable(QWidget, Gelem):
         
         
 
-    
+    def save_elem_update_lib(self, path: str,libbox: QComboBox) -> None:
+        print(join(self.libpath, path))
+        self.saveElement(join(self.libpath, path))
+        libbox.addItem(path)
     
         
     def setDividers(self,chbox):
