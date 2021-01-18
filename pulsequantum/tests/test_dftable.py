@@ -57,5 +57,3 @@ def test_dftable():
     table.update_table_from_df(trial2_df)
     assert trial2_df.equals(table.table_to_df())
 
-
-

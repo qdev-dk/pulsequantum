@@ -79,11 +79,12 @@ class Gseq(AWG):
 
 
     def filterCorrection(self,hfiltbox,lfiltbox):
-        if self.gseq.points==0:
+        if self.gseq.points == 0:
             print("No sequence defined")
             return
-        hptau=(float(hfiltbox.text()))*1e-6
+        hptau = (float(hfiltbox.text()))*1e-6
         for i in range(4):
+            print(i)
             self.gseq.setChannelFilterCompensation(i+1,'HP',order=1,tau=hptau)
 
     def buildsequencetable(self,param,start,stop,points):

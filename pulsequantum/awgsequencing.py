@@ -248,8 +248,11 @@ class Sequencing(QDialog, Gseq):
         
         #Filter Correction
         filtbtn = QPushButton('Filter correction', self)
-        hfiltboxlabel= QLabel(self);hfiltboxlabel.setText('High pass (us):');hfiltboxlabel.resize(hfiltboxlabel.minimumSizeHint());hfiltboxlabel.move(20,235);
-        lfiltboxlabel= QLabel(self);lfiltboxlabel.setText('Low pass (us):');lfiltboxlabel.resize(lfiltboxlabel.minimumSizeHint());lfiltboxlabel.move(170,235);
+        hfiltboxlabel= QLabel(self);hfiltboxlabel.setText('High pass (us):');
+        hfiltboxlabel.resize(hfiltboxlabel.minimumSizeHint());
+        hfiltboxlabel.move(20,235);
+        lfiltboxlabel= QLabel(self);lfiltboxlabel.setText('Low pass (us):');
+        lfiltboxlabel.resize(lfiltboxlabel.minimumSizeHint());lfiltboxlabel.move(170,235);
         hfiltbox = QLineEdit(self);hfiltbox.setText('80');hfiltbox.resize(hfiltbox.minimumSizeHint());hfiltbox.move(20,250);
         lfiltbox = QLineEdit(self);lfiltbox.setText('-');lfiltbox.resize(lfiltbox.minimumSizeHint());lfiltbox.move(170,250);
         filtbtn.clicked.connect(lambda state: self.filterCorrection(hfiltbox,lfiltbox))

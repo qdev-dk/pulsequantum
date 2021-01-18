@@ -122,18 +122,18 @@ class Gelem():
 
 ############################################################################################    
 
-    def write_element(self, path:str,SR:float = 1e9,SeqAmp:float = 10e-3,SeqOffset:float = 0):# -> None
+    def write_element(self, path:str,SR:float = 1e9,SeqAmp:float = 10e-3,SeqOffset:float = 0) -> None:
         if self.gelem.SR == None:
             self.gelem.setSR(SR)
         seqtmp = bb.Sequence()
+        seqtmp.addElement(1, self.gelem)
         for ch in self.gelem.channels:
-            seqtmp.addElement(ch, element)
             seqtmp.setChannelAmplitude(ch, SeqAmp)
             seqtmp.setChannelOffset(ch, 0)
         seqtmp.setSR(self.gelem.SR)
         seqtmp.write_to_json(path)
 
-    def saveElement(self,path):
+    def saveElement(self,path: str) -> None:
         #self.gelem.write_to_json(path)
         self.write_element(path)
         self.seq_files = [f for f in listdir(self.libpath) if isfile(join(self.libpath, f))]  
