@@ -332,7 +332,6 @@ class pulsetable(QWidget, Gelem):
         
 
     def save_elem_update_lib(self, path: str,libbox: QComboBox) -> None:
-        print(join(self.libpath, path))
         self.saveElement(join(self.libpath, path))
         libbox.addItem(path)
     

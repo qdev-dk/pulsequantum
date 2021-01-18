@@ -47,13 +47,12 @@ def annotateshape(plotid,x1,y1,elem,chx,chy,divx,divy):
         y2.append((elem.description['{}'.format(chy)]['segment_%02d'%(i+1)]['arguments']['stop'])/divy)
         seg_dur.append(elem.description['{}'.format(chy)]['segment_%02d'%(i+1)]['durations'])
         pulse_names.append(elem.description['{}'.format(chx)]['segment_%02d'%(i+1)]['name'])
-        print(elem.description['{}'.format(chx)]['segment_%02d'%(i+1)]['name'])
+
 
     COGx = np.sum(np.array(x2)*np.array(seg_dur)/elem.duration)
     COGy = np.sum(np.array(y2)*np.array(seg_dur)/elem.duration)
     
     for n in range(len(x2)):
-        print(pulse_names[n])
         xf=(x1+np.sum(x2[n])) if x2[n]!=0 else x1    
         yf=(y1+np.sum(y2[n])) if y2[n]!=0 else y1    
         xi=x1 if n==0 else (x1+np.sum(x2[n-1]))
