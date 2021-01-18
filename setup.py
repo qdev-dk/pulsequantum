@@ -9,14 +9,8 @@ import versioneer
 
 readme_file_path = Path(__file__).absolute().parent / "README.md"
 
-required_packages = ['opencensus-ext-azure',
-                     'numpy',
-                     'pandas',
-                     # broadbean,
+required_packages = ['broadbean>=0.10.0',
                      'PyQt5',
-                     'matplotlib',
-                     'broadbean @ git+https://github.com/QCoDeS/broadbean@master#egg=broadbean',
-                     'pyyaml',
                      'qcodes']
 package_data = {"pulsequantum": ["conf/telemetry.ini"]}
 
