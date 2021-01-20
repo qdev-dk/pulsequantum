@@ -1,5 +1,5 @@
 Changelog for pulsequantum 0.1.0
-===========================
+================================
 
 The January 2021 release of pulsequantum.
 
