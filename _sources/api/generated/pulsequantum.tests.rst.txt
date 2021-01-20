@@ -28,6 +28,14 @@ pulsequantum.tests.test\_dftable module
    :undoc-members:
    :show-inheritance:
 
+pulsequantum.tests.test\_elem\_from\_plot module
+------------------------------------------------
+
+.. automodule:: pulsequantum.tests.test_elem_from_plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pulsequantum.tests.test\_installation module
 --------------------------------------------
 

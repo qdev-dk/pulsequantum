@@ -62,6 +62,14 @@ pulsequantum.dftable module
    :undoc-members:
    :show-inheritance:
 
+pulsequantum.elem\_from\_plot module
+------------------------------------
+
+.. automodule:: pulsequantum.elem_from_plot
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pulsequantum.hello\_world module
 --------------------------------
 

@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>pulsequantum.awgsequencing &mdash; pulsequantum 0.1.0 documentation</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,7 +32,6 @@
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
@@ -50,7 +52,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> pulsequantum
+            <a href="../../index.html" class="icon icon-home"> pulsequantum
           
 
           
@@ -109,6 +111,8 @@
         <div class="rst-content">
         
           
+
+
 
 
 
@@ -398,8 +402,11 @@
         
         <span class="c1">#Filter Correction</span>
         <span class="n">filtbtn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="s1">&#39;Filter correction&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="n">hfiltboxlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;High pass (us):&#39;</span><span class="p">);</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">minimumSizeHint</span><span class="p">());</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">235</span><span class="p">);</span>
-        <span class="n">lfiltboxlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Low pass (us):&#39;</span><span class="p">);</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">minimumSizeHint</span><span class="p">());</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span><span class="mi">235</span><span class="p">);</span>
+        <span class="n">hfiltboxlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;High pass (us):&#39;</span><span class="p">);</span>
+        <span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">minimumSizeHint</span><span class="p">());</span>
+        <span class="n">hfiltboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">235</span><span class="p">);</span>
+        <span class="n">lfiltboxlabel</span><span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;Low pass (us):&#39;</span><span class="p">);</span>
+        <span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">minimumSizeHint</span><span class="p">());</span><span class="n">lfiltboxlabel</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span><span class="mi">235</span><span class="p">);</span>
         <span class="n">hfiltbox</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;80&#39;</span><span class="p">);</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">minimumSizeHint</span><span class="p">());</span><span class="n">hfiltbox</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">250</span><span class="p">);</span>
         <span class="n">lfiltbox</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">);</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">);</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">minimumSizeHint</span><span class="p">());</span><span class="n">lfiltbox</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span><span class="mi">250</span><span class="p">);</span>
         <span class="n">filtbtn</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">filterCorrection</span><span class="p">(</span><span class="n">hfiltbox</span><span class="p">,</span><span class="n">lfiltbox</span><span class="p">))</span>
@@ -445,7 +452,6 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
@@ -457,14 +463,13 @@
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

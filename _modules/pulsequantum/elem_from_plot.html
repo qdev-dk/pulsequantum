@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pulsequantum.elem_from_plot &mdash; pulsequantum 0.1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pulsequantum
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">pulsequantum API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_notebooks/index.html">Examples of using pulsequantum</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pulsequantum</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pulsequantum.elem_from_plot</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pulsequantum.elem_from_plot</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">broadbean</span> <span class="k">as</span> <span class="nn">bb</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_lowercase</span>
+<span class="kn">from</span> <span class="nn">qcodes.dataset.plotting</span> <span class="kn">import</span> <span class="n">plot_by_id</span>
+
+<div class="viewcode-block" id="LineBuilder"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.elem_from_plot.LineBuilder">[docs]</a><span class="k">class</span> <span class="nc">LineBuilder</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ramp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cid</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;button_press_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="mf">0.0005</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">inaxes</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">dblclick</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">right_or_left</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">right_or_left</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot_line</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">right_or_left</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot_line</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="LineBuilder.right_or_left"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.elem_from_plot.LineBuilder.right_or_left">[docs]</a>    <span class="k">def</span> <span class="nf">right_or_left</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rightleftmouse</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rightleftmouse</span> <span class="o">==</span> <span class="s1">&#39;MouseButton.RIGHT&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ramp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ramp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LineBuilder.plot_line"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.elem_from_plot.LineBuilder.plot_line">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plateau</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ramp</span><span class="p">))</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ramp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]))</span>
+        <span class="n">ramp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ramp</span><span class="p">))</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ramp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">plateau</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">plateau</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">plateau</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ramp</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">ramp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ramp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_line_segment</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LineBuilder.plot_line_segment"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.elem_from_plot.LineBuilder.plot_line_segment">[docs]</a>    <span class="k">def</span> <span class="nf">plot_line_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ramp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">linestyle</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">linestyle</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xs</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ys</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">linestyle</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="elem_on_plot"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.elem_from_plot.elem_on_plot">[docs]</a><span class="k">def</span> <span class="nf">elem_on_plot</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">,</span> <span class="n">cbaxes</span> <span class="o">=</span> <span class="n">plot_by_id</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">LineBuilder</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ax</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">ramp</span><span class="p">)</span></div>
+
+
+<span class="n">ramp</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">PulseAtoms</span><span class="o">.</span><span class="n">ramp</span>
+
+
+<div class="viewcode-block" id="elem_from_lists"><a class="viewcode-back" href="../../api/generated/pulsequantum.html#pulsequantum.elem_from_plot.elem_from_lists">[docs]</a><span class="k">def</span> <span class="nf">elem_from_lists</span><span class="p">(</span><span class="n">step_list_a</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">step_list_b</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">ramplist</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+                    <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">dac_a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dac_b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="n">divider_a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">divider_b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+                    <span class="n">SR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span>
+                    <span class="n">chx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">chy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">bb</span><span class="o">.</span><span class="n">Element</span><span class="p">:</span>
+    <span class="c1">#Make element from pulse table</span>
+    <span class="n">elem</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">Element</span><span class="p">()</span>
+    <span class="n">blueprint_a</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">BluePrint</span><span class="p">()</span>
+    <span class="n">blueprint_a</span><span class="o">.</span><span class="n">setSR</span><span class="p">(</span><span class="n">SR</span><span class="p">)</span>
+    <span class="n">blueprint_b</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">BluePrint</span><span class="p">()</span>
+    <span class="n">blueprint_b</span><span class="o">.</span><span class="n">setSR</span><span class="p">(</span><span class="n">SR</span><span class="p">)</span>
+    <span class="n">step_a_old</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">step_b_old</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">step_list_a</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">ramplist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">step_a</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_list_a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">dac_a</span><span class="p">)</span><span class="o">*</span><span class="n">divider_a</span>
+            <span class="n">step_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_list_b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">dac_b</span><span class="p">)</span><span class="o">*</span><span class="n">divider_b</span>
+            <span class="n">blueprint_a</span><span class="o">.</span><span class="n">insertSegment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="p">(</span><span class="n">step_a_old</span><span class="p">,</span> <span class="n">step_a</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">ascii_lowercase</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dur</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+            <span class="n">blueprint_b</span><span class="o">.</span><span class="n">insertSegment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="p">(</span><span class="n">step_b_old</span><span class="p">,</span> <span class="n">step_b</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">ascii_lowercase</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dur</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">step_a</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_list_a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">dac_a</span><span class="p">)</span><span class="o">*</span><span class="n">divider_a</span>
+            <span class="n">step_b</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_list_b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">dac_b</span><span class="p">)</span><span class="o">*</span><span class="n">divider_b</span>
+            <span class="n">blueprint_a</span><span class="o">.</span><span class="n">insertSegment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="p">(</span><span class="n">step_a</span><span class="p">,</span> <span class="n">step_a</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">ascii_lowercase</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dur</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+            <span class="n">blueprint_b</span><span class="o">.</span><span class="n">insertSegment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="p">(</span><span class="n">step_b</span><span class="p">,</span> <span class="n">step_b</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">ascii_lowercase</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dur</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
+        <span class="n">step_a_old</span> <span class="o">=</span> <span class="n">step_a</span>
+        <span class="n">step_b_old</span> <span class="o">=</span> <span class="n">step_b</span>
+
+    <span class="n">elem</span><span class="o">.</span><span class="n">addBluePrint</span><span class="p">(</span><span class="n">chx</span><span class="p">,</span> <span class="n">blueprint_a</span><span class="p">)</span>
+    <span class="n">elem</span><span class="o">.</span><span class="n">addBluePrint</span><span class="p">(</span><span class="n">chy</span><span class="p">,</span> <span class="n">blueprint_b</span><span class="p">)</span>
+    <span class="n">elem</span><span class="o">.</span><span class="n">validateDurations</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">elem</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
