@@ -1,2 +1,3 @@
 include versioneer.py
 include versioneercheck/_version.py
+include pulsequantum/_version.py

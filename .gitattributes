@@ -1,1 +1,2 @@
 versioneercheck/_version.py export-subst
+pulsequantum/_version.py export-subst
