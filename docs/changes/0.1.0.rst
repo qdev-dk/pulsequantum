@@ -1,0 +1,16 @@
+Changelog for pulsequantum 0.1.0
+===========================
+
+The January 2021 release of pulsequantum.
+
+
+Breaking Changes:
+_________________
+
+There are no breaking changes in this release of pulsequantum
+
+
+New:
+____
+- First release of pulsequantum
+
