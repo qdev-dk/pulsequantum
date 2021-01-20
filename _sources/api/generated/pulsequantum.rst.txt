@@ -14,14 +14,6 @@ Subpackages
 Submodules
 ----------
 
-pulsequantum.PulseGUI module
-----------------------------
-
-.. automodule:: pulsequantum.PulseGUI
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pulsequantum.annotateshape module
 ---------------------------------
 
@@ -66,14 +58,6 @@ pulsequantum.elem\_from\_plot module
 ------------------------------------
 
 .. automodule:: pulsequantum.elem_from_plot
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pulsequantum.hello\_world module
---------------------------------
-
-.. automodule:: pulsequantum.hello_world
    :members:
    :undoc-members:
    :show-inheritance:
