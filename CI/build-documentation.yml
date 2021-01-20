@@ -1,9 +1,0 @@
-steps:
-    - bash: |
-        source activate pulsequantum &&
-        pip install -r docs_requirements.txt &&
-        cd docs &&
-        export SPHINXOPTS="-W -v" &&
-        make html
-      displayName: Build The Docs
-      condition: succeededOrFailed()
