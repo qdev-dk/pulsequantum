@@ -59,9 +59,10 @@ class LiveStream():
     def dis(self):
         col = (self.measure_button,)+tuple(self.sliders)
         refresh_period = 100
-        port = 12355
+        port = 12359
         video_mode_callback = PeriodicCallback(self.data_grabber, refresh_period)
-        video_mode_server = Row(self.image_dmap, Column(*col)).show(port=port)
+        video_mode_server = Row(self.image_dmap, Column(*col)).show(port=port,threaded=True)
+        video_mode_callback.start() 
     
     @gen.coroutine
     def data_grabber(self):
