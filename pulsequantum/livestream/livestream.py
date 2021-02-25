@@ -10,6 +10,7 @@ from holoviews.streams import Pipe
 from holoviews import opts
 from tornado.ioloop import PeriodicCallback
 from tornado import gen
+from qcodes.utils.dataset.doNd import do0d
 
 hv.extension('bokeh')
 
@@ -39,43 +40,39 @@ class LiveStream():
         self.measure_button = Button(name='mesaure',button_type = 'primary',
                               width=100)
         def measure(event):
-            data1 = do0d(self.data_func)
+            do0d(self.data_func)
         self.measure_button.on_click(measure)
         
         self.sliders = []
         self.sliders_func = []
-        for key in sliders.keys():
+        for i,key in enumerate(sliders.keys()):
             self.sliders_func.append(sliders[key][0])
             self.sliders.append(pn.widgets.FloatSlider(name=str(key),
                                               start=0,
                                               end=3.141,
                                               step=0.01,
                                               value=1.57))
-            
-    
-    def mesaure(event):
-        data1 = do0d(self.data_func)
-        
+            #self.sliders_func[i] = pn.depends(self.sliders[i],self.sliders_func[i])
+        #@pn.depends(self.sliders[1])
+        #def f(x=1.0):
+         #   self.sliders_func[1](x)
+
+
     def dis(self):
         col = (self.measure_button,)+tuple(self.sliders)
-        refresh_period = 100
+        refresh_period = 500
         port = 12359
         video_mode_callback = PeriodicCallback(self.data_grabber, refresh_period)
+
+
         video_mode_server = Row(self.image_dmap, Column(*col)).show(port=port,threaded=True)
         video_mode_callback.start() 
-    
-    @gen.coroutine
+
+    @gen.coroutine  
     def data_grabber(self):
         for i, func in enumerate(self.sliders_func):
             func(self.sliders[i].value)
-            self.pipe.send(self.data_func())
+        self.pipe.send(self.data_func())
 
-    ##refresh_period = 100
-    #video_mode_callback = PeriodicCallback(self.data_grabber, refresh_period)
+
         
-    def run(self):
-        for i in np.linspace(0, np.pi*10, 200):
-            for i, func in enumerate(self.sliders_func):
-                func(self.sliders[i].value)
-            time.sleep(0.1)
-            self.pipe.send(self.data_func())
