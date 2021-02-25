@@ -47,10 +47,11 @@ class LiveStream():
         for key in sliders.keys():
             self.sliders_func.append(sliders[key][0])
             self.sliders.append(pn.widgets.FloatSlider(name=str(key),
-                                              start=0,
-                                              end=3.141,
-                                              step=0.01,
-                                              value=1.57))
+                                              start=sliders[key][1],
+                                              end=sliders[key][2],
+                                              step=sliders[key][3],
+                                              value=sliders[key][4]))
+        self.dis()
 
 
     def dis(self):
