@@ -33,7 +33,6 @@ class LiveStream():
 
     def __init__(self,data_func,sliders):
         self.data_func = data_func
-        #self.measure_func = measure_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
         self.image_dmap.opts(cmap = 'Magma', xlim=(-0.6, 0.6), ylim=(-0.6, 0.6))
@@ -45,17 +44,13 @@ class LiveStream():
         
         self.sliders = []
         self.sliders_func = []
-        for i,key in enumerate(sliders.keys()):
+        for key in sliders.keys():
             self.sliders_func.append(sliders[key][0])
             self.sliders.append(pn.widgets.FloatSlider(name=str(key),
                                               start=0,
                                               end=3.141,
                                               step=0.01,
                                               value=1.57))
-            #self.sliders_func[i] = pn.depends(self.sliders[i],self.sliders_func[i])
-        #@pn.depends(self.sliders[1])
-        #def f(x=1.0):
-         #   self.sliders_func[1](x)
 
 
     def dis(self):
