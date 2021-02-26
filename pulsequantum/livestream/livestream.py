@@ -26,8 +26,8 @@ class LiveStream():
 
         Methods
         -------
-        set_averages
-            set the number of averages on the Alazar cart
+        measure
+            do0d on data_func
 
     """
 
@@ -38,9 +38,16 @@ class LiveStream():
         self.image_dmap.opts(cmap = 'Magma', xlim=(-0.6, 0.6), ylim=(-0.6, 0.6))
         self.measure_button = Button(name='mesaure',button_type = 'primary',
                               width=100)
+        self.run_id_in_text = 'None'
+        self.run_id_widget = pn.widgets.TextInput(name='run_id', value=self.run_id_in_text)
+
+
         def measure(event):
-            do0d(self.data_func)
+            data_do0d = do0d(self.data_func)
+            self.run_id_widget.value = f'{data_do0d[0].run_id}'
+
         self.measure_button.on_click(measure)
+        self.plot_id_in_text = 'test'
         
         self.sliders = []
         self.sliders_func = []
@@ -55,14 +62,15 @@ class LiveStream():
 
 
     def dis(self):
-        col = (self.measure_button,)+tuple(self.sliders)
+        col = (self.measure_button,
+                self.run_id_widget,) + tuple(self.sliders)
         refresh_period = 500
         port = 12359
-        video_mode_callback = PeriodicCallback(self.data_grabber, refresh_period)
+        self.video_mode_callback = PeriodicCallback(self.data_grabber, refresh_period)
 
 
-        video_mode_server = Row(self.image_dmap, Column(*col)).show(port=port,threaded=True)
-        video_mode_callback.start() 
+        self.video_mode_server = Row(self.image_dmap, Column(*col)).show(port=port,threaded=True)
+        self.video_mode_callback.start() 
 
     @gen.coroutine  
     def data_grabber(self):
