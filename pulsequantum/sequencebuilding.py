@@ -92,8 +92,10 @@ class Gseq(AWG):
         values=np.linspace(start,stop,points)
         for n, value in enumerate(values):
             if param=='det':
-                self.setpulselevel(1,'separate',-value*0.760) # Amber
-                self.setpulselevel(2,'separate',value*0.649)
+                # self.setpulseduration(1,'separate',value) # Joost
+                # self.setpulseduration(2,'separate',value)
+                self.setpulselevel(1,'separate',-0.667*value) # Amber
+                self.setpulselevel(2,'separate',0.745*value)
             else:
                 self.setpulseparameter(param,value); # tjek 
             #self.correctionDelem() # tjek
@@ -101,7 +103,10 @@ class Gseq(AWG):
             self.gseq.setSequencingTriggerWait(n+1, 0)
             self.gseq.setSequencingNumberOfRepetitions(n+1, 1)
             self.gseq.setSequencingEventJumpTarget(n+1, 0)
-            self.gseq.setSequencingGoto(n+1, 0)
+            if n<(len(values)-1):                       #Joost
+                self.gseq.setSequencingGoto(n+1, n+2)   #Joost
+            else:                                       #Joost
+                self.gseq.setSequencingGoto(n+1, 1)     #Joost
               
                
 
@@ -122,10 +127,10 @@ class Gseq(AWG):
             else:
                 self.setpulselevel(ch,seg,value);
         if param=='det':
-            self.setpulselevel(1,'separate',value*0.8552);#For 20-11
-            self.setpulselevel(2,'separate',-value*0.5183);#For 20-11
-            #self.setpulselevel(1,'separate',value*0.9558);#For 40-31
-            #self.setpulselevel(2,'separate',-value*0.2940);#For 40-31
+            # self.setpulselevel(1,'separate',value);#For 20-11
+            # self.setpulselevel(2,'separate',value);#For 20-11
+            self.setpulselevel(1,'separate',value*0.9558);#For 40-31
+            self.setpulselevel(2,'separate',-value*0.2940);#For 40-31
             
         if param=='psm':
             self.setpulselevel(1,'detuning',value*0.8);
