@@ -126,6 +126,8 @@ class Gseq(AWG):
             self.setpulselevel(2,'separate',-value*0.5183);#For 20-11
             #self.setpulselevel(1,'separate',value*0.9558);#For 40-31
             #self.setpulselevel(2,'separate',-value*0.2940);#For 40-31
+        if param=='Amber': 
+            self.setpulseduration('separate',value)   
             
         if param=='psm':
             self.setpulselevel(1,'detuning',value*0.8);
@@ -221,11 +223,11 @@ class Gseq(AWG):
         self.gelem.changeArg(ch,seg,0,lvl,False);
         self.gelem.changeArg(ch,seg,1,lvl,False);
 
-    def setpulseduration(ch,seg,dur):
+    def setpulseduration(self,seg,dur):
         dur=dur*1e-6;
         ch=self.gelem.channels;
         for i in range(len(ch)):
-            gelem.changeDuration(ch[i],seg,dur,False);
+            self.gelem.changeDuration(ch[i],seg,dur,False);
 
     #############################################################################################
     ###################            correctionD Pulse            #################################
