@@ -7,11 +7,12 @@ class Gseq(AWG):
     Class for sequencing 
     """
 
-    def __init__(self, AWG, gelem):
+    def __init__(self, AWG, gelem, divider_ch):
         super().__init__()
         self.AWG = AWG
         self.gelem = gelem
         self.gseq = bb.Sequence()
+        self.divider_ch = divider_ch
 
 
     def loadSequence(self, pathseq):
@@ -69,7 +70,7 @@ class Gseq(AWG):
             #    self.gseq.setChannelOffset(chan, (float(offbox[chan-1].text())))
             #return
         elif sparam!="-Special-":
-            self.buildsequencetable(self.gelem, sparam, sstart, sstop, spts)
+            self.buildsequencetable(sparam, sstart, sstop, spts)
         else:
             self.buildsequencetable(self.gelem, newparam, sstart, sstop, spts)
           
@@ -88,15 +89,14 @@ class Gseq(AWG):
 
     def buildsequencetable(self,param,start,stop,points):
         self.gseq.setSR(self.gelem.SR);
-        value=np.linspace(start,stop,points);
-        #if first letter is "N"
-        #if second word is time
-        #setpulseduration
-        #if second word is volt
-        #setpulselevel
-        for n in range(points):
-            self.setpulseparameter(param,value[n]); # tjek 
-            self.correctionDelem() # tjek
+        values=np.linspace(start,stop,points)
+        for n, value in enumerate(values):
+            if param=='det':
+                self.setpulselevel(1,'separate',-value*0.760) # Amber
+                self.setpulselevel(2,'separate',value*0.649)
+            else:
+                self.setpulseparameter(param,value); # tjek 
+            #self.correctionDelem() # tjek
             self.gseq.addElement(n+1, self.gelem)
             self.gseq.setSequencingTriggerWait(n+1, 0)
             self.gseq.setSequencingNumberOfRepetitions(n+1, 1)
@@ -126,6 +126,8 @@ class Gseq(AWG):
             self.setpulselevel(2,'separate',-value*0.5183);#For 20-11
             #self.setpulselevel(1,'separate',value*0.9558);#For 40-31
             #self.setpulselevel(2,'separate',-value*0.2940);#For 40-31
+        if param=='Amber': 
+            self.setpulseduration('separate',value)   
             
         if param=='psm':
             self.setpulselevel(1,'detuning',value*0.8);
@@ -215,18 +217,17 @@ class Gseq(AWG):
     #############################################################################################
     ###################    CHANGE PULSE LEVEL OR DURATION       #################################
     #############################################################################################
-    def setpulselevel(self,ch,seg,lvl,div=11.7):
+    def setpulselevel(self,ch,seg,lvl):
         #Change a pulse within an element
         lvl=lvl*self.divider_ch[ch-1]*1e-3;
-    #    print(lvl);
         self.gelem.changeArg(ch,seg,0,lvl,False);
         self.gelem.changeArg(ch,seg,1,lvl,False);
 
-    def setpulseduration(ch,seg,dur):
+    def setpulseduration(self,seg,dur):
         dur=dur*1e-6;
         ch=self.gelem.channels;
         for i in range(len(ch)):
-            gelem.changeDuration(ch[i],seg,dur,False);
+            self.gelem.changeDuration(ch[i],seg,dur,False);
 
     #############################################################################################
     ###################            correctionD Pulse            #################################

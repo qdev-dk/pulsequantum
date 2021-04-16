@@ -381,7 +381,7 @@ class pulsetable(QWidget, Gelem):
     
     def sequence(self):
         if self._sequencebox is None:
-            self._sequencebox = Sequencing(AWG = self.AWG, gelem = self.gelem)
+            self._sequencebox = Sequencing(AWG = self.AWG, gelem = self.gelem, divider_ch = self.divider_ch)
             self._sequencebox.show() #exec_()
         else:
 #            global_point = callWidget.mapToGlobal(point)

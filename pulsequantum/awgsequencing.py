@@ -14,7 +14,7 @@ matplotlib.use('QT5Agg')
 
 
 #Any new parameter defined for the "Special" sequencing tab needs to go here in order to appear in the dropdown menu
-params = ["det", "psm_load", "psm_unload", "psm_load_sym", "psm_unload_sym", "dephasing_corrD"]
+params = ["det",'Amber', "psm_load", "psm_unload", "psm_load_sym", "psm_unload_sym", "dephasing_corrD"]
 
 
 class Sequencing(QDialog, Gseq):
@@ -22,8 +22,8 @@ class Sequencing(QDialog, Gseq):
     Class for sequencing (secondary) window
     """
 
-    def __init__(self, AWG=None, gelem=None):
-        super().__init__(AWG=AWG, gelem=gelem)
+    def __init__(self, AWG=None, gelem=None,divider_ch=None):
+        super().__init__(AWG=AWG, gelem=gelem,divider_ch=divider_ch)
         self.setGeometry(200, 200, 900, 500)
         self.setWindowTitle("Sequencing")
         self.setMinimumWidth(350)
