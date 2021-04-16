@@ -11,7 +11,9 @@ readme_file_path = Path(__file__).absolute().parent / "README.md"
 
 required_packages = ['broadbean>=0.10.0',
                      'PyQt5',
-                     'qcodes']
+                     'qcodes',
+                     'panel',
+                     'holoviews']
 package_data = {"pulsequantum": ["conf/telemetry.ini", 'pulselib/*.json',
                                  'initfiles/*.json', 'initfiles/*yaml']}
 

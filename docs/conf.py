@@ -23,8 +23,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = "pulsequantum"
-copyright = "2020, Microsoft Quantum"
-author = "Microsoft Quantum"
+copyright = "2020, pulsequantum"
+author = "pulsequantum"
 project_description = "Pulse building interface"
 
 # -- General configuration ---------------------------------------------------
