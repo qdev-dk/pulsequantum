@@ -35,25 +35,21 @@ class LiveStream():
         self.data_func = data_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
-        self.image_dmap.opts(cmap='Magma', xlim=(-0.6, 0.6), ylim=(-0.6, 0.6))
+        self.image_dmap.opts(cmap='Magma')
+        self.set_labels()
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=100)
         self.run_id_in_text = 'None'
         self.run_id_widget = pn.widgets.TextInput(name='run_id', value=self.run_id_in_text)
+        self.run_id_widget.force_new_dynamic_value
 
-        def measure(self, event):
-            data_do0d = do0d(self.data_func)
-            self.run_id_widget.value = f'{data_do0d[0].run_id}'
-
-        self.measure_button.on_click(measure)
+        self.measure_button.on_click(self.measure)
         self.plot_id_in_text = 'test'
 
         self.close_button = Button(name='close server', button_type='primary',
                                    width=100)
 
-        def close_server_click(self, event):
-            self.video_mode_server.stop()
-        self.close_button.on_click(close_server_click)
+        self.close_button.on_click(self.close_server_click)
 
         self.sliders = []
         self.sliders_func = []
@@ -79,4 +75,19 @@ class LiveStream():
     def data_grabber(self):
         for i, func in enumerate(self.sliders_func):
             func(self.sliders[i].value)
-        self.pipe.send(self.data_func())
+        self.pipe.send((self.data_func.setpoints[0].get(),
+                       self.data_func.setpoints[1].get(),
+                       self.data_func.get()))
+
+    def measure(self, event):
+        data_do0d = do0d(self.data_func)
+        self.run_id_widget.value = f'{data_do0d[0].run_id}'
+
+    def close_server_click(self, event):
+        self.video_mode_server.stop()
+
+    def set_labels(self):
+        xlabel = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
+        ylabel = self.data_func.setpoints[1].label + ' ('+self.data_func.setpoints[1].unit + ')'
+        self.image_dmap.opts(xlabel=xlabel,
+                             ylabel=ylabel)
