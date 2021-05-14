@@ -35,8 +35,10 @@ class LiveStream():
         self.data_func = data_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
+
         self.image_dmap.opts(cmap='Magma')
         self.set_labels()
+
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=100)
         self.run_id_in_text = 'None'
@@ -75,6 +77,7 @@ class LiveStream():
     def data_grabber(self):
         for i, func in enumerate(self.sliders_func):
             func(self.sliders[i].value)
+
         self.pipe.send((self.data_func.setpoints[0].get(),
                        self.data_func.setpoints[1].get(),
                        self.data_func.get()))
