@@ -1,25 +1,15 @@
 import numpy as np
 import time
-import pandas as pd
 import qcodes as qc
 import random
 import os
 import tempfile
-from qcodes.dataset.plotting import plot_dataset
 from qcodes.utils.validators import Numbers, Arrays
 from qcodes.instrument.base import Instrument
-from qcodes.dataset.measurements import Measurement
 from qcodes.instrument.parameter import ParameterWithSetpoints, Parameter
 from pulsequantum.livestream.livestream import LiveStream
-import logging
-from qcodes.station import Station
-from qcodes.utils.dataset.doNd import do0d, do1d
 from qcodes import initialise_or_create_database_at, \
-    load_or_create_experiment, Measurement, Parameter
-from qcodes.dataset.plotting import plot_by_id
-
-
-#logging.basicConfig(level=logging.INFO)
+    load_or_create_experiment
 
 
 db_path = os.path.join(tempfile.gettempdir(),
@@ -31,6 +21,7 @@ experiment = load_or_create_experiment(
     sample_name='alazar-sample')
 
 SC = qc.Station()
+
 
 class GeneratedSetPoints(Parameter):
     """
@@ -45,12 +36,12 @@ class GeneratedSetPoints(Parameter):
 
     def get_raw(self):
         return np.linspace(self._startparam(), self._stopparam(),
-                              self._numpointsparam())
+                           self._numpointsparam())
+
 
 class DummyArray(ParameterWithSetpoints):
 
     def get_raw(self):
-        npoints = self.root_instrument.n_points.get_latest()
         ls_x = self.root_instrument.freq_axis_x.get()
         ls_y = self.root_instrument.freq_axis_y.get()
         phase_x = self.root_instrument.phase_x.get()
@@ -58,7 +49,6 @@ class DummyArray(ParameterWithSetpoints):
         xx, yy = np.meshgrid(ls_x, ls_y)
         output = (np.sin(xx+phase_x+random.random()))*np.cos(yy+phase_y)
         return output
-        
 
 
 class DummyInstrument(Instrument):
@@ -67,12 +57,11 @@ class DummyInstrument(Instrument):
 
         super().__init__(name, **kwargs)
 
-
         self.add_parameter('f_start',
                            initial_value=0,
                            unit='Hz',
                            label='f start',
-                           vals=Numbers(0,1e3),
+                           vals=Numbers(0, 1e3),
                            get_cmd=None,
                            set_cmd=None)
 
@@ -80,30 +69,30 @@ class DummyInstrument(Instrument):
                            initial_value=10,
                            unit='Hz',
                            label='f stop',
-                           vals=Numbers(1,1e3),
+                           vals=Numbers(1, 1e3),
                            get_cmd=None,
                            set_cmd=None)
-        
+
         self.add_parameter('phase_x',
                            initial_value=0,
                            unit='Hz',
                            label='Phase X',
-                           vals=Numbers(0,1e3),
+                           vals=Numbers(0, 1e3),
                            get_cmd=None,
                            set_cmd=None)
-        
+
         self.add_parameter('phase_y',
                            initial_value=0,
                            unit='Hz',
                            label='Phase Y',
-                           vals=Numbers(0,1e3),
+                           vals=Numbers(0, 1e3),
                            get_cmd=None,
-                           set_cmd=None) 
+                           set_cmd=None)
 
         self.add_parameter('n_points',
                            unit='',
                            initial_value=100,
-                           vals=Numbers(1,1e3),
+                           vals=Numbers(1, 1e3),
                            get_cmd=None,
                            set_cmd=None)
 
@@ -115,7 +104,7 @@ class DummyInstrument(Instrument):
                            stopparam=self.f_stop,
                            numpointsparam=self.n_points,
                            vals=Arrays(shape=(self.n_points.get_latest,)))
-        
+
         self.add_parameter('freq_axis_y',
                            unit='Hz',
                            label='Freq Axis Y',
@@ -126,19 +115,19 @@ class DummyInstrument(Instrument):
                            vals=Arrays(shape=(self.n_points.get_latest,)))
 
         self.add_parameter('spectrum',
-                   unit='dBm',
-                   setpoints=(self.freq_axis_x,self.freq_axis_x),
-                   label='Spectrum',
-                   parameter_class=DummyArray,
-                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
+                           unit='dBm',
+                           setpoints=(self.freq_axis_x, self.freq_axis_y),
+                           label='Spectrum',
+                           parameter_class=DummyArray,
+                           vals=Arrays(shape=(self.n_points.get_latest, self.n_points.get_latest)))
 
 
 test_instrumment = DummyInstrument('test')
 
-pi = np.pi  
-sliders={'phase_x': (test_instrumment.phase_x,0,pi,0.1,0),
-         'phase_y': (test_instrumment.phase_y,0,pi,0.1,0)}
-test = LiveStream(data_func=test_instrumment.spectrum,sliders=sliders)
+pi = np.pi
+sliders = {'phase_x': (test_instrumment.phase_x, 0, pi, 0.1, 0),
+           'phase_y': (test_instrumment.phase_y, 0, pi, 0.1, 0)}
+test = LiveStream(data_func=test_instrumment.spectrum, sliders=sliders)
 
 
 time.sleep(5)
