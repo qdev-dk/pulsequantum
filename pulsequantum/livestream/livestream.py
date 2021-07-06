@@ -78,8 +78,8 @@ class LiveStream():
         for i, func in enumerate(self.sliders_func):
             func(self.sliders[i].value)
 
-        self.pipe.send((self.data_func.setpoints[0].get(),
-                       self.data_func.setpoints[1].get(),
+        self.pipe.send((self.data_func.setpoints[1].get(),
+                       self.data_func.setpoints[0].get(),
                        self.data_func.get()))
 
     def measure(self, event):
