@@ -9,7 +9,7 @@ from tornado import gen
 
 
 hv.extension('bokeh')
-
+#hv.extension('matplotlib')
 
 class LiveStream():
     """
@@ -35,8 +35,13 @@ class LiveStream():
         self.data_func = data_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
+        #self.image_dmap = hv.DynamicMap(hv.HeatMap, streams=[self.pipe])
 
-        self.image_dmap.opts(cmap='Magma')
+        self.image_dmap.opts(cmap='Magma', colorbar=True,
+                             clim=(-2, 2),
+                             width=400,
+                             height=400,
+                             toolbar='above')
         self.set_labels()
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
@@ -52,7 +57,10 @@ class LiveStream():
                                    width=100)
 
         self.close_button.on_click(self.close_server_click)
+        self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
 
+
+        self.slider_value_widget = []
         self.sliders = []
         self.sliders_func = []
         for key in sliders.keys():
@@ -62,25 +70,28 @@ class LiveStream():
                                                        end=sliders[key][2],
                                                        step=sliders[key][3],
                                                        value=sliders[key][4]))
+            self.slider_value_widget.append(pn.widgets.TextInput(name=str(key), value='None'))
         self.dis()
 
     def dis(self):
         col = (self.measure_button, self.close_button,
                self.run_id_widget,) + tuple(self.sliders)
+        col2 = tuple(self.slider_value_widget) + (self.live_checkbox,)
 
         self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
         self.video_mode_server = Row(self.image_dmap,
-                                     Column(*col)).show(port=self.port, threaded=True)
+                                     Column(*col),Column(*col2)).show(port=self.port, threaded=True)
         self.video_mode_callback.start()
 
     @gen.coroutine
     def data_grabber(self):
         for i, func in enumerate(self.sliders_func):
             func(self.sliders[i].value)
-
-        self.pipe.send((self.data_func.setpoints[1].get(),
-                       self.data_func.setpoints[0].get(),
-                       self.data_func.get()))
+            self.slider_value_widget[i].value = str(func.get())
+        if self.live_checkbox.value:
+            self.pipe.send((self.data_func.setpoints[1].get(),
+                            self.data_func.setpoints[0].get(),
+                            self.data_func.get()))
 
     def measure(self, event):
         data_do0d = do0d(self.data_func)
@@ -92,5 +103,7 @@ class LiveStream():
     def set_labels(self):
         xlabel = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
         ylabel = self.data_func.setpoints[1].label + ' ('+self.data_func.setpoints[1].unit + ')'
+        clabel = self.data_func.label + ' (' + self.data_func.unit + ')'
         self.image_dmap.opts(xlabel=xlabel,
-                             ylabel=ylabel)
+                             ylabel=ylabel,
+                             clabel=clabel)
