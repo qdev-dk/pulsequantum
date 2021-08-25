@@ -1,5 +1,8 @@
+from logging import disable
 import panel as pn
 import holoviews as hv
+from panel.io import state
+from panel.pane.markup import Str
 from panel.widgets import Button
 from panel import Row, Column
 from qcodes.utils.dataset.doNd import do0d
@@ -39,7 +42,7 @@ class LiveStream():
 
         self.image_dmap.opts(cmap='Magma', colorbar=True,
                              clim=(-2, 2),
-                             width=400,
+                             width=500,
                              height=400,
                              toolbar='above')
         self.set_labels()
@@ -59,7 +62,17 @@ class LiveStream():
         self.close_button.on_click(self.close_server_click)
         self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
 
+        self.increaseV_button = Button(name='+', button_type='primary',
+                                        width=20, align=('start','end'))
 
+        self.increaseV_button.on_click(self.voltage_increase)
+        self.decreaseV_button = Button(name='-', button_type='primary',
+                                        width=20,align=('start','end'))
+
+        self.decreaseV_button.on_click(self.voltage_decrease)
+        
+        self.voltage_value = 5
+        self.voltage_display = pn.widgets.TextInput(name='Voltage', value=str(self.voltage_value),align=('start','end'),disabled=True)
         self.slider_value_widget = []
         self.sliders = []
         self.sliders_func = []
@@ -74,13 +87,23 @@ class LiveStream():
         self.dis()
 
     def dis(self):
-        col = (self.measure_button, self.close_button,
-               self.run_id_widget,) + tuple(self.sliders)
+        col1 = (Row(self.measure_button, self.close_button),
+               self.run_id_widget) + tuple(self.sliders)
         col2 = tuple(self.slider_value_widget) + (self.live_checkbox,)
+        col3 = (self.decreaseV_button, self.voltage_display,self.increaseV_button)
 
         self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
-        self.video_mode_server = Row(self.image_dmap,
-                                     Column(*col),Column(*col2)).show(port=self.port, threaded=True)
+        self.video_mode_server = pn.GridSpec(width=800, height=600)
+
+
+        self.video_mode_server[:2, :2] = self.image_dmap
+        self.video_mode_server[2:3, 0] = Column(*col1)
+        self.video_mode_server[2:3, 1] = Column(*col2)
+        self.video_mode_server[0, 2] = Row(*col3)
+
+        self.video_mode_server.show(port=self.port,threaded=True)
+
+    
         self.video_mode_callback.start()
 
     @gen.coroutine
@@ -99,6 +122,15 @@ class LiveStream():
 
     def close_server_click(self, event):
         self.video_mode_server.stop()
+
+    def voltage_increase(self, event):
+        self.voltage_value = self.voltage_value +1
+        self.voltage_display.value = str(self.voltage_value)
+
+    def voltage_decrease(self, event):
+        self.voltage_value = self.voltage_value -1
+        self.voltage_display.value = str(self.voltage_value)
+
 
     def set_labels(self):
         xlabel = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
