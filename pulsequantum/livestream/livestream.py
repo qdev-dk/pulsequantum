@@ -93,7 +93,7 @@ class LiveStream():
         col3 = (self.decreaseV_button, self.voltage_display,self.increaseV_button)
 
         self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
-        self.gridspec = pn.GridSpec(width=800, height=600)
+        self.gridspec = pn.GridSpec(sizing_mode='stretch_both')
 
 
         self.gridspec[:2, :2] = self.image_dmap
