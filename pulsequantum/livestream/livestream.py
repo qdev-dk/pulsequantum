@@ -1,8 +1,5 @@
-from logging import disable
 import panel as pn
 import holoviews as hv
-from panel.io import state
-from panel.pane.markup import Str
 from panel.widgets import Button
 from panel import Row, Column
 from qcodes.utils.dataset.doNd import do0d
@@ -12,7 +9,7 @@ from tornado import gen
 
 
 hv.extension('bokeh')
-#hv.extension('matplotlib')
+
 
 class LiveStream():
     """
@@ -38,7 +35,6 @@ class LiveStream():
         self.data_func = data_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
-        #self.image_dmap = hv.DynamicMap(hv.HeatMap, streams=[self.pipe])
 
         self.image_dmap.opts(cmap='Magma', colorbar=True,
                              clim=(-2, 2),
@@ -50,7 +46,8 @@ class LiveStream():
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=100)
         self.run_id_in_text = 'None'
-        self.run_id_widget = pn.widgets.TextInput(name='run_id', value=self.run_id_in_text)
+        self.run_id_widget = pn.widgets.TextInput(name='run_id',
+                                                  value=self.run_id_in_text)
         self.run_id_widget.force_new_dynamic_value
 
         self.measure_button.on_click(self.measure)
@@ -63,16 +60,18 @@ class LiveStream():
         self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
 
         self.increaseV_button = Button(name='+', button_type='primary',
-                                        width=20, align=('start','end'))
+                                       width=20, align=('start', 'end'))
 
         self.increaseV_button.on_click(self.voltage_increase)
         self.decreaseV_button = Button(name='-', button_type='primary',
-                                        width=20,align=('start','end'))
-
+                                       width=20, align=('start', 'end'))
         self.decreaseV_button.on_click(self.voltage_decrease)
-        
+
         self.voltage_value = 5
-        self.voltage_display = pn.widgets.TextInput(name='Voltage', value=str(self.voltage_value),align=('start','end'),disabled=True)
+        self.voltage_display = pn.widgets.TextInput(name='Voltage',
+                                                    value=str(self.voltage_value),
+                                                    align=('start', 'end'),
+                                                    disabled=True)
         self.slider_value_widget = []
         self.sliders = []
         self.sliders_func = []
@@ -83,19 +82,20 @@ class LiveStream():
                                                        end=sliders[key][2],
                                                        step=sliders[key][3],
                                                        value=sliders[key][4]))
-            self.slider_value_widget.append(pn.widgets.TextInput(name=str(key), value='None'))
+            self.slider_value_widget.append(pn.widgets.TextInput(name=str(key),
+                                                                 value='None'))
         self.dis()
 
     def dis(self):
         col1 = (Row(self.measure_button, self.close_button),
-               self.run_id_widget) + tuple(self.sliders)
+                self.run_id_widget) + tuple(self.sliders)
         col2 = tuple(self.slider_value_widget) + (self.live_checkbox,)
-        col3 = (self.decreaseV_button, self.voltage_display,self.increaseV_button)
+        col3 = (self.decreaseV_button, self.voltage_display,
+                self.increaseV_button)
 
-        self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
+        self.video_mode_callback = PeriodicCallback(self.data_grabber,
+                                                    self.refresh_period)
         self.gridspec = pn.GridSpec(sizing_mode='stretch_both')
-
-
         self.gridspec[:2, :2] = self.image_dmap
         self.gridspec[2:3, 0] = Column(*col1)
         self.gridspec[2:3, 1] = Column(*col2)
@@ -103,8 +103,6 @@ class LiveStream():
 
         self.video_mode_server = self.gridspec.show(port=self.port,
                                                     threaded=True)
-
-    
         self.video_mode_callback.start()
 
     @gen.coroutine
@@ -125,13 +123,12 @@ class LiveStream():
         self.video_mode_server.stop()
 
     def voltage_increase(self, event):
-        self.voltage_value = self.voltage_value +1
+        self.voltage_value = self.voltage_value + 1
         self.voltage_display.value = str(self.voltage_value)
 
     def voltage_decrease(self, event):
-        self.voltage_value = self.voltage_value -1
+        self.voltage_value = self.voltage_value - 1
         self.voltage_display.value = str(self.voltage_value)
-
 
     def set_labels(self):
         xlabel = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
