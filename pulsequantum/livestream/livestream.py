@@ -93,15 +93,16 @@ class LiveStream():
         col3 = (self.decreaseV_button, self.voltage_display,self.increaseV_button)
 
         self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
-        self.video_mode_server = pn.GridSpec(width=800, height=600)
+        self.gridspec = pn.GridSpec(width=800, height=600)
 
 
-        self.video_mode_server[:2, :2] = self.image_dmap
-        self.video_mode_server[2:3, 0] = Column(*col1)
-        self.video_mode_server[2:3, 1] = Column(*col2)
-        self.video_mode_server[0, 2] = Row(*col3)
+        self.gridspec[:2, :2] = self.image_dmap
+        self.gridspec[2:3, 0] = Column(*col1)
+        self.gridspec[2:3, 1] = Column(*col2)
+        self.gridspec[0, 2] = Row(*col3)
 
-        self.video_mode_server.show(port=self.port,threaded=True)
+        self.video_mode_server = self.gridspec.show(port=self.port,
+                                                    threaded=True)
 
     
         self.video_mode_callback.start()
