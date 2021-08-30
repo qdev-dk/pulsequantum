@@ -42,94 +42,22 @@ class NoiseArray(ParameterWithSetpoints):
         output = np.asarray([np.random.rand(121) for i in range(121)])
         return output
 
-#Class that filters out the noise by averaging recent samples and removing the average noise value
+
+# Class that filters out the noise by averaging recent samples and removing the average noise value
 class FilterArray(ParameterWithSetpoints):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.output_filt = []
 
     def get_raw(self):
-        global output_filt
-        output_filt.append(test_instrumment.spectrum()+test_instrumment.spectrum_noise())
-        output_filt = output_filt[-121:]
-        output = (np.sum(np.asarray(output_filt),axis=0)/121)-0.5
-        
+        spectrum = self.root_instrument.spectrum()
+        spectrum_noise = self.root_instrument.spectrum_noise()
+        self.output_filt.append(spectrum + spectrum_noise)
+        self.output_filt = self.output_filt[-121:]
+        output = (np.sum(np.asarray(self.output_filt), axis=0)/121)-0.5
+
         return output
 
-#Class that intialises the instrument which contains the parameters for the orginial sample (spectrum) and the noise (spectrum_noise).
-class DummyInstrument(Instrument):
-
-    def __init__(self, name, **kwargs):
-
-        super().__init__(name, **kwargs)
-
-
-        self.add_parameter('f_start',
-                           initial_value=0,
-                           unit='Hz',
-                           label='f start',
-                           vals=Numbers(0,1e3),
-                           get_cmd=None,
-                           set_cmd=None)
-
-        self.add_parameter('f_stop',
-                           initial_value=20,
-                           unit='Hz',
-                           label='f stop',
-                           vals=Numbers(1,1e3),
-                           get_cmd=None,
-                           set_cmd=None)
-        
-        self.add_parameter('phase_x',
-                           initial_value=0,
-                           unit='Hz',
-                           label='Phase X',
-                           vals=Numbers(0,1e3),
-                           get_cmd=None,
-                           set_cmd=None)
-        
-        self.add_parameter('phase_y',
-                           initial_value=0,
-                           unit='Hz',
-                           label='Phase Y',
-                           vals=Numbers(0,1e3),
-                           get_cmd=None,
-                           set_cmd=None) 
-
-        self.add_parameter('n_points',
-                           unit='',
-                           initial_value=121,
-                           vals=Numbers(1,1e3),
-                           get_cmd=None,
-                           set_cmd=None)
-
-        self.add_parameter('freq_axis_x',
-                           unit='Hz',
-                           label='Freq Axis X',
-                           parameter_class=GeneratedSetPoints,
-                           startparam=self.f_start,
-                           stopparam=self.f_stop,
-                           numpointsparam=self.n_points,
-                           vals=Arrays(shape=(self.n_points.get_latest,)))
-        
-        self.add_parameter('freq_axis_y',
-                           unit='Hz',
-                           label='Freq Axis Y',
-                           parameter_class=GeneratedSetPoints,
-                           startparam=self.f_start,
-                           stopparam=self.f_stop,
-                           numpointsparam=self.n_points,
-                           vals=Arrays(shape=(self.n_points.get_latest,)))
-
-        self.add_parameter('spectrum',
-                   unit='dBm',
-                   setpoints=(self.freq_axis_x,self.freq_axis_y),
-                   label='Spectrum',
-                   parameter_class=DummyArray,
-                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
-        self.add_parameter('spectrum_noise',
-                   unit='dBm',
-                   setpoints=(self.freq_axis_x,self.freq_axis_y),
-                   label='Spectrum',
-                   parameter_class=NoiseArray,
-                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
 
 #Class that intialises the instrument which contains the filtered spectrum (spectrum_filt).
 class FilterInstrument(Instrument):
@@ -194,6 +122,20 @@ class FilterInstrument(Instrument):
                            stopparam=self.f_stop,
                            numpointsparam=self.n_points,
                            vals=Arrays(shape=(self.n_points.get_latest,)))
+        
+        self.add_parameter('spectrum',
+                   unit='dBm',
+                   setpoints=(self.freq_axis_x,self.freq_axis_y),
+                   label='Spectrum',
+                   parameter_class=DummyArray,
+                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
+                   
+        self.add_parameter('spectrum_noise',
+                   unit='dBm',
+                   setpoints=(self.freq_axis_x,self.freq_axis_y),
+                   label='Spectrum',
+                   parameter_class=NoiseArray,
+                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
 
         self.add_parameter('spectrum_filt',
                    unit='dBm',
