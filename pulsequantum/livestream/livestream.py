@@ -1,11 +1,7 @@
-from logging import disable
 import panel as pn
 import holoviews as hv
-from panel.io import state
-from panel.pane.markup import Str
 from panel.widgets import Button
 from panel import Row, Column
-from param import named_objs
 from qcodes.utils.dataset.doNd import do0d
 from holoviews.streams import Pipe
 from tornado.ioloop import PeriodicCallback
@@ -13,15 +9,20 @@ from tornado import gen
 
 
 hv.extension('bokeh')
-#hv.extension('matplotlib')
+
 
 class VoltageWidget():
-    def __init__(self,displayname,initvoltage):
-        self.voltage_value = initvoltage #change later to get the value of the initialized voltage value
-        self.increaseV_button = Button(name='+', button_type='primary', width=20, align=('start','end'))
+    def __init__(self, displayname, initvoltage):
+        self.voltage_value = initvoltage  # change later to get the value of the initialized voltage value
+        self.increaseV_button = Button(name='+', button_type='primary',
+                                       width=20, align=('start','end'))
         self.increaseV_button.on_click(self.voltage_increase)
-        self.voltage_display = pn.widgets.TextInput(name=displayname, value=str(self.voltage_value),align=('start','end'),disabled=True)
-        self.decreaseV_button = Button(name='-', button_type='primary',width=20,align=('start','end'))
+        self.voltage_display = pn.widgets.TextInput(name=displayname,
+                                                    value=str(self.voltage_value),
+                                                    align=('start', 'end'),
+                                                    disabled=True)
+        self.decreaseV_button = Button(name='-', button_type='primary',
+                                       width=20,align=('start','end'))
         self.decreaseV_button.on_click(self.voltage_decrease)
 
     def voltage_increase(self, event):
@@ -31,6 +32,7 @@ class VoltageWidget():
     def voltage_decrease(self, event):
         self.voltage_value = self.voltage_value -1
         self.voltage_display.value = str(self.voltage_value)
+
 
 class LiveStream():
     """
@@ -50,14 +52,14 @@ class LiveStream():
 
     """
 
-    def __init__(self, data_func, sliders,voltagecontrolwidget, port=12345, refresh_period=100):
-        self.voltagecontrolwidget=voltagecontrolwidget
+    def __init__(self, data_func, sliders, voltagecontrolwidget,
+                 port=12345, refresh_period=100):
+        self.voltagecontrolwidget = voltagecontrolwidget
         self.port = port
         self.refresh_period = refresh_period
         self.data_func = data_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
-        #self.image_dmap = hv.DynamicMap(hv.HeatMap, streams=[self.pipe])
 
         self.image_dmap.opts(cmap='Magma', colorbar=True,
                              clim=(-2, 2),
@@ -69,7 +71,8 @@ class LiveStream():
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=100)
         self.run_id_in_text = 'None'
-        self.run_id_widget = pn.widgets.TextInput(name='run_id', value=self.run_id_in_text)
+        self.run_id_widget = pn.widgets.TextInput(name='run_id',
+                                                  value=self.run_id_in_text)
         self.run_id_widget.force_new_dynamic_value
 
         self.measure_button.on_click(self.measure)
@@ -80,7 +83,6 @@ class LiveStream():
 
         self.close_button.on_click(self.close_server_click)
         self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
-        
 
         self.slider_value_widget = []
         self.sliders = []
@@ -92,7 +94,8 @@ class LiveStream():
                                                        end=sliders[key][2],
                                                        step=sliders[key][3],
                                                        value=sliders[key][4]))
-            self.slider_value_widget.append(pn.widgets.TextInput(name=str(key), value='None'))
+            self.slider_value_widget.append(pn.widgets.TextInput(name=str(key),
+                                            value='None'))
         self.voltage_control_widgets = []
         for key in voltagecontrolwidget.keys():
             self.voltage_control_create = VoltageWidget(displayname=voltagecontrolwidget[key][0],initvoltage=voltagecontrolwidget[key][2])
@@ -112,17 +115,17 @@ class LiveStream():
         for i in self.voltage_control_widgets:
             col3.append(Row(*tuple(i)))
         self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
-        self.video_mode_server = pn.GridSpec(width=800, height=600)
+        self.gridspec = pn.GridSpec(sizing_mode='stretch_both')
 
 
-        self.video_mode_server[:2, :2] = self.image_dmap
-        self.video_mode_server[2:3, 0] = Column(*col1)
-        self.video_mode_server[2:3, 1] = Column(*col2)
-        self.video_mode_server[0, 2] = col3 
+        self.gridspec[:2, :2] = self.image_dmap
+        self.gridspec[2:3, 0] = Column(*col1)
+        self.gridspec[2:3, 1] = Column(*col2)
+        self.gridspec[0, 2] = col3
 
-        self.video_mode_server.show(port=self.port,threaded=True)
+        self.video_mode_server = self.gridspec.show(port=self.port,
+                                                    threaded=True)
 
-    
         self.video_mode_callback.start()
 
     @gen.coroutine
@@ -143,11 +146,11 @@ class LiveStream():
         self.video_mode_server.stop()
 
     def voltage_increase(self, event):
-        self.voltage_value = self.voltage_value +1
+        self.voltage_value = self.voltage_value + 1
         self.voltage_display.value = str(self.voltage_value)
 
     def voltage_decrease(self, event):
-        self.voltage_value = self.voltage_value -1
+        self.voltage_value = self.voltage_value - 1
         self.voltage_display.value = str(self.voltage_value)
 
 
