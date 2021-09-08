@@ -66,7 +66,7 @@ class Qdac2Controler:
         channel_slow =  self.qdac.channels[chan_slow]        
         slew_rate_sweep = min(1000,abs(self.v_fast_end-self.v_fast_start)/dwell_time_sweep_s)
         slew_rate_step = slew_rate_sweep
-        
+
         channel_fast.dc_slew_rate_V_per_s(slew_rate_sweep)
         channel_slow.dc_slew_rate_V_per_s(slew_rate_step)
         
@@ -82,7 +82,7 @@ class Qdac2Controler:
         channel_slow.dc_sweep(self.v_slow_start,
                               self.v_slow_end,
                               self.npoints_slow,
-                              repetitions=1,
+                              repetitions=-1,
                               dwell_s=self.npoints_fast*dwell_time_sweep_s)
         
         channel_fast.output_filter('high')
@@ -108,18 +108,6 @@ alazarconfig(alazar, seqmode=True,external_clock=False)
 alazar_ctrl = SC.load_instrument('alazar_ctrl')
 channelA2 = SC.load_instrument('channelA2',parent=alazar_ctrl)
 
-
-
-alazar_ctrl.int_delay(0e-6)
-alazar_ctrl.int_time(SC.seqbuild.readout_time)
-alazar_ctrl.channels.append(channelA2)
-setpoint = SC.seqbuild.x_val()
-channelA2.num_averages(40)
-channelA2.records_per_buffer(npts)
-channelA2.data.setpoint_labels = ('SSB Drive frequency (Non-overlap)',)
-channelA2.data.setpoint_units = ('Hz',)
-channelA2.prepare_channel()
-channelA2.data.setpoints = (tuple(setpoint),)
 
 class AlazarVideo:
     def __init__(self,channel) -> None:
@@ -223,3 +211,17 @@ class VideoInstrument(Instrument):
                            stopparam=self.V_fast_stop,
                            numpointsparam=self.n_pointsy,
                            vals=Arrays(shape=(self.n_pointsy.get_latest,)))
+
+
+def sync_alazar():
+    alazar_ctrl.int_delay(0e-6)
+    alazar_ctrl.int_time(fast_time)
+    alazar_ctrl.channels.append(channelA2)
+    setpoint = SC.seqbuild.x_val()
+    channelA2.num_averages(40)
+    channelA2.records_per_buffer(slow_point_nr)
+    channelA2.data.setpoint_labels = ('V_gate',)
+    channelA2.data.setpoint_units = ('V',)
+    channelA2.prepare_channel()
+    channelA2.data.setpoints = (tuple(setpoint),)
+
