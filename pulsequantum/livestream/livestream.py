@@ -35,9 +35,11 @@ class LiveStream():
         self.data_func = data_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
-
+        data_test = self.data_func.get()
+        cmin = data_test.min()
+        cmax = data_test.max()
         self.image_dmap.opts(cmap='Magma', colorbar=True,
-                             clim=(-2, 2),
+                             clim=(cmin, cmax),
                              width=500,
                              height=400,
                              toolbar='above')
