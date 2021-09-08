@@ -29,7 +29,9 @@ class LiveStream():
 
     """
 
-    def __init__(self, data_func, sliders, port=12345, refresh_period=100):
+    def __init__(self, data_func, sliders, voltagecontrolwidget,
+                 port=12345, refresh_period=100):
+        self.voltagecontrolwidget = voltagecontrolwidget
         self.port = port
         self.refresh_period = refresh_period
         self.data_func = data_func
@@ -61,19 +63,6 @@ class LiveStream():
         self.close_button.on_click(self.close_server_click)
         self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
 
-        self.increaseV_button = Button(name='+', button_type='primary',
-                                       width=20, align=('start', 'end'))
-
-        self.increaseV_button.on_click(self.voltage_increase)
-        self.decreaseV_button = Button(name='-', button_type='primary',
-                                       width=20, align=('start', 'end'))
-        self.decreaseV_button.on_click(self.voltage_decrease)
-
-        self.voltage_value = 5
-        self.voltage_display = pn.widgets.TextInput(name='Voltage',
-                                                    value=str(self.voltage_value),
-                                                    align=('start', 'end'),
-                                                    disabled=True)
         self.slider_value_widget = []
         self.sliders = []
         self.sliders_func = []
@@ -85,26 +74,37 @@ class LiveStream():
                                                        step=sliders[key][3],
                                                        value=sliders[key][4]))
             self.slider_value_widget.append(pn.widgets.TextInput(name=str(key),
-                                                                 value='None'))
+                                            value='None'))
+        self.voltage_control_widgets = []
+        for key in voltagecontrolwidget.keys():
+            self.voltage_control_create = VoltageWidget(displayname=voltagecontrolwidget[key][0],
+                                                        step=voltagecontrolwidget[key][2],
+                                                        value=voltagecontrolwidget[key][3])
+            self.voltage_control_widgets.append([self.voltage_control_create.decreaseV_button,
+                                                 self.voltage_control_create.voltage_display,
+                                                 self.voltage_control_create.increaseV_button])
+
+        print(type(self.voltage_control_widgets))
+        print(self.voltage_control_widgets[0])
         self.dis()
 
     def dis(self):
         col1 = (Row(self.measure_button, self.close_button),
                 self.run_id_widget) + tuple(self.sliders)
         col2 = tuple(self.slider_value_widget) + (self.live_checkbox,)
-        col3 = (self.decreaseV_button, self.voltage_display,
-                self.increaseV_button)
-
-        self.video_mode_callback = PeriodicCallback(self.data_grabber,
-                                                    self.refresh_period)
+        col3 = Column()
+        for i in self.voltage_control_widgets:
+            col3.append(Row(*tuple(i)))
+        self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
         self.gridspec = pn.GridSpec(sizing_mode='stretch_both')
         self.gridspec[:2, :2] = self.image_dmap
         self.gridspec[2:3, 0] = Column(*col1)
         self.gridspec[2:3, 1] = Column(*col2)
-        self.gridspec[0, 2] = Row(*col3)
+        self.gridspec[0, 2] = col3
 
         self.video_mode_server = self.gridspec.show(port=self.port,
                                                     threaded=True)
+
         self.video_mode_callback.start()
 
     @gen.coroutine
@@ -139,3 +139,29 @@ class LiveStream():
         self.image_dmap.opts(xlabel=xlabel,
                              ylabel=ylabel,
                              clabel=clabel)
+
+
+class VoltageWidget():
+    def __init__(self, displayname, step, value):
+        self.step = step
+        self.voltage_value = value  # change later to get the value of the initialized voltage value
+        self.increaseV_button = Button(name='+', button_type='primary',
+                                       width=20, align=('start', 'end'))
+
+        self.increaseV_button.on_click(self.voltage_increase)
+
+        self.voltage_display = pn.widgets.TextInput(name=displayname,
+                                                    value=str(self.voltage_value),
+                                                    align=('start', 'end'),
+                                                    disabled=True)
+        self.decreaseV_button = Button(name='-', button_type='primary',
+                                       width=20, align=('start', 'end'))
+        self.decreaseV_button.on_click(self.voltage_decrease)
+
+    def voltage_increase(self, event):
+        self.voltage_value = self.voltage_value + self.step
+        self.voltage_display.value = str(self.voltage_value)
+
+    def voltage_decrease(self, event):
+        self.voltage_value = self.voltage_value - self.step
+        self.voltage_display.value = str(self.voltage_value)
