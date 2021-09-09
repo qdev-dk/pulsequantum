@@ -36,6 +36,10 @@ class LiveStream():
         self.refresh_period = refresh_period
         self.data_func = data_func
         self.pipe = Pipe(data=[])
+        self.data = self.data_func.get()
+        self.counter = 1.0
+        self.counter_wiget = pn.widgets.TextInput(name='counter',
+                                            value='None')
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
         self.image_dmap.opts(cmap='Magma', colorbar=True,
                              width=500,
@@ -60,9 +64,13 @@ class LiveStream():
 
         self.close_button = Button(name='close server', button_type='primary',
                                    width=100)
-                                
-
         self.close_button.on_click(self.close_server_click)
+
+        self.reset_average_button = Button(name='Reset average', button_type='primary',
+                                    width=100)
+        self.reset_average_button.on_click(self.reset_average)
+
+
         self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
 
         self.slider_value_widget = []
@@ -91,7 +99,7 @@ class LiveStream():
         self.dis()
 
     def dis(self):
-        col1 = (Row(self.measure_button, self.close_button, self.colorbar_button),
+        col1 = (Row(self.measure_button, self.close_button, self.colorbar_button,self.reset_average_button,self.counter_wiget),
                 self.run_id_widget) + tuple(self.sliders)
         col2 = tuple(self.slider_value_widget) + (self.live_checkbox,)
         col3 = Column()
@@ -115,9 +123,17 @@ class LiveStream():
             func(self.sliders[i].value)
             self.slider_value_widget[i].value = str(func.get())
         if self.live_checkbox.value:
+            self.data_average()
             self.pipe.send((self.data_func.setpoints[1].get(),
                             self.data_func.setpoints[0].get(),
-                            self.data_func.get()))
+                            self.data))
+    def data_average(self):
+        self.counter_wiget.value = str(self.counter)
+        self.data = ((self.counter-1)*self.data + self.data_func.get())/self.counter
+        self.counter += 1.0
+
+    def reset_average(self, event):
+        self.counter = 1
 
     def measure(self, event):
         self.measure_button.loading = True
@@ -151,9 +167,8 @@ class LiveStream():
 
 
     def set_colobar_scale(self):
-        data_test = self.data_func.get()
-        cmin = data_test.min()
-        cmax = data_test.max()
+        cmin = self.data.min()
+        cmax = self.data.max()
         self.image_dmap.opts(clim=(cmin, cmax))
 
 class VoltageWidget():
