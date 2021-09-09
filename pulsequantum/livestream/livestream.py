@@ -87,15 +87,14 @@ class LiveStream():
                                             value='None'))
         self.voltage_control_widgets = []
         for key in voltagecontrolwidget.keys():
-            self.voltage_control_create = VoltageWidget(displayname=voltagecontrolwidget[key][0],
-                                                        step=voltagecontrolwidget[key][2],
-                                                        value=voltagecontrolwidget[key][3])
+            self.voltage_control_create = VoltageWidget(displayname=key,
+                                                        qchan=voltagecontrolwidget[key][0],
+                                                        step=voltagecontrolwidget[key][3],
+                                                        value=voltagecontrolwidget[key][4])
             self.voltage_control_widgets.append([self.voltage_control_create.decreaseV_button,
                                                  self.voltage_control_create.voltage_display,
                                                  self.voltage_control_create.increaseV_button])
 
-        print(type(self.voltage_control_widgets))
-        print(self.voltage_control_widgets[0])
         self.dis()
 
     def dis(self):
@@ -120,7 +119,7 @@ class LiveStream():
     @gen.coroutine
     def data_grabber(self):
         for i, func in enumerate(self.sliders_func):
-            func(self.sliders[i].value)
+            #func(self.sliders[i].value)
             self.slider_value_widget[i].value = str(func.get())
         if self.live_checkbox.value:
             self.data_average()
@@ -171,10 +170,12 @@ class LiveStream():
         cmax = self.data.max()
         self.image_dmap.opts(clim=(cmin, cmax))
 
+
 class VoltageWidget():
-    def __init__(self, displayname, step, value):
+    def __init__(self, displayname, qchan, step, value):
+        self.qchan = qchan
         self.step = step
-        self.voltage_value = value  # change later to get the value of the initialized voltage value
+        self.voltage_value = value
         self.increaseV_button = Button(name='+', button_type='primary',
                                        width=20, align=('start', 'end'))
 
@@ -183,15 +184,19 @@ class VoltageWidget():
         self.voltage_display = pn.widgets.TextInput(name=displayname,
                                                     value=str(self.voltage_value),
                                                     align=('start', 'end'),
-                                                    disabled=True)
+                                                    disabled=False)
         self.decreaseV_button = Button(name='-', button_type='primary',
                                        width=20, align=('start', 'end'))
         self.decreaseV_button.on_click(self.voltage_decrease)
 
     def voltage_increase(self, event):
-        self.voltage_value = self.voltage_value + self.step
-        self.voltage_display.value = str(self.voltage_value)
+        self.voltage_change(self.step)
 
     def voltage_decrease(self, event):
-        self.voltage_value = self.voltage_value - self.step
+        self.voltage_change(-self.step)
+
+    def voltage_change(self, delta):
+        self.voltage_value = float(self.voltage_display.value)
+        self.voltage_value = self.voltage_value + delta
         self.voltage_display.value = str(self.voltage_value)
+        self.qchan.set(self.voltage_value)
