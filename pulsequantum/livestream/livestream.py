@@ -37,14 +37,11 @@ class LiveStream():
         self.data_func = data_func
         self.pipe = Pipe(data=[])
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
-        data_test = self.data_func.get()
-        cmin = data_test.min()
-        cmax = data_test.max()
         self.image_dmap.opts(cmap='Magma', colorbar=True,
-                             clim=(cmin, cmax),
                              width=500,
                              height=400,
                              toolbar='above')
+        self.set_colobar_scale()
         self.set_labels()
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
@@ -57,8 +54,13 @@ class LiveStream():
         self.measure_button.on_click(self.measure)
         self.plot_id_in_text = 'test'
 
+        self.colorbar_button = Button(name='Reset colorbar', button_type='primary',
+                                    width=100)
+        self.colorbar_button.on_click(self.set_colobar_scale_event)
+
         self.close_button = Button(name='close server', button_type='primary',
                                    width=100)
+                                
 
         self.close_button.on_click(self.close_server_click)
         self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
@@ -89,7 +91,7 @@ class LiveStream():
         self.dis()
 
     def dis(self):
-        col1 = (Row(self.measure_button, self.close_button),
+        col1 = (Row(self.measure_button, self.close_button, self.colorbar_button),
                 self.run_id_widget) + tuple(self.sliders)
         col2 = tuple(self.slider_value_widget) + (self.live_checkbox,)
         col3 = Column()
@@ -118,8 +120,10 @@ class LiveStream():
                             self.data_func.get()))
 
     def measure(self, event):
+        self.measure_button.loading = True
         data_do0d = do0d(self.data_func)
         self.run_id_widget.value = f'{data_do0d[0].run_id}'
+        self.measure_button.loading = False
 
     def close_server_click(self, event):
         self.video_mode_server.stop()
@@ -140,6 +144,17 @@ class LiveStream():
                              ylabel=ylabel,
                              clabel=clabel)
 
+    def set_colobar_scale_event(self, event):
+        self.colorbar_button.loading = True
+        self.set_colobar_scale()
+        self.colorbar_button.loading = False
+
+
+    def set_colobar_scale(self):
+        data_test = self.data_func.get()
+        cmin = data_test.min()
+        cmax = data_test.max()
+        self.image_dmap.opts(clim=(cmin, cmax))
 
 class VoltageWidget():
     def __init__(self, displayname, step, value):
