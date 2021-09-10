@@ -80,7 +80,8 @@ class LiveStream():
             self.voltage_control_create = VoltageWidget(displayname=key,
                                                         qchan=voltagecontrolwidget[key][0],
                                                         step=voltagecontrolwidget[key][1],
-                                                        value=voltagecontrolwidget[key][2])
+                                                        value=voltagecontrolwidget[key][2],
+                                                        reset_average = self.reset_average)
             self.voltage_control_widgets.append([self.voltage_control_create.decreaseV_button,
                                                  self.voltage_control_create.voltage_display,
                                                  self.voltage_control_create.increaseV_button])
@@ -137,14 +138,6 @@ class LiveStream():
     def close_server_click(self, event):
         self.video_mode_server.stop()
 
-    def voltage_increase(self, event):
-        self.voltage_value = self.voltage_value + 1
-        self.voltage_display.value = str(self.voltage_value)
-
-    def voltage_decrease(self, event):
-        self.voltage_value = self.voltage_value - 1
-        self.voltage_display.value = str(self.voltage_value)
-
     def set_labels(self):
         xlabel = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
         ylabel = self.data_func.setpoints[1].label + ' ('+self.data_func.setpoints[1].unit + ')'
@@ -166,10 +159,11 @@ class LiveStream():
 
 
 class VoltageWidget():
-    def __init__(self, displayname, qchan, step, value):
+    def __init__(self, displayname, qchan, step, value, reset_average):
         self.qchan = qchan
         self.step = step
         self.voltage_value = value
+        self.rest_average = reset_average
         self.increaseV_button = Button(name='+', button_type='primary',
                                        width=20, align=('start', 'end'))
 
@@ -184,13 +178,14 @@ class VoltageWidget():
         self.decreaseV_button.on_click(self.voltage_decrease)
 
     def voltage_increase(self, event):
-        self.voltage_change(self.step)
+        self.voltage_change(self.step, event)
 
     def voltage_decrease(self, event):
-        self.voltage_change(-self.step)
+        self.voltage_change(-self.step, event)
 
-    def voltage_change(self, delta):
+    def voltage_change(self, delta, event):
         self.voltage_value = float(self.voltage_display.value)
         self.voltage_value = self.voltage_value + delta
         self.voltage_display.value = str(self.voltage_value)
         self.qchan.set(self.voltage_value)
+        self.rest_average(event)
