@@ -59,6 +59,19 @@ class FilterArray(ParameterWithSetpoints):
         return output
 
 
+class SpectrumNoise(ParameterWithSetpoints):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.output_filt = []
+
+    def get_raw(self):
+        spectrum = self.root_instrument.spectrum()
+        spectrum_noise = self.root_instrument.spectrum_noise()
+
+
+        return spectrum + spectrum_noise
+
+
 #Class that intialises the instrument which contains the filtered spectrum (spectrum_filt).
 class FilterInstrument(Instrument):
 
@@ -142,4 +155,11 @@ class FilterInstrument(Instrument):
                    setpoints=(self.freq_axis_x,self.freq_axis_y),
                    label='Spectrum',
                    parameter_class=FilterArray,
+                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
+        
+        self.add_parameter('spectrum_and_noise',
+                   unit='dBm',
+                   setpoints=(self.freq_axis_x,self.freq_axis_y),
+                   label='Spectrum',
+                   parameter_class=SpectrumNoise,
                    vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
