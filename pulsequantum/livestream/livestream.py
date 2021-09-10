@@ -86,6 +86,8 @@ class LiveStream():
             self.slider_value_widget.append(pn.widgets.TextInput(name=str(key),
                                             value='None'))
         self.voltage_control_widgets = []
+        self.voltage_setget = []
+        self.voltage_value_widget = []
         for key in voltagecontrolwidget.keys():
             self.voltage_control_create = VoltageWidget(displayname=key,
                                                         qchan=voltagecontrolwidget[key][0],
@@ -94,13 +96,17 @@ class LiveStream():
             self.voltage_control_widgets.append([self.voltage_control_create.decreaseV_button,
                                                  self.voltage_control_create.voltage_display,
                                                  self.voltage_control_create.increaseV_button])
+            self.voltage_setget.append(voltagecontrolwidget[key][0])
+            self.voltage_value_widget.append(pn.widgets.TextInput(name=str(key),
+                                             value='None'))
 
         self.dis()
 
     def dis(self):
-        col1 = (Row(self.measure_button, self.close_button, self.colorbar_button,self.reset_average_button,self.counter_wiget),
-                self.run_id_widget) + tuple(self.sliders)
-        col2 = tuple(self.slider_value_widget) + (self.live_checkbox,)
+        col1 = (Row(self.measure_button, self.close_button, self.colorbar_button,
+                    self.reset_average_button,self.counter_wiget),
+                self.run_id_widget)
+        col2 = tuple(self.voltage_value_widget) + (self.live_checkbox,)
         col3 = Column()
         for i in self.voltage_control_widgets:
             col3.append(Row(*tuple(i)))
@@ -118,14 +124,15 @@ class LiveStream():
 
     @gen.coroutine
     def data_grabber(self):
-        for i, func in enumerate(self.sliders_func):
+        for i, func in enumerate(self.voltage_setget):
             #func(self.sliders[i].value)
-            self.slider_value_widget[i].value = str(func.get())
+            self.voltage_value_widget[i].value = str(func.get())
         if self.live_checkbox.value:
             self.data_average()
             self.pipe.send((self.data_func.setpoints[1].get(),
                             self.data_func.setpoints[0].get(),
                             self.data))
+
     def data_average(self):
         self.counter_wiget.value = str(self.counter)
         self.data = ((self.counter-1)*self.data + self.data_func.get())/self.counter
