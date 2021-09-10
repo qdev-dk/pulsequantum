@@ -38,20 +38,21 @@ class LiveStream():
         self.pipe = Pipe(data=[])
         self.data = self.data_func.get()
         self.counter = 1.0
-        self.counter_wiget = pn.widgets.TextInput(name='counter',
-                                            value='None')
+        self.width = 100
+        self.counter_wiget = pn.widgets.TextInput(name='counter', width=self.width,
+                                                  value='None')
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
         self.image_dmap.opts(cmap='Magma', colorbar=True,
-                             width=500,
-                             height=400,
+                             width=400,
+                             height=350,
                              toolbar='above')
         self.set_colobar_scale()
         self.set_labels()
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
-                                     width=100)
+                                     width=self.width)
         self.run_id_in_text = 'None'
-        self.run_id_widget = pn.widgets.TextInput(name='run_id',
+        self.run_id_widget = pn.widgets.TextInput(name='run_id', width=self.width,
                                                   value=self.run_id_in_text)
         self.run_id_widget.force_new_dynamic_value
 
@@ -59,15 +60,15 @@ class LiveStream():
         self.plot_id_in_text = 'test'
 
         self.colorbar_button = Button(name='Reset colorbar', button_type='primary',
-                                    width=100)
+                                    width=self.width)
         self.colorbar_button.on_click(self.set_colobar_scale_event)
 
         self.close_button = Button(name='close server', button_type='primary',
-                                   width=100)
+                                   width=self.width)
         self.close_button.on_click(self.close_server_click)
 
         self.reset_average_button = Button(name='Reset average', button_type='primary',
-                                    width=100)
+                                    width=self.width)
         self.reset_average_button.on_click(self.reset_average)
 
 
@@ -86,25 +87,31 @@ class LiveStream():
                                                  self.voltage_control_create.voltage_display,
                                                  self.voltage_control_create.increaseV_button])
             self.voltage_setget.append(voltagecontrolwidget[key][0])
-            self.voltage_value_widget.append(pn.widgets.TextInput(name=str(key),
+            self.voltage_value_widget.append(pn.widgets.TextInput(name=str(key), width=self.width,
                                              value='None'))
 
         self.dis()
 
     def dis(self):
-        col1 = (Row(self.measure_button, self.close_button, self.colorbar_button,
-                    self.reset_average_button,self.counter_wiget),
-                self.run_id_widget)
-        col2 = tuple(self.voltage_value_widget) + (self.live_checkbox,)
-        col3 = Column()
+        buttons = Column(self.measure_button,
+                         self.run_id_widget,
+                         self.reset_average_button,
+                         self.counter_wiget,
+                         self.colorbar_button,
+                         self.close_button
+                         )
+
+        voltagesget = Column(*tuple(self.voltage_value_widget))
+        voltagesset = Column()
         for i in self.voltage_control_widgets:
-            col3.append(Row(*tuple(i)))
+            voltagesset.append(Row(*tuple(i)))
         self.video_mode_callback = PeriodicCallback(self.data_grabber, self.refresh_period)
-        self.gridspec = pn.GridSpec(sizing_mode='stretch_both')
-        self.gridspec[:2, :2] = self.image_dmap
-        self.gridspec[2:3, 0] = Column(*col1)
-        self.gridspec[2:3, 1] = Column(*col2)
-        self.gridspec[0, 2] = col3
+
+        self.gridspec = pn.GridSpec( width=800,
+                                     height=600,)
+        self.gridspec[:, 0] = buttons
+        self.gridspec[:, 1:3] = Column(self.image_dmap, self.live_checkbox)
+        self.gridspec[:, 3] = voltagesset + voltagesget
 
         self.video_mode_server = self.gridspec.show(port=self.port,
                                                     threaded=True)
@@ -164,6 +171,7 @@ class VoltageWidget():
         self.step = step
         self.voltage_value = value
         self.rest_average = reset_average
+        self.width = 50
         self.increaseV_button = Button(name='+', button_type='primary',
                                        width=20, align=('start', 'end'))
 
@@ -172,7 +180,7 @@ class VoltageWidget():
         self.voltage_display = pn.widgets.TextInput(name=displayname,
                                                     value=str(self.voltage_value),
                                                     align=('start', 'end'),
-                                                    disabled=False)
+                                                    disabled=False, width=self.width)
         self.decreaseV_button = Button(name='-', button_type='primary',
                                        width=20, align=('start', 'end'))
         self.decreaseV_button.on_click(self.voltage_decrease)
