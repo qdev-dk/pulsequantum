@@ -14,13 +14,13 @@ hv.extension('bokeh')
 class LiveStream():
     """
     Class for live streaming data, without saving and with the possibility
-    to add sliders/controllers
+    to add controllers
 
         Attributes
         ----------
         data_func: Function that returns the data which should be livestreamed
                    ex. alazar_channel.get
-        sliders: Dict of the form {'name': (func_set, min_value,max_value)
+        controller: Dict of the form {'name': (func_setget, step, value)
 
         Methods
         -------
@@ -29,7 +29,7 @@ class LiveStream():
 
     """
 
-    def __init__(self, data_func, sliders, voltagecontrolwidget,
+    def __init__(self, data_func, voltagecontrolwidget,
                  port=12345, refresh_period=100):
         self.voltagecontrolwidget = voltagecontrolwidget
         self.port = port
@@ -73,26 +73,14 @@ class LiveStream():
 
         self.live_checkbox = pn.widgets.Checkbox(name='live_stream')
 
-        self.slider_value_widget = []
-        self.sliders = []
-        self.sliders_func = []
-        for key in sliders.keys():
-            self.sliders_func.append(sliders[key][0])
-            self.sliders.append(pn.widgets.FloatSlider(name=str(key),
-                                                       start=sliders[key][1],
-                                                       end=sliders[key][2],
-                                                       step=sliders[key][3],
-                                                       value=sliders[key][4]))
-            self.slider_value_widget.append(pn.widgets.TextInput(name=str(key),
-                                            value='None'))
         self.voltage_control_widgets = []
         self.voltage_setget = []
         self.voltage_value_widget = []
         for key in voltagecontrolwidget.keys():
             self.voltage_control_create = VoltageWidget(displayname=key,
                                                         qchan=voltagecontrolwidget[key][0],
-                                                        step=voltagecontrolwidget[key][3],
-                                                        value=voltagecontrolwidget[key][4])
+                                                        step=voltagecontrolwidget[key][1],
+                                                        value=voltagecontrolwidget[key][2])
             self.voltage_control_widgets.append([self.voltage_control_create.decreaseV_button,
                                                  self.voltage_control_create.voltage_display,
                                                  self.voltage_control_create.increaseV_button])
@@ -125,7 +113,6 @@ class LiveStream():
     @gen.coroutine
     def data_grabber(self):
         for i, func in enumerate(self.voltage_setget):
-            #func(self.sliders[i].value)
             self.voltage_value_widget[i].value = str(func.get())
         if self.live_checkbox.value:
             self.data_average()
