@@ -85,9 +85,11 @@ class LiveStream():
                                                  step=controllers[key][1],
                                                  value=controllers[key][2],
                                                  reset_average=self.reset_average)
-            self.control_widgets.append([self.control_create.decrease_button,
+            self.control_widgets.append([self.control_create.decrease_button_big,
+                                         self.control_create.decrease_button_small,
                                          self.control_create.controle_display,
-                                         self.control_create.increase_button])
+                                         self.control_create.increase_button_small,
+                                         self.control_create.increase_button_big])
             self.control_setget.append(controllers[key][0])
             self.controle_value_widget.append(TextInput(name=str(key),
                                                         width=self.button_width,
@@ -175,28 +177,40 @@ class ControleWidget():
         self.controle_value = value
         self.rest_average = reset_average
         self.button_width = 50
-        self.increase_button = Button(name='+', button_type='primary',
-                                       width=20, align=('start', 'end'))
+        button_options = dict(button_type='primary', margin=(0, 15),
+                              width=15, align=('start', 'end'))
 
-        self.increase_button.on_click(self.controle_increase)
+        self.increase_button_big = Button(name='++', **button_options)
+        self.increase_button_small = Button(name='+', **button_options)
+
+        self.increase_button_big.on_click(self.controle_increase_big)
+        self.increase_button_small.on_click(self.controle_increase_small)
 
         self.controle_display = TextInput(name=displayname,
                                           value=str(self.controle_value),
                                           align=('start', 'end'),
-                                          disabled=False, width=self.button_width)
-        self.decrease_button = Button(name='-', button_type='primary',
-                                       width=20, align=('start', 'end'))
-        self.decrease_button.on_click(self.controle_decrease)
+                                          disabled=False, width=self.button_width,margin=(0, 15))
 
-    def controle_increase(self, event):
+        self.decrease_button_big = Button(name='- -', **button_options)
+        self.decrease_button_small = Button(name='-', **button_options)
+        self.decrease_button_big.on_click(self.controle_decrease_big)
+        self.decrease_button_small.on_click(self.controle_decrease_small)
+
+    def controle_increase_big(self, event):
         self.controle_change(self.step, event)
 
-    def controle_decrease(self, event):
+    def controle_decrease_big(self, event):
         self.controle_change(-self.step, event)
 
-    def controle_change(self, delta, event):
+    def controle_increase_small(self, event):
+        self.controle_change(self.step/10, event)
+
+    def controle_decrease_small(self, event):
+        self.controle_change(self.step/10, event)
+
+    def controle_change(self, step, event):
         self.controle_value = float(self.controle_display.value)
-        self.controle_value = self.controle_value + delta
+        self.controle_value = self.controle_value + step
         self.controle_display.value = str(self.controle_value)
         self.qchan.set(self.controle_value)
         self.rest_average(event)
