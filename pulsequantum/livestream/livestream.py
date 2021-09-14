@@ -206,7 +206,7 @@ class ControleWidget():
         self.controle_change(self.step/10, event)
 
     def controle_decrease_small(self, event):
-        self.controle_change(self.step/10, event)
+        self.controle_change(-self.step/10, event)
 
     def controle_change(self, step, event):
         self.controle_value = float(self.controle_display.value)
