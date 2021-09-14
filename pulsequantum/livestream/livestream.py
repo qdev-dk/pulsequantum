@@ -176,7 +176,7 @@ class ControleWidget():
         self.step = step
         self.controle_value = value
         self.rest_average = reset_average
-        self.button_width = 50
+        self.button_width = 100
         button_options = dict(button_type='primary', margin=(0, 15),
                               width=15, align=('start', 'end'))
 
