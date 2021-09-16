@@ -129,18 +129,15 @@ class LiveStream():
         for i, func in enumerate(self.control_setget):
             self.controle_value_widget[i].value = str(func.get())
         if self.live_checkbox.value:
-            self.data_average()
+            #self.data_average()
+            self.data = self.data_func.get()
+            self.nr_average_wiget.value = str(self.data_func.nr_average)
             self.pipe.send((self.data_func.setpoints[1].get(),
                             self.data_func.setpoints[0].get(),
                             self.data))
 
-    def data_average(self):
-        self.nr_average_wiget.value = str(self.nr_average)
-        self.data = ((self.nr_average-1)*self.data + self.data_func.get())/self.nr_average
-        self.nr_average += 1.0
-
     def reset_average(self, event):
-        self.nr_average = 1
+        self.data_func.reset_average()
 
     def measure(self, event):
         self.measure_button.loading = True
