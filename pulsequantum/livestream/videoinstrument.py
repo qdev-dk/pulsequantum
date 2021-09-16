@@ -18,25 +18,48 @@ class GeneratedSetPoints(Parameter):
 
     def get_raw(self):
         return np.linspace(self._startparam(), self._stopparam(),
-                              self._numpointsparam())
+                           self._numpointsparam())
         
 
-class AlazarVideo(ParameterWithSetpoints):
+class Video(ParameterWithSetpoints):
     
-    def __init__(self, channel, *args, **kwargs):
+    def __init__(self, data_func, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.channel = channel
+        self.data_func = data_func
 
     def get_raw(self):
 
-        return self.channel.data.get()
+        return self.data_func()
+
+
+class VideoAverage(ParameterWithSetpoints):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.nr_average = self.root_instrument.nr_average.get()
+        self.data_func = self.root_instrument.video.get
+        self.data = self.data_func()
+
+    def get_raw(self):
+        self.nr_average = self.root_instrument.nr_average.get()
+        #self.nr_average += 1.0
+        self.data = ((self.nr_average-1)*self.data + self.data_func())/self.nr_average
+        self.nr_average += 1.0
+        self.root_instrument.nr_average.set(self.nr_average)
+        
+        return self.data
+
+    def reset_average(self):
+        self.nr_average = 1
+        self.root_instrument.nr_average.set(self.nr_average)
+
 
 class VideoInstrument(Instrument):
 
-    def __init__(self, name, channel,  **kwargs):
+    def __init__(self, name, data_func, n_points,  **kwargs):
         
         super().__init__(name, **kwargs)
-        self.channel = channel
+        self.data_func = data_func
 
         self.add_parameter('V_x_start',
                            initial_value=0,
@@ -70,32 +93,16 @@ class VideoInstrument(Instrument):
                            get_cmd=None,
                            set_cmd=None)
         
-        self.add_parameter('phase_x',
-                           initial_value=0,
-                           unit='Hz',
-                           label='Phase X',
-                           vals=Numbers(0,1e3),
-                           get_cmd=None,
-                           set_cmd=None)
-        
-        self.add_parameter('phase_y',
-                           initial_value=0,
-                           unit='Hz',
-                           label='Phase Y',
-                           vals=Numbers(0,1e3),
-                           get_cmd=None,
-                           set_cmd=None) 
-
         self.add_parameter('n_pointsx',
                            unit='',
-                           initial_value=100,
+                           initial_value=n_points[0],
                            vals=Numbers(1,2e4),
                            get_cmd=None,
                            set_cmd=None)
 
         self.add_parameter('n_pointsy',
                            unit='',
-                           initial_value=100,
+                           initial_value=n_points[1],
                            vals=Numbers(1,2e4),
                            get_cmd=None,
                            set_cmd=None)
@@ -118,10 +125,25 @@ class VideoInstrument(Instrument):
                            numpointsparam=self.n_pointsy,
                            vals=Arrays(shape=(self.n_pointsy.get_latest,)))
         
-        self.add_parameter('Alazarvideo',
-                   unit='V',
-                   setpoints=(self.V_axis_x,self.V_axis_y),
-                   label='Alazar',
-                   parameter_class=AlazarVideo,
-                   channel = self.channel,
-                   vals=Arrays(shape=(self.n_pointsx.get_latest,self.n_pointsy.get_latest)))
+        self.add_parameter('video',
+                           unit='V',
+                           setpoints=(self.V_axis_x,self.V_axis_y),
+                           label='Video',
+                           parameter_class=Video,
+                           data_func = self.data_func,
+                           vals=Arrays(shape=(self.n_pointsx.get_latest,self.n_pointsy.get_latest)))
+
+        self.add_parameter('nr_average',
+                           initial_value=1,
+                           unit='Nr',
+                           label='nr_average',
+                           vals=Numbers(1,10e1000),
+                           get_cmd=None,
+                           set_cmd=None)
+
+        self.add_parameter('videoaverage',
+                           unit='V',
+                           setpoints=(self.V_axis_x,self.V_axis_y),
+                           label='VideoAverage',
+                           parameter_class=VideoAverage,
+                           vals=Arrays(shape=(self.n_pointsx.get_latest,self.n_pointsy.get_latest)))
