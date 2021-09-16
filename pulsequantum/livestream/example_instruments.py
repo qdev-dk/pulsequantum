@@ -19,8 +19,11 @@ class GeneratedSetPoints(Parameter):
         self._numpointsparam = numpointsparam
 
     def get_raw(self):
-        return np.linspace(self._startparam(), self._stopparam(),
-                              self._numpointsparam())
+        start = self.root_instrument.f_start()
+        end = self.root_instrument.f_stop()
+        npoints = self.root_instrument.n_points.get_latest()
+
+        return np.linspace(start, end, npoints)
 
 #Class that 
 class DummyArray(ParameterWithSetpoints):
@@ -39,7 +42,8 @@ class DummyArray(ParameterWithSetpoints):
 class NoiseArray(ParameterWithSetpoints):
 
     def get_raw(self):
-        output = np.asarray([np.random.rand(121) for i in range(121)])
+        npoints = self.root_instrument.n_points.get_latest()
+        output = np.asarray([np.random.rand(npoints) for i in range(npoints)])
         return output
 
 
@@ -62,14 +66,19 @@ class FilterArray(ParameterWithSetpoints):
 class SpectrumNoise(ParameterWithSetpoints):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.output_filt = []
+        self.nr_average = 1
+        self.data = self.root_instrument.spectrum()
 
     def get_raw(self):
         spectrum = self.root_instrument.spectrum()
         spectrum_noise = self.root_instrument.spectrum_noise()
-
-
         return spectrum + spectrum_noise
+
+    def get_data(self):
+        self.data = ((self.nr_average-1)*self.data + self.get_raw())/self.nr_average
+        self.nr_average += 1.0
+        
+        return self.data
 
 
 #Class that intialises the instrument which contains the filtered spectrum (spectrum_filt).
