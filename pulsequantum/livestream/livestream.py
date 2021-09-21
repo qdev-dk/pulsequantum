@@ -132,8 +132,8 @@ class LiveStream():
             #self.data_average()
             self.data = self.data_func.get()
             self.nr_average_wiget.value = str(self.data_func.nr_average)
-            self.pipe.send((self.data_func.setpoints[1].get(),
-                            self.data_func.setpoints[0].get(),
+            self.pipe.send((self.data_func.setpoints[0].get(),
+                            self.data_func.setpoints[1].get(),
                             self.data))
 
     def reset_average(self, event):
