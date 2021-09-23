@@ -6,6 +6,7 @@ from qcodes.utils.dataset.doNd import do0d
 from holoviews.streams import Pipe
 from tornado.ioloop import PeriodicCallback
 from tornado import gen
+from typing import Optional, Tuple
 
 
 hv.extension('bokeh')
@@ -29,12 +30,14 @@ class LiveStream():
 
     """
 
-    def __init__(self, data_func, controllers,
+    def __init__(self, video, controllers,
+                 dc_controllers: Optional[Tuple] = None,
                  port=0, refresh_period=100):
+        self.video = video
         self.controllers = controllers
         self.port = port
         self.refresh_period = refresh_period
-        self.data_func = data_func
+        self.data_func = video.videoaverage
         self.pipe = Pipe(data=[])
         self.data = self.data_func.get()
         self.nr_average = 1.0
@@ -79,21 +82,12 @@ class LiveStream():
         self.control_widgets = []
         self.control_setget = []
         self.controle_value_widget = []
+        self.axes =(self.video.x,self.video.y)
+        if dc_controllers:
+            for i, key in enumerate(dc_controllers.keys()):
+                self.add_controle_wiget(key, dc_controllers[key], dcWidget, self.axes[i])
         for key in controllers.keys():
-            self.control_create = ControleWidget(displayname=key,
-                                                 qchan=controllers[key][0],
-                                                 step=controllers[key][1],
-                                                 value=controllers[key][2],
-                                                 reset_average=self.reset_average)
-            self.control_widgets.append([self.control_create.decrease_button_big,
-                                         self.control_create.decrease_button_small,
-                                         self.control_create.controle_display,
-                                         self.control_create.increase_button_small,
-                                         self.control_create.increase_button_big])
-            self.control_setget.append(controllers[key][0])
-            self.controle_value_widget.append(TextInput(name=str(key),
-                                                        width=self.button_width,
-                                                        value='None'))
+            self.add_controle_wiget(key, controllers[key], ControleWidget)
 
         self.dis()
 
@@ -166,9 +160,29 @@ class LiveStream():
         cmax = self.data.max()
         self.image_dmap.opts(clim=(cmin, cmax))
 
+    def add_controle_wiget(self, name, controller, controllertype, axis=None):
+        control_create = controllertype(displayname=name,
+                                        qchan=controller[0],
+                                        step=controller[1],
+                                        value=controller[2],
+                                        reset_average=self.reset_average,
+                                        axis=axis)
+
+        self.control_widgets.append([control_create.decrease_button_big,
+                                     control_create.decrease_button_small,
+                                     control_create.controle_display,
+                                     control_create.increase_button_small,
+                                     control_create.increase_button_big])
+            
+        self.control_setget.append(controller[0])
+        self.controle_value_widget.append(TextInput(name=name,
+                                                    width=self.button_width,
+                                                    value='None'))
+
 
 class ControleWidget():
-    def __init__(self, displayname, qchan, step, value, reset_average):
+    def __init__(self, displayname, qchan, step, value, reset_average, axis,
+                 *args, **kwargs):
         self.qchan = qchan
         self.step = step
         self.controle_value = value
@@ -211,3 +225,23 @@ class ControleWidget():
         self.controle_display.value = str(self.controle_value)
         self.qchan.set(self.controle_value)
         self.rest_average(event)
+
+
+class dcWidget(ControleWidget):
+    def __init__(self, displayname, qchan,
+                 step, value, reset_average, axis,
+                 *args, **kwargs):
+        super().__init__(displayname, qchan, step,
+                         value, reset_average, axis=None,
+                         *args, **kwargs)
+        self.axis = axis
+
+    def controle_change(self, step, event):
+        self.controle_value = float(self.controle_display.value)
+        self.controle_value = self.controle_value + step
+        self.controle_display.value = str(self.controle_value)
+        self.qchan.set(self.controle_value)
+        self.axis.V_dc.set(self.qchan.get())
+        self.axis.V_axis.reset()
+        self.rest_average(event)
+
