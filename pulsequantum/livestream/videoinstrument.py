@@ -34,10 +34,15 @@ class Video(ParameterWithSetpoints):
     def __init__(self, data_func, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data_func = data_func
-
+        self.nr_average = 1
+        
     def get_raw(self):
 
         return self.data_func()
+
+    def reset_average(self):
+        self.nr_average = 1
+        self.root_instrument.nr_average.set(self.nr_average)
 
 
 class VideoAverage(ParameterWithSetpoints):
@@ -52,6 +57,32 @@ class VideoAverage(ParameterWithSetpoints):
         self.nr_average = self.root_instrument.nr_average.get()
         self.data = ((self.nr_average-1)*self.data + self.data_func())/self.nr_average
         self.nr_average += 1.0
+        self.root_instrument.nr_average.set(self.nr_average)
+        return self.data
+
+    def reset_average(self):
+        self.nr_average = 1
+        self.root_instrument.nr_average.set(self.nr_average)
+
+class VideoRunnigAverage(ParameterWithSetpoints):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #self.nr_average = self.root_instrument.nr_average.get()
+        self.max_average = 20
+        self.data_func = self.root_instrument.video.get
+        self.data_array = []
+        self.data = self.data_func()
+
+    def get_raw(self):
+        self.nr_average = self.root_instrument.nr_average.get()
+        self.data_array.append(self.data_func())
+        if self.nr_average < self.max_average:
+            self.data = ((self.nr_average-1)*self.data + self.data_array[-1])/self.nr_average
+            self.nr_average += 1.0
+        else:
+            self.data = self.data + (self.data_array[-1] - self.data_array[0])/self.max_average
+            self.data_array = self.data_array[-self.max_average:]
         self.root_instrument.nr_average.set(self.nr_average)
         return self.data
 
@@ -93,6 +124,13 @@ class VideoInstrument(Instrument):
                            setpoints=(self.x.V_axis,self.y.V_axis),
                            label='VideoAverage',
                            parameter_class=VideoAverage,
+                           vals=Arrays(shape=(self.x.n_points.get_latest,self.y.n_points.get_latest)))
+
+        self.add_parameter('videorunningaverage',
+                           unit='V',
+                           setpoints=(self.x.V_axis,self.y.V_axis),
+                           label='VideoAverage',
+                           parameter_class=VideoRunnigAverage,
                            vals=Arrays(shape=(self.x.n_points.get_latest,self.y.n_points.get_latest)))
 
             

@@ -1,6 +1,7 @@
 import holoviews as hv
+from panel import Tabs
 from panel import GridSpec
-from panel.widgets import Button, TextInput, Checkbox
+from panel.widgets import Button, TextInput, Checkbox, Select
 from panel import Row, Column
 from qcodes.utils.dataset.doNd import do0d
 from holoviews.streams import Pipe
@@ -37,7 +38,10 @@ class LiveStream():
         self.controllers = controllers
         self.port = port
         self.refresh_period = refresh_period
-        self.data_func = video.videoaverage
+        #self.data_func = video.videoaverage
+        self.data_func = video.videorunningaverage
+
+            
         self.pipe = Pipe(data=[])
         self.data = self.data_func.get()
         self.nr_average = 1.0
@@ -77,7 +81,20 @@ class LiveStream():
                                            width=self.button_width)
         self.reset_average_button.on_click(self.reset_average)
 
+        self.average = Select(name='Average', options=['Off', 'Continues', 'Running'])
+     
+
+        self.set_average = Button(name='Set Average', button_type='primary',
+                                   width=self.button_width)
+        self.set_average.on_click(self.set_data_func)
+        self.max_average_text = TextInput(name='max # number of averages',
+                                          value=str(self.video.videorunningaverage.max_average),
+                                          align=('start', 'end'),
+                                          disabled=False, width=self.button_width,margin=(0, 15))
+
+
         self.live_checkbox = Checkbox(name='live_stream')
+        self.auto_colobar_scale = Checkbox(name='auto_colobar_scale')
 
         self.control_widgets = []
         self.control_setget = []
@@ -110,11 +127,11 @@ class LiveStream():
         self.gridspec = GridSpec(width=800,
                                  height=600)
         self.gridspec[:, 0] = buttons
-        self.gridspec[:, 1:3] = Column(self.image_dmap, self.live_checkbox)
+        self.gridspec[:, 1:3] = Column(self.image_dmap, Row(self.live_checkbox,self.auto_colobar_scale),self.average,self.set_average,self.max_average_text)
         self.gridspec[:, 3] = controlersset + controlersget
 
-        self.video_mode_server = self.gridspec.show(port=self.port,
-                                                    threaded=True)
+        self.video_mode_server = Tabs(('Video',self.gridspec),('Settings',self.average)).show(port=self.port,
+                                                                 threaded=True)
 
         self.video_mode_callback.start()
 
@@ -123,9 +140,10 @@ class LiveStream():
         for i, func in enumerate(self.control_setget):
             self.controle_value_widget[i].value = str(func.get())
         if self.live_checkbox.value:
-            #self.data_average()
+            #self.set_data_func()
+            self.auto_set_collorbar()
             self.data = self.data_func.get()
-            self.nr_average_wiget.value = str(self.data_func.nr_average)
+            self.nr_average_wiget.value = str(self.data_func.root_instrument.nr_average.get())
             self.pipe.send((self.data_func.setpoints[0].get(),
                             self.data_func.setpoints[1].get(),
                             self.data))
@@ -155,6 +173,9 @@ class LiveStream():
         self.set_colobar_scale()
         self.colorbar_button.loading = False
 
+    def auto_set_collorbar(self):
+        if self.auto_colobar_scale.value:
+            self.set_colobar_scale()
     def set_colobar_scale(self):
         cmin = self.data.min()
         cmax = self.data.max()
@@ -178,6 +199,18 @@ class LiveStream():
         self.controle_value_widget.append(TextInput(name=name,
                                                     width=self.button_width,
                                                     value='None'))
+
+    def set_data_func(self, event):
+        if self.average.value == 'Running':
+            self.video.videorunningaverage.max_average = int(self.max_average_text.value)
+            self.data_func = self.video.videorunningaverage
+            self.data_func.reset_average()
+        elif self.average.value == 'Continues':
+            self.data_func = self.video.videoaverage
+            self.data_func.reset_average()
+        else:
+            self.data_func = self.video.video
+            self.data_func.reset_average()
 
 
 class ControleWidget():
@@ -244,4 +277,6 @@ class dcWidget(ControleWidget):
         self.axis.V_dc.set(self.qchan.get())
         self.axis.V_axis.reset()
         self.rest_average(event)
+
+
 
