@@ -143,9 +143,10 @@ class LiveStream():
             #self.set_data_func()
             self.auto_set_collorbar()
             self.data = self.data_func.get()
+            #self.tjek_ekstrims()
             self.nr_average_wiget.value = str(self.data_func.root_instrument.nr_average.get())
-            self.pipe.send((self.data_func.setpoints[0].get(),
-                            self.data_func.setpoints[1].get(),
+            self.pipe.send((self.data_func.setpoints[1].get(),
+                            self.data_func.setpoints[0].get(),
                             self.data))
 
     def reset_average(self, event):
@@ -161,8 +162,8 @@ class LiveStream():
         self.video_mode_server.stop()
 
     def set_labels(self):
-        xlabel = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
-        ylabel = self.data_func.setpoints[1].label + ' ('+self.data_func.setpoints[1].unit + ')'
+        xlabel = self.data_func.setpoints[1].label + ' ('+self.data_func.setpoints[1].unit + ')'
+        ylabel = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
         clabel = self.data_func.label + ' (' + self.data_func.unit + ')'
         self.image_dmap.opts(xlabel=xlabel,
                              ylabel=ylabel,

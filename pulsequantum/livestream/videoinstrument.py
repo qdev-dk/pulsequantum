@@ -99,17 +99,17 @@ class VideoInstrument(Instrument):
         self.data_func = data_func
         
         # Add the channel to the instrument
-        for i, dim in enumerate(['x', 'y']):
+        for i, dim in enumerate(['y', 'x']):
             channel = VideoAxes(self, dim, dim, n_points[i])
             self.add_submodule(dim, channel)
      
         self.add_parameter('video',
                            unit='V',
-                           setpoints=(self.x.V_axis,self.y.V_axis),
+                           setpoints=(self.y.V_axis, self.x.V_axis),
                            label='Video',
                            parameter_class=Video,
                            data_func = self.data_func,
-                           vals=Arrays(shape=(self.x.n_points.get_latest,self.y.n_points.get_latest)))
+                           vals=Arrays(shape=(self.y.n_points.get_latest,self.x.n_points.get_latest)))
 
         self.add_parameter('nr_average',
                            initial_value=1,
@@ -121,17 +121,17 @@ class VideoInstrument(Instrument):
 
         self.add_parameter('videoaverage',
                            unit='V',
-                           setpoints=(self.x.V_axis,self.y.V_axis),
+                           setpoints=(self.y.V_axis,self.x.V_axis),
                            label='VideoAverage',
                            parameter_class=VideoAverage,
-                           vals=Arrays(shape=(self.x.n_points.get_latest,self.y.n_points.get_latest)))
+                           vals=Arrays(shape=(self.y.n_points.get_latest,self.x.n_points.get_latest)))
 
         self.add_parameter('videorunningaverage',
                            unit='V',
-                           setpoints=(self.x.V_axis,self.y.V_axis),
+                           setpoints=(self.y.V_axis,self.x.V_axis),
                            label='VideoAverage',
                            parameter_class=VideoRunnigAverage,
-                           vals=Arrays(shape=(self.x.n_points.get_latest,self.y.n_points.get_latest)))
+                           vals=Arrays(shape=(self.y.n_points.get_latest,self.x.n_points.get_latest)))
 
             
 class VideoAxes(InstrumentChannel):
