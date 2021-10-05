@@ -9,7 +9,8 @@ from tornado.ioloop import PeriodicCallback
 from tornado import gen
 from typing import Optional, Tuple
 from pulsequantum.livestream.plotsettings import PlotSettings
-
+from pulsequantum.livestream.alazarsettings import AlazarSettings
+from pulsequantum.livestream.sweepsettings import SweepSettings
 hv.extension('bokeh')
 
 
@@ -64,6 +65,9 @@ class LiveStream():
 
         self.set_colobar_scale()
         self.set_labels()
+        self.sweepsettings = SweepSettings()
+        self.alazarsettings = AlazarSettings()
+
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=self.button_width)
         self.measure_button.on_click(self.measure)
@@ -145,6 +149,8 @@ class LiveStream():
         self.video_mode_server = Tabs(('Video', self.gridspec),
                                       ('Plot Settings', Row(self.plotsettings,
                                                        self.bound_plotsettings)),
+                                      ('Sweep settings', self.sweepsettings),
+                                      ('Alazar settings', self.alazarsettings),
                                       dynamic=True).show(port=self.port,
                                                          threaded=True)
 
