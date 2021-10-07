@@ -1,5 +1,6 @@
 import param
 from panel import Column
+from panel.widgets import Button
 
 class AlazarSettings(param.Parameterized):
     clock_source = param.ObjectSelector(objects=['INTERNAL_CLOCK', 'FAST_EXTERNAL_CLOCK', 'EXTERNAL_CLOCK_10MHz_REF'])
