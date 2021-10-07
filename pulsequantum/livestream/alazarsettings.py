@@ -88,7 +88,7 @@ class AlazarConfig():
         self.get_button.on_click(self.get_settings)
         self.col = Column(self.settings, self.get_button, self.set_button)
 
-    def config(self):
+    def config(self, event):
         """
         function for config of alazar
         """
@@ -111,14 +111,14 @@ class AlazarConfig():
             self.alazar.trigger_delay(self.settings.trigger_delay)
             self.alazar.timeout_ticks(self.settings.timeout_ticks)
             if self.settings:
-                self.alazar.aux_io_mode('AUX_IN_TRIGGER_ENABLE') 
-                self.alazar.aux_io_param('TRIG_SLOPE_POSITIVE') 
+                self.alazar.aux_io_mode('AUX_IN_TRIGGER_ENABLE')
+                self.alazar.aux_io_param('TRIG_SLOPE_POSITIVE')
             else:
-                self.alazar.aux_io_mode('AUX_IN_TRIGGER_ENABLE') 
-                self.alazar.aux_io_param('TRIG_SLOPE_POSITIVE') 
+                self.alazar.aux_io_mode('AUX_IN_TRIGGER_ENABLE')
+                self.alazar.aux_io_param('TRIG_SLOPE_POSITIVE')
 
-    def get_settings(self):
-        self.settings.clock_source = self.alazar.clock_source()    
+    def get_settings(self, event):
+        self.settings.clock_source = self.alazar.clock_source()
         self.settings.external_sample_rate = self.alazar.external_sample_rate()
         self.settings.clock_edge = self.alazar.clock_edge()
         self.settings.decimation = self.alazar.decimation()
