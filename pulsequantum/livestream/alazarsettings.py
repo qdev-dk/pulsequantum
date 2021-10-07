@@ -1,9 +1,33 @@
 import param
-
+from panel import Column
 
 class AlazarSettings(param.Parameterized):
     clock_source = param.ObjectSelector(objects=['INTERNAL_CLOCK', 'FAST_EXTERNAL_CLOCK', 'EXTERNAL_CLOCK_10MHz_REF'])
-    sample_rate =
+    sample_rate = param.ObjectSelector(objects=[1000,
+                                                2000,
+                                                5000,
+                                                10000,
+                                                20000,
+                                                50000,
+                                                100000,
+                                                200000,
+                                                500000,
+                                                1000000,
+                                                2000000,
+                                                5000000,
+                                                10000000,
+                                                20000000,
+                                                50000000,
+                                                100000000,
+                                                200000000,
+                                                500000000,
+                                                800000000,
+                                                1000000000,
+                                                1200000000,
+                                                1500000000,
+                                                1800000000,
+                                                'EXTERNAL_CLOCK',
+                                                'UNDEFINED'])
     coupling1 = param.ObjectSelector(objects=['DC', 'AC'])
     coupling2 = param.ObjectSelector(objects=['DC', 'AC'])
 
@@ -56,6 +80,12 @@ class AlazarConfig():
 
         self.alazar = alazar
         self.settings = AlazarSettings()
+        self.get_settings()
+        self.set_button = Button(name='set', button_type='primary')
+        self.set_button.on_click(self.config)
+        self.get_button = Button(name='get', button_type='primary')
+        self.get_button.on_click(self.get_settings)
+        self.col = Column(self.settings, self.get_button, self.set_button)
 
     def config(self):
         """
