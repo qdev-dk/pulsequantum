@@ -47,7 +47,7 @@ class AlazarChannelConfig():
     def get_settings(self):
         self.settings.int_delay = self.controler.int_delay()
         self.settings.int_time = self.controler.int_time()
-        self.settings.sample_per_records = self.controler.sample_per_records()
+        self.settings.samples_per_record = self.controler.samples_per_record()
 
         self.settings.alzar_channel = self.channel.alazar_channel()
         self.settings.buffers_per_acquisition = self.channel.buffers_per_acquisition()
