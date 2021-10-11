@@ -34,12 +34,17 @@ class LiveStream():
 
     def __init__(self, video, controllers,
                  dc_controllers: Optional[Tuple] = None,
-                 port=0, refresh_period=100):
+                 port=0, refresh_period=100,
+                 alazar=None,
+                 acontroller=None,
+                 achabbel=None
+                 ):
         self.video = video
         self.controllers = controllers
         self.port = port
         self.refresh_period = refresh_period
         self.data_func = video.videorunningaverage
+        self.alazar = alazar
 
         self.pipe = Pipe(data=[])
         self.data = self.data_func.get()
@@ -66,7 +71,8 @@ class LiveStream():
         self.set_colobar_scale()
         self.set_labels()
         self.sweepsettings = SweepSettings()
-        self.alazarsettings = AlazarSettings()
+        if self.alazar:
+            self.alazarsettings = AlazarSettings(self.alazar)
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=self.button_width)
@@ -145,12 +151,13 @@ class LiveStream():
                                        self.set_average,
                                        self.max_average_text)
         self.gridspec[:, 3] = controlersset + controlersget
-
-        self.video_mode_server = Tabs(('Video', self.gridspec),
-                                      ('Plot Settings', Row(self.plotsettings,
-                                                       self.bound_plotsettings)),
-                                      ('Sweep settings', self.sweepsettings),
-                                      ('Alazar settings', self.alazarsettings),
+        self.dis_tabs = [('Video', self.gridspec),
+                    ('Plot Settings', Row(self.plotsettings, self.bound_plotsettings)),
+                    ('Sweep settings', self.sweepsettings),
+                    ]
+        if self.alazar:
+            self.dis_tabs.append(('Alazar settings', self.alazarsettings))
+        self.video_mode_server = Tabs(*self.dis_tabs,
                                       dynamic=True).show(port=self.port,
                                                          threaded=True)
 
