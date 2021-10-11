@@ -3,7 +3,7 @@ from panel import Column
 from panel.widgets import Button
 
 
-class AlazarChannel(param.Parameterized):
+class AlazarChannelSettings(param.Parameterized):
     int_delay = param.Number(0, precedence=0)
     int_time = param.Number(4e-6, precedence=1)
     samples_per_record = param.Integer(200)
@@ -18,8 +18,8 @@ class AlazarChannelConfig():
     def __init__(self, controler, channel):
 
         self.controler = controler
-        self.channel == channel
-        self.settings = AlazarChannel()
+        self.channel = channel
+        self.settings = AlazarChannelSettings()
         self.get_settings()
         self.set_button = Button(name='set', button_type='primary')
         self.set_button.on_click(self.config_event)
