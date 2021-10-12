@@ -9,7 +9,8 @@ from tornado.ioloop import PeriodicCallback
 from tornado import gen
 from typing import Optional, Tuple
 from pulsequantum.livestream.plotsettings import PlotSettings
-from pulsequantum.livestream.alazarsettings import AlazarSettings
+from pulsequantum.livestream.alazarsettings import AlazarConfig
+from pulsequantum.livestream.alazarchansettings import AlazarChannelConfig
 from pulsequantum.livestream.sweepsettings import SweepSettings
 hv.extension('bokeh')
 
@@ -37,7 +38,7 @@ class LiveStream():
                  port=0, refresh_period=100,
                  alazar=None,
                  acontroller=None,
-                 achabbel=None
+                 achannel=None
                  ):
         self.video = video
         self.controllers = controllers
@@ -45,6 +46,8 @@ class LiveStream():
         self.refresh_period = refresh_period
         self.data_func = video.videorunningaverage
         self.alazar = alazar
+        self.acontroller = acontroller
+        self.achannel = achannel
 
         self.pipe = Pipe(data=[])
         self.data = self.data_func.get()
@@ -72,7 +75,9 @@ class LiveStream():
         self.set_labels()
         self.sweepsettings = SweepSettings()
         if self.alazar:
-            self.alazarsettings = AlazarSettings(self.alazar)
+            self.alazarsettings = AlazarConfig(self.alazar)
+        if self.achannel and self.acontroller:
+            self.alazarchansettings = AlazarChannelConfig(controler=self.acontroller, channel=self.achannel)
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=self.button_width)
@@ -156,7 +161,11 @@ class LiveStream():
                     ('Sweep settings', self.sweepsettings),
                     ]
         if self.alazar:
-            self.dis_tabs.append(('Alazar settings', self.alazarsettings))
+            self.dis_tabs.append(('Alazar settings', self.alazarsettings.col))
+            
+        if self.achannel and self.acontroller:
+            self.dis_tabs.append(('Alazar Channel', self.alazarchansettings.col))
+
         self.video_mode_server = Tabs(*self.dis_tabs,
                                       dynamic=True).show(port=self.port,
                                                          threaded=True)
