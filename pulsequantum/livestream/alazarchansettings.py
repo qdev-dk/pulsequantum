@@ -15,10 +15,11 @@ class AlazarChannelSettings(param.Parameterized):
 
 class AlazarChannelConfig():
 
-    def __init__(self, controller, channel):
+    def __init__(self, controller, channel, aktion):
 
         self.controller = controller
         self.channel = channel
+        self.aktion = aktion
         self.settings = AlazarChannelSettings()
         self.get_settings()
         self.set_button = Button(name='set', button_type='primary')
@@ -40,6 +41,7 @@ class AlazarChannelConfig():
         self.channel.num_averages.set(self.settings.num_averages)
         self.channel.records_per_buffer.set(self.settings.records_per_buffer)
         self.channel.prepare_channel()
+        self.aktion()
 
     def get_settings_event(self, event):
         self.get_settings()
