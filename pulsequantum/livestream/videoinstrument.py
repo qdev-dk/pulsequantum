@@ -133,6 +133,10 @@ class VideoInstrument(Instrument):
                            parameter_class=VideoRunnigAverage,
                            vals=Arrays(shape=(self.y.n_points.get_latest,self.x.n_points.get_latest)))
 
+    def update_n_points(self, nry, nrx):
+        self.y.n_points.set(nry)
+        self.x.n_points.set(nrx)
+
             
 class VideoAxes(InstrumentChannel):
     def __init__(self, parent: Instrument, name: str, channel: str, n_points,  **kwargs):
