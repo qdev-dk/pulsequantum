@@ -10,6 +10,8 @@ from pulsequantum.livestream.livestream import LiveStream
 from qcodes import initialise_or_create_database_at, \
     load_or_create_experiment
 from pulsequantum.livestream.videoinstrument import VideoInstrument
+from qcodes.utils.dataset.doNd import do0d
+from qcodes.dataset.data_set import load_by_id
 
 @pytest.fixture
 def source_db_path(tmp_path):
@@ -42,6 +44,12 @@ def video(test_instrument):
     yield video
     video.close()
 
+@pytest.fixture
+def test_SC(video):
+    station = qc.Station()
+    station.add_component(video)
+    yield station
+
 @pytest.fixture(scope="function")
 def live(test_instrument, video):
 
@@ -63,6 +71,15 @@ def test_livestream(live):
 
 
 
-def test_nr_average(source_db, set_up_station,video):
-    assert 1 == 1
+def test_nr_average(source_db, set_up_station,video, test_SC,live):
+    video.videoaverage.reset_average()
+    data = do0d(video.videoaverage)
+    blabla =load_by_id(data[0].run_id)
+    assert blabla.snapshot['station']['instruments']['video']['parameters']['nr_average']['value'] == 1
+    data = do0d(video.videoaverage)
+    blabla =load_by_id(data[0].run_id)
+    assert blabla.snapshot['station']['instruments']['video']['parameters']['nr_average']['value'] == 2
+    live.measure(event=True)
+    assert int(live.run_id_widget.value) == 3
+    
 

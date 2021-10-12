@@ -7,7 +7,7 @@ qdac.reset()
 
 
 
-class Qdac2Controler:
+class Qdac2controller:
 
     def __init__(self, qdac, mode,
                  v_fast_start, v_fast_end, npoints_fast,

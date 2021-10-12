@@ -77,7 +77,7 @@ class LiveStream():
         if self.alazar:
             self.alazarsettings = AlazarConfig(self.alazar)
         if self.achannel and self.acontroller:
-            self.alazarchansettings = AlazarChannelConfig(controler=self.acontroller, channel=self.achannel)
+            self.alazarchansettings = AlazarChannelConfig(controller=self.acontroller, channel=self.achannel)
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=self.button_width)
@@ -139,10 +139,10 @@ class LiveStream():
                          self.close_button
                          )
 
-        controlersget = Column(*tuple(self.controle_value_widget))
-        controlersset = Column()
+        controllersget = Column(*tuple(self.controle_value_widget))
+        controllersset = Column()
         for i in self.control_widgets:
-            controlersset.append(Row(*tuple(i)))
+            controllersset.append(Row(*tuple(i)))
         self.video_mode_callback = PeriodicCallback(self.data_grabber,
                                                     self.refresh_period)
 
@@ -155,7 +155,7 @@ class LiveStream():
                                        self.average,
                                        self.set_average,
                                        self.max_average_text)
-        self.gridspec[:, 3] = controlersset + controlersget
+        self.gridspec[:, 3] = controllersset + controllersget
         self.dis_tabs = [('Video', self.gridspec),
                     ('Plot Settings', Row(self.plotsettings, self.bound_plotsettings)),
                     ('Sweep settings', self.sweepsettings),

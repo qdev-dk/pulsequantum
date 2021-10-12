@@ -14,22 +14,19 @@ class GeneratedSetPoints(Parameter):
     """
     def __init__(self, startparam, stopparam, numpointsparam, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._startparam = startparam
-        self._stopparam = stopparam
-        self._numpointsparam = numpointsparam
+        self._startparam = startparam.get()
+        self._stopparam = stopparam.get()
+        self._numpointsparam = numpointsparam.get()
 
     def get_raw(self):
-        start = self.root_instrument.f_start()
-        end = self.root_instrument.f_stop()
-        npoints = self.root_instrument.n_points.get_latest()
 
-        return np.linspace(start, end, npoints)
+
+        return np.linspace(self._startparam, self._stopparam , self._numpointsparam)
 
 #Class that 
 class DummyArray(ParameterWithSetpoints):
 
     def get_raw(self):
-        npoints = self.root_instrument.n_points.get_latest()
         ls_x = self.root_instrument.freq_axis_x.get()
         ls_y = self.root_instrument.freq_axis_y.get()
         phase_x = self.root_instrument.phase_x.get()
@@ -42,8 +39,9 @@ class DummyArray(ParameterWithSetpoints):
 class NoiseArray(ParameterWithSetpoints):
 
     def get_raw(self):
-        npoints = self.root_instrument.n_points.get_latest()
-        output = np.asarray([np.random.rand(npoints) for i in range(npoints)])
+        npointsx = self.root_instrument.n_pointsx.get_latest()
+        npointsy = self.root_instrument.n_pointsy.get_latest()
+        output = np.asarray([np.random.rand(npointsx) for i in range(npointsy)])
         return output
 
 
@@ -120,12 +118,19 @@ class FilterInstrument(Instrument):
                            get_cmd=None,
                            set_cmd=None) 
 
-        self.add_parameter('n_points',
+        self.add_parameter('n_pointsx',
                            unit='',
-                           initial_value=121,
-                           vals=Numbers(1,1e3),
+                           initial_value=2208,
+                           vals=Numbers(1,1e6),
                            get_cmd=None,
                            set_cmd=None)
+
+        self.add_parameter('n_pointsy',
+                           unit='',
+                           initial_value=40,
+                           vals=Numbers(1,1e6),
+                           get_cmd=None,
+                           set_cmd=None)                           
 
         self.add_parameter('freq_axis_x',
                            unit='Hz',
@@ -133,8 +138,8 @@ class FilterInstrument(Instrument):
                            parameter_class=GeneratedSetPoints,
                            startparam=self.f_start,
                            stopparam=self.f_stop,
-                           numpointsparam=self.n_points,
-                           vals=Arrays(shape=(self.n_points.get_latest,)))
+                           numpointsparam=self.n_pointsx,
+                           vals=Arrays(shape=(self.n_pointsx.get_latest,)))
         
         self.add_parameter('freq_axis_y',
                            unit='Hz',
@@ -142,33 +147,33 @@ class FilterInstrument(Instrument):
                            parameter_class=GeneratedSetPoints,
                            startparam=self.f_start,
                            stopparam=self.f_stop,
-                           numpointsparam=self.n_points,
-                           vals=Arrays(shape=(self.n_points.get_latest,)))
+                           numpointsparam=self.n_pointsy,
+                           vals=Arrays(shape=(self.n_pointsy.get_latest,)))
         
         self.add_parameter('spectrum',
                    unit='dBm',
-                   setpoints=(self.freq_axis_x,self.freq_axis_y),
+                   setpoints=(self.freq_axis_y,self.freq_axis_x),
                    label='Spectrum',
                    parameter_class=DummyArray,
-                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
+                   vals=Arrays(shape=(self.n_pointsy.get_latest,self.n_pointsx.get_latest)))
                    
         self.add_parameter('spectrum_noise',
                    unit='dBm',
-                   setpoints=(self.freq_axis_x,self.freq_axis_y),
+                   setpoints=(self.freq_axis_y, self.freq_axis_x),
                    label='Spectrum',
                    parameter_class=NoiseArray,
-                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
+                   vals=Arrays(shape=(self.n_pointsy.get_latest, self.n_pointsx.get_latest)))
 
         self.add_parameter('spectrum_filt',
                    unit='dBm',
-                   setpoints=(self.freq_axis_x,self.freq_axis_y),
+                   setpoints=(self.freq_axis_y,self.freq_axis_x),
                    label='Spectrum',
                    parameter_class=FilterArray,
-                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
+                   vals=Arrays(shape=(self.n_pointsy.get_latest,self.n_pointsx.get_latest)))
         
         self.add_parameter('spectrum_and_noise',
                    unit='dBm',
-                   setpoints=(self.freq_axis_x,self.freq_axis_y),
+                   setpoints=(self.freq_axis_y,self.freq_axis_x),
                    label='Spectrum',
                    parameter_class=SpectrumNoise,
-                   vals=Arrays(shape=(self.n_points.get_latest,self.n_points.get_latest)))
+                   vals=Arrays(shape=(self.n_pointsy.get_latest,self.n_pointsx.get_latest)))
