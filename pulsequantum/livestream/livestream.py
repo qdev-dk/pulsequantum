@@ -35,19 +35,14 @@ class LiveStream():
 
     def __init__(self, video, controllers,
                  dc_controllers: Optional[Tuple] = None,
-                 port=0, refresh_period=100,
-                 alazar=None,
-                 acontroller=None,
-                 achannel=None
+                 port=0, refresh_period=100
                  ):
         self.video = video
         self.controllers = controllers
         self.port = port
         self.refresh_period = refresh_period
         self.data_func = video.videorunningaverage
-        self.alazar = alazar
-        self.acontroller = acontroller
-        self.achannel = achannel
+
 
         self.pipe = Pipe(data=[])
         self.data = self.data_func.get()
@@ -74,10 +69,6 @@ class LiveStream():
         self.set_colobar_scale()
         self.set_labels()
         self.sweepsettings = SweepSettings()
-        if self.alazar:
-            self.alazarsettings = AlazarConfig(self.alazar)
-        if self.achannel and self.acontroller:
-            self.alazarchansettings = AlazarChannelConfig(controller=self.acontroller, channel=self.achannel)
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=self.button_width)
@@ -160,11 +151,10 @@ class LiveStream():
                     ('Plot Settings', Row(self.plotsettings, self.bound_plotsettings)),
                     ('Sweep settings', self.sweepsettings),
                     ]
-        if self.alazar:
-            self.dis_tabs.append(('Alazar settings', self.alazarsettings.col))
-            
-        if self.achannel and self.acontroller:
-            self.dis_tabs.append(('Alazar Channel', self.alazarchansettings.col))
+
+        if self.video.dis_tabs:
+            self.dis_tabs += self.video.dis_tabs
+
 
         self.video_mode_server = Tabs(*self.dis_tabs,
                                       dynamic=True).show(port=self.port,
