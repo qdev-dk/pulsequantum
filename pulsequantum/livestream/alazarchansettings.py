@@ -7,7 +7,7 @@ class AlazarChannelSettings(param.Parameterized):
     int_delay = param.Number(0, precedence=0)
     int_time = param.Number(4e-6, precedence=1)
     samples_per_record = param.Integer(200)
-    alazar_channel = param.ObjectSelector(objects=['A', 'B'])
+    alazar_channel = param.ObjectSelector(default='A', objects=['A', 'B'])
     buffers_per_acquisition = param.Integer(23)
     num_averages = param.Integer(23)
     records_per_buffer = param.Integer(23)
@@ -36,12 +36,14 @@ class AlazarChannelConfig():
         self.controller.int_time.set(self.settings.int_time)
         # self.controller.sample_per_records.set(self.settings.sample_per_records)
 
-        self.channel.alzar_channel.set(self.settings.alazar_channel)
-        self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
+        self.channel.alazar_channel.set(self.settings.alazar_channel)
+        #self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
         self.channel.num_averages.set(self.settings.num_averages)
         self.channel.records_per_buffer.set(self.settings.records_per_buffer)
         self.channel.prepare_channel()
-        self.aktion()
+        self.get_settings()
+        self.aktion(self.settings.records_per_buffer,
+                    self.settings.samples_per_record)
 
     def get_settings_event(self, event):
         self.get_settings()
@@ -51,7 +53,7 @@ class AlazarChannelConfig():
         self.settings.int_time = self.controller.int_time()
         self.settings.samples_per_record = self.controller.samples_per_record()
 
-        self.settings.alzar_channel = self.channel.alazar_channel()
+        self.settings.alzar_channel = self.channel.alazar_channel() 
         self.settings.buffers_per_acquisition = self.channel.buffers_per_acquisition()
         self.settings.num_averages = self.channel.num_averages()
         self.settings.records_per_buffer = self.channel.records_per_buffer()

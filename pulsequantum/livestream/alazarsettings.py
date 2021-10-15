@@ -77,9 +77,10 @@ class AlazarSettings(param.Parameterized):
 
 class AlazarConfig():
 
-    def __init__(self, alazar):
+    def __init__(self, alazar, aktion):
 
         self.alazar = alazar
+        self.aktion = aktion
         self.settings = AlazarSettings()
         self.get_settings()
         self.set_button = Button(name='set', button_type='primary')
@@ -97,7 +98,7 @@ class AlazarConfig():
         """
         with self.alazar.syncing():
             self.alazar.clock_source(self.settings.clock_source)    
-            self.alazar.external_sample_rate(self.settings.external_sample_rate)
+            self.alazar.sample_rate(self.settings.sample_rate)
             self.alazar.clock_edge(self.settings.clock_edge)
             self.alazar.decimation(self.settings.decimation)
             self.alazar.coupling1(self.settings.coupling1)
@@ -119,13 +120,15 @@ class AlazarConfig():
             else:
                 self.alazar.aux_io_mode('AUX_IN_TRIGGER_ENABLE')
                 self.alazar.aux_io_param('TRIG_SLOPE_POSITIVE')
+        self.get_settings()
+        self.aktion()
 
     def get_settings_event(self, event):
         self.get_settings()
 
     def get_settings(self):
         self.settings.clock_source = self.alazar.clock_source()
-        self.settings.external_sample_rate = self.alazar.external_sample_rate()
+        self.settings.sample_rate = self.alazar.sample_rate()
         self.settings.clock_edge = self.alazar.clock_edge()
         self.settings.decimation = self.alazar.decimation()
         self.settings.coupling1 = self.alazar.coupling1()
