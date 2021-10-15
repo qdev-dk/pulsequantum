@@ -55,6 +55,8 @@ class VideoAverage(ParameterWithSetpoints):
 
     def get_raw(self):
         self.nr_average = self.root_instrument.nr_average.get()
+        if self.nr_average == 1:
+            self.data = self.data_func()
         self.data = ((self.nr_average-1)*self.data + self.data_func())/self.nr_average
         self.nr_average += 1.0
         self.root_instrument.nr_average.set(self.nr_average)
@@ -76,6 +78,9 @@ class VideoRunnigAverage(ParameterWithSetpoints):
 
     def get_raw(self):
         self.nr_average = self.root_instrument.nr_average.get()
+        if self.nr_average == 1:
+            self.data_array = []
+            self.data = self.data_func()
         self.data_array.append(self.data_func())
         if self.nr_average < self.max_average:
             self.data = ((self.nr_average-1)*self.data + self.data_array[-1])/self.nr_average
@@ -97,6 +102,7 @@ class VideoInstrument(Instrument):
 
         super().__init__(name, **kwargs)
         self.data_func = data_func
+        self.dis_tabs = None
         
         # Add the channel to the instrument
         for i, dim in enumerate(['y', 'x']):
@@ -136,6 +142,9 @@ class VideoInstrument(Instrument):
     def update_n_points(self, nry, nrx):
         self.y.n_points.set(nry)
         self.x.n_points.set(nrx)
+        self.y.V_axis.reset()
+        self.x.V_axis.reset()
+        self.nr_average.set(1)
 
             
 class VideoAxes(InstrumentChannel):
