@@ -322,4 +322,5 @@ def plotter(obj_to_plot: BBObject, **forger_kwargs) -> None:
                     titlestring += '\u21b1{}'.format(seq_info['goto'])
 
                 ax.set_title(titlestring)
+    plt.close(fig)
     return fig

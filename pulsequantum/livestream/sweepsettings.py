@@ -1,4 +1,5 @@
 from broadbean import sequence
+from pulsequantum.livestream.seqplot import plotter
 import param
 from panel import Column, Row, pane
 from panel.widgets import Button
@@ -31,8 +32,8 @@ class SweepConfig():
         self.get_button = Button(name='get', button_type='primary')
         self.get_button.on_click(self.get_settings_event)
         self.config()
-        self.fig = self.sequencebuilder.seq.plot()
-        self.figpane = pane.Matplotlib(self.fig, dpi=144)
+        #self.fig = self.sequencebuilder.seq.plot()
+        self.figpane = pane.Matplotlib(plotter(self.sequencebuilder.seq.get()), dpi=144)
         self.col = Row(Column(self.settings, self.get_button, self.set_button),self.figpane)
 
     def config_event(self, event):
@@ -49,8 +50,9 @@ class SweepConfig():
         self.sequencebuilder.fast_time.set(self.settings.fast_time)
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
         self.sequencebuilder.sweep_pulse()
-        self.fig = self.sequencebuilder.seq.plot()
-        self.figpane = pane.Matplotlib(self.fig, dpi=144)
+        #self.fig = self.sequencebuilder.seq.plot()
+        self.figpane = pane.Matplotlib(plotter(self.sequencebuilder.seq.get()), dpi=144)
+        self.col = Row(Column(self.settings, self.get_button, self.set_button),self.figpane)
 
         self.get_settings()
         #self.aktion()
