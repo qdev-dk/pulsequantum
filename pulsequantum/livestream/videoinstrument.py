@@ -51,7 +51,7 @@ class VideoAverage(ParameterWithSetpoints):
         super().__init__(*args, **kwargs)
         #self.nr_average = self.root_instrument.nr_average.get()
         self.data_func = self.root_instrument.video.get
-        self.data = self.data_func()
+        #self.data = self.data_func()
 
     def get_raw(self):
         self.nr_average = self.root_instrument.nr_average.get()
@@ -74,7 +74,7 @@ class VideoRunnigAverage(ParameterWithSetpoints):
         self.max_average = 20
         self.data_func = self.root_instrument.video.get
         self.data_array = []
-        self.data = self.data_func()
+        #self.data = self.data_func()
 
     def get_raw(self):
         self.nr_average = self.root_instrument.nr_average.get()

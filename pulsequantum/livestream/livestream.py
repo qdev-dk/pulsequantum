@@ -11,7 +11,7 @@ from typing import Optional, Tuple
 from pulsequantum.livestream.plotsettings import PlotSettings
 from pulsequantum.livestream.alazarsettings import AlazarConfig
 from pulsequantum.livestream.alazarchansettings import AlazarChannelConfig
-from pulsequantum.livestream.sweepsettings import SweepSettings
+from pulsequantum.livestream.sweepsettings import SweepConfig
 hv.extension('bokeh')
 
 
@@ -35,7 +35,8 @@ class LiveStream():
 
     def __init__(self, video, controllers,
                  dc_controllers: Optional[Tuple] = None,
-                 port=0, refresh_period=100
+                 port=0, refresh_period=100,
+                 awg = None
                  ):
         self.video = video
         self.controllers = controllers
@@ -45,7 +46,7 @@ class LiveStream():
 
 
         self.pipe = Pipe(data=[])
-        self.data = self.data_func.get()
+        #self.data = self.data_func.get()
         self.nr_average = 1.0
         self.button_width = 100
         self.nr_average_wiget = TextInput(name='nr_average',
@@ -66,9 +67,9 @@ class LiveStream():
                                        cmin=self.plotsettings.param.c_min,
                                        cmax=self.plotsettings.param.c_max)
 
-        self.set_colobar_scale()
+        #self.set_colobar_scale()
         self.set_labels()
-        self.sweepsettings = SweepSettings()
+        self.sweepsettings = SweepConfig(aktion=None,awg=awg)
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=self.button_width)
@@ -149,7 +150,7 @@ class LiveStream():
         self.gridspec[:, 3] = controllersset + controllersget
         self.dis_tabs = [('Video', self.gridspec),
                     ('Plot Settings', Row(self.plotsettings, self.bound_plotsettings)),
-                    ('Sweep settings', self.sweepsettings),
+                    ('Sweep settings', self.sweepsettings.col),
                     ]
 
         if self.video.dis_tabs:
