@@ -12,6 +12,7 @@ from pulsequantum.livestream.plotsettings import PlotSettings
 from pulsequantum.livestream.alazarsettings import AlazarConfig
 from pulsequantum.livestream.alazarchansettings import AlazarChannelConfig
 from pulsequantum.livestream.sweepsettings import SweepConfig
+from numpy import zeros
 hv.extension('bokeh')
 
 
@@ -46,6 +47,7 @@ class LiveStream():
 
 
         self.pipe = Pipe(data=[])
+        self.data = zeros((self.video.y.n_points(),self.video.x.n_points()))
         #self.data = self.data_func.get()
         self.nr_average = 1.0
         self.button_width = 100
@@ -69,7 +71,7 @@ class LiveStream():
 
         #self.set_colobar_scale()
         self.set_labels()
-        self.sweepsettings = SweepConfig(aktion=None,awg=awg)
+        self.sweepsettings = SweepConfig(video=self.video, awg=awg,)
 
         self.measure_button = Button(name='Mesaure', button_type='primary',
                                      width=self.button_width)

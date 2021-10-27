@@ -4,8 +4,8 @@ from qcodes import validators as vals
 from sequencebuilder.back_of_beans import BagOfBeans
 
 
-
-ramp = bb.PulseAtoms.ramp 
+ramp = bb.PulseAtoms.ramp  # args: start, stop
+sine = bb.PulseAtoms.sine  # args: freq, ampl, off, phase
 
 
 
@@ -92,7 +92,6 @@ class SequenceBuilder(BagOfBeans):
                             set_cmd=None
                             )
 
-
     def sweep_pulse(self):
         self.seq.empty_sequence()
         fast_time = self.fast_time.get()
@@ -118,4 +117,130 @@ class SequenceBuilder(BagOfBeans):
         self.seq.seq.addElement(1,elem)
         self.seq.seq.setSR(24*10/fast_time)
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
-     
+
+    def sweep_sine(self):
+        self.seq.empty_sequence()
+        fast_time = self.fast_time.get()
+        amplitude = self.fast_range.get()
+        freq = 1.0/fast_time
+        range_slow = self.slow_range.get()
+        v_slow = -range_slow/2
+        nr_steps = self.slow_steps.get()
+        nr_steps_fast = nr_steps
+        delta_slow = range_slow/(nr_steps+1)
+        marker_duration = 2e-5
+        
+        seg_sines = bb.BluePrint()
+        seg_one_sine = bb.BluePrint()
+        seg_step = bb.BluePrint()
+        seg_one_sine.insertSegment(0, sine, (freq, amplitude/2.0, 0, -np.pi/2), dur=fast_time)
+
+        marker_times = np.arccos(np.linspace(-1, 1, nr_steps_fast+1))*fast_time/(2*np.pi)
+
+        for i in range(nr_steps):
+            seg_step.insertSegment(i, ramp, (v_slow, v_slow), dur=fast_time)
+            v_slow += delta_slow
+            if i == 0:
+                seg_sines = seg_one_sine
+                seg_step.setSegmentMarker('ramp',(0,fast_time),1)
+                for time in marker_times:
+                    seg_sines.marker1.append((time, marker_duration))
+
+            else:
+                seg_sines = seg_sines + seg_one_sine
+            for time in marker_times:
+                seg_sines.marker1.append((time+fast_time*i,marker_duration))
+
+        seg_sines.setSR(24*10/fast_time)
+        seg_step.setSR(24*10/fast_time)
+        elem = bb.Element()
+        elem.addBluePrint(self.fast_channel.get(), seg_sines)
+        elem.addBluePrint(self.slow_channel.get(), seg_step)
+        self.seq.seq.addElement(1,elem)
+        self.seq.seq.setSR(24*10/fast_time)
+        self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
+
+    def sweep_sineupdown(self):
+        self.seq.empty_sequence()
+        fast_time = self.fast_time.get()
+        amplitude = self.fast_range.get()
+        freq = 1.0/fast_time
+        range_slow = self.slow_range.get()/2.0
+        v_slow = -range_slow/2
+        nr_steps = self.slow_steps.get()
+        nr_steps_fast = nr_steps
+        delta_slow = 2*range_slow/(nr_steps+1)
+        marker_duration = 2e-5
+        
+        seg_sines = bb.BluePrint()
+        seg_one_sine = bb.BluePrint()
+        seg_step = bb.BluePrint()
+        seg_one_sine.insertSegment(0, sine, (freq, amplitude, 0, -np.pi/2), dur=fast_time)
+
+        marker_times_up = np.arccos(np.linspace(-1, 1, nr_steps_fast+1))*fast_time/(2*np.pi)
+        marker_times_down = marker_times_up + fast_time/2
+        marker_times = np.append(marker_times_up[1:], marker_times_down[1:])
+
+        for i in range(nr_steps):
+            seg_step.insertSegment(i*2, ramp, (v_slow, v_slow), dur=fast_time/2)
+            v_slow += delta_slow
+            seg_step.insertSegment(i*2+1, ramp, (v_slow, v_slow), dur=fast_time/2)
+            v_slow += delta_slow
+            if i == 0:
+                seg_sines = seg_one_sine
+                seg_step.setSegmentMarker('ramp',(0,fast_time/2),1)
+                for time in marker_times:
+                    seg_sines.marker1.append((time,marker_duration))
+
+            else:
+                seg_sines = seg_sines + seg_one_sine
+            for time in marker_times:
+                seg_sines.marker1.append((time+fast_time*i,marker_duration))
+
+        seg_sines.setSR(24*10/fast_time)
+        seg_step.setSR(24*10/fast_time)
+        elem = bb.Element()
+        elem.addBluePrint(self.fast_channel.get(), seg_sines)
+        elem.addBluePrint(self.slow_channel.get(), seg_step)
+        self.seq.seq.addElement(1,elem)
+        self.seq.seq.setSR(24*10/fast_time)
+        self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
+
+    def sweep_sineone(self):
+        self.seq.empty_sequence()
+        fast_time = 2*self.fast_time.get()
+        amplitude = self.fast_range.get()
+        freq = 1.0/fast_time
+        range_slow = self.slow_range.get()
+        v_slow = -range_slow/2
+        nr_steps = self.slow_steps.get()
+        nr_steps_fast = nr_steps
+        delta_slow = range_slow/(nr_steps+1)
+        marker_duration = 2e-5
+        
+        seg_sines = bb.BluePrint()
+        seg_one_sine = bb.BluePrint()
+        seg_step = bb.BluePrint()
+        seg_one_sine.insertSegment(0, sine, (freq, amplitude/2.0, 0, -np.pi/2), dur=fast_time)
+
+        marker_times = np.arccos(np.linspace(-1, 1, nr_steps_fast+1))*fast_time/(2*np.pi)
+
+        for i in range(nr_steps):
+            seg_step.insertSegment(i, ramp, (v_slow, v_slow), dur=fast_time)
+            v_slow += delta_slow
+            seg_sines.insertSegment(i, sine,  (freq, amplitude/2.0, 0, -np.pi/2), dur=fast_time)
+
+            if i == 0:
+                seg_sines.setSegmentMarker('sine',(0,fast_time/2),1)
+                seg_step.setSegmentMarker('ramp',(0,fast_time),1)
+            else:
+                 seg_sines.setSegmentMarker(f'sine{i+1}',(0,fast_time/2),1)
+
+        seg_sines.setSR(24*10/fast_time)
+        seg_step.setSR(24*10/fast_time)
+        elem = bb.Element()
+        elem.addBluePrint(self.fast_channel.get(), seg_sines)
+        elem.addBluePrint(self.slow_channel.get(), seg_step)
+        self.seq.seq.addElement(1,elem)
+        self.seq.seq.setSR(24*10/fast_time)
+        self.seq.seq.setSequencingNumberOfRepetitions(1, 0)

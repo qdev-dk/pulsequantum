@@ -8,7 +8,7 @@ from pulsequantum.livestream.sweepintrument import SequenceBuilder
 
 class SweepSettings(param.Parameterized):
 
-    scan_options = param.ObjectSelector(objects=['Steps', 'Triangular', 'Sinusoidal'])
+    scan_options = param.ObjectSelector(default="Steps", objects=['Steps', 'Triangular', 'Sinusoidal', 'SinusidalOneTri'])
     fast_channel = param.Integer(1)
     slow_channel = param.Integer(2)
     fast_range = param.Parameter(default=3e-2, doc="x range")
@@ -23,9 +23,9 @@ class SweepSettings(param.Parameterized):
 
 class SweepConfig():
 
-    def __init__(self, aktion, awg=None):
+    def __init__(self, video, awg=None):
         self.sequencebuilder = AWGController('ThisName',awg=awg)
-        self.aktion = aktion
+        self.video = video
         self.settings = SweepSettings()
         #self.get_settings()
         self.set_button = Button(name='set', button_type='primary')
@@ -54,12 +54,20 @@ class SweepConfig():
         self.sequencebuilder.slow_range.set(self.settings.slow_range)
         self.sequencebuilder.fast_time.set(self.settings.fast_time)
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
-        self.sequencebuilder.sweep_pulse()
+        if self.settings.scan_options  == 'Steps':
+            self.sequencebuilder.sweep_pulse()
+        elif self.settings.scan_options == 'Sinusoidal':
+            self.sequencebuilder.sweep_sine()
+        elif self.settings.scan_options == 'SinusidalOneTri':
+            self.sequencebuilder.sweep_sineone()
+            
+                        
         self.fig = plotter(self.sequencebuilder.seq.get())
         self.figpane.object = self.fig
         #self.col = Row(Column(self.settings, self.get_button, self.set_button),self.plotpane())
 
         self.get_settings()
+        self.update_video()
         #self.aktion()
 
     def get_settings_event(self, event):
@@ -72,6 +80,11 @@ class SweepConfig():
         self.settings.slow_range = self.sequencebuilder.slow_range()
         self.settings.fast_time = self.sequencebuilder.fast_time()
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
+
+    def update_video(self):
+        self.video.alazarchansettings.settings.int_time = self.settings.fast_time*0.98 
+        self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
+        self.video.alazarchansettings.config()
 
     def upload_event(self, event):
         self.sequencebuilder.uploadToAWG()
