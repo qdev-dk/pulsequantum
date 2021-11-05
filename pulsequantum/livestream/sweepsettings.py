@@ -17,6 +17,7 @@ class SweepSettings(param.Parameterized):
     y_dc_offecet = param.Parameter(default=0, doc="y dc offecet")
     fast_time = param.Parameter(default=3e-3, doc="x time")
     slow_steps = param.Parameter(default=40, doc="y steps")
+    marker_duration = param.Parameter(default=1e-5, doc="marker duration")
 
 
 
@@ -54,6 +55,7 @@ class SweepConfig():
         self.sequencebuilder.slow_range.set(self.settings.slow_range)
         self.sequencebuilder.fast_time.set(self.settings.fast_time)
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
+        self.sequencebuilder.marker_duration.set(self.settings.marker_duration)
         if self.settings.scan_options  == 'Steps':
             self.sequencebuilder.sweep_pulse()
         elif self.settings.scan_options == 'Sinusoidal':

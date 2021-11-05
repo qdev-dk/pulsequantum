@@ -27,6 +27,8 @@ class SequenceBuilder(BagOfBeans):
             time for the slow sweep
         slow_steps: int
             time for the slow sweep
+        marker_duration: float
+            duration of marker
         marker_offset : float
             releative offset with respect to the readout_time
         SR: float
@@ -68,17 +70,22 @@ class SequenceBuilder(BagOfBeans):
                       label='Fast Time',
                       unit='s',
                       set_cmd= lambda x : x,
-                      vals=vals.Numbers(0,1.e-2))
+                      vals=vals.Numbers(0,1))
         self.add_parameter('slow_steps',
                       label='Number of slow steps',
                       unit='Nr',
                       set_cmd= lambda x : x,
                       vals=vals.Ints(0,100))
+        self.add_parameter('marker_duration',
+                      label='Marker duration',
+                      unit='s',
+                      set_cmd= lambda x : x,
+                      vals=vals.Numbers(0,1))
         self.add_parameter('marker_offset',
                       label='Marker Offset',
                       unit='s',
                       set_cmd= lambda x : x,
-                      vals=vals.Numbers(-1e-5,1e-5))
+                      vals=vals.Numbers(-1e-1,1e-1))
         for i in range(number_read_freqs):
             self.add_parameter('readout_freq_{}'.format(i+1),
                         label='Readout Frequency {}'.format(i+1),
@@ -94,6 +101,7 @@ class SequenceBuilder(BagOfBeans):
 
     def sweep_pulse(self):
         self.seq.empty_sequence()
+        marker_duration = self.marker_duration.get()
         fast_time = self.fast_time.get()
         delta_fast = self.fast_range.get()/2.0
         delta_slow = self.slow_range.get()/2.0
@@ -104,10 +112,10 @@ class SequenceBuilder(BagOfBeans):
             seg_ramp.insertSegment(i, ramp, (-delta_fast, delta_fast), dur=fast_time)
             seg_step.insertSegment(i, ramp, (v, v), dur=fast_time)
             if i == 0:
-                seg_step.setSegmentMarker('ramp',(0,fast_time/2),1)
-                seg_ramp.setSegmentMarker('ramp',(0,fast_time/2),1)
-            else:             
-                seg_ramp.setSegmentMarker(f'ramp{i+1}',(0,fast_time/2),1)
+                seg_step.setSegmentMarker('ramp', (0, marker_duration), 1)
+                seg_ramp.setSegmentMarker('ramp', (0, marker_duration), 1)
+            else:
+                seg_ramp.setSegmentMarker(f'ramp{i+1}', (0, marker_duration), 1)
 
         seg_ramp.setSR(24*10/fast_time)
         seg_step.setSR(24*10/fast_time)
@@ -120,6 +128,7 @@ class SequenceBuilder(BagOfBeans):
 
     def sweep_sine(self):
         self.seq.empty_sequence()
+        marker_duration = self.marker_duration.get()
         fast_time = self.fast_time.get()
         amplitude = self.fast_range.get()
         freq = 1.0/fast_time
@@ -128,14 +137,14 @@ class SequenceBuilder(BagOfBeans):
         nr_steps = self.slow_steps.get()
         nr_steps_fast = nr_steps
         delta_slow = range_slow/(nr_steps+1)
-        marker_duration = 2e-5
+        
         
         seg_sines = bb.BluePrint()
         seg_one_sine = bb.BluePrint()
         seg_step = bb.BluePrint()
         seg_one_sine.insertSegment(0, sine, (freq, amplitude/2.0, 0, -np.pi/2), dur=fast_time)
 
-        marker_times = np.arccos(np.linspace(-1, 1, nr_steps_fast+1))*fast_time/(2*np.pi)
+        marker_times = np.arccos(np.linspace(-1, 1, nr_steps_fast))*fast_time/(2*np.pi)
 
         for i in range(nr_steps):
             seg_step.insertSegment(i, ramp, (v_slow, v_slow), dur=fast_time)
@@ -161,6 +170,7 @@ class SequenceBuilder(BagOfBeans):
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
 
     def sweep_sineupdown(self):
+        marker_duration = self.marker_duration.get()
         self.seq.empty_sequence()
         fast_time = self.fast_time.get()
         amplitude = self.fast_range.get()
@@ -208,6 +218,7 @@ class SequenceBuilder(BagOfBeans):
 
     def sweep_sineone(self):
         self.seq.empty_sequence()
+        marker_duration = self.marker_duration.get()
         fast_time = 2*self.fast_time.get()
         amplitude = self.fast_range.get()
         freq = 1.0/fast_time
@@ -216,7 +227,6 @@ class SequenceBuilder(BagOfBeans):
         nr_steps = self.slow_steps.get()
         nr_steps_fast = nr_steps
         delta_slow = range_slow/(nr_steps+1)
-        marker_duration = 2e-5
         
         seg_sines = bb.BluePrint()
         seg_one_sine = bb.BluePrint()
@@ -231,10 +241,10 @@ class SequenceBuilder(BagOfBeans):
             seg_sines.insertSegment(i, sine,  (freq, amplitude/2.0, 0, -np.pi/2), dur=fast_time)
 
             if i == 0:
-                seg_sines.setSegmentMarker('sine',(0,fast_time/2),1)
-                seg_step.setSegmentMarker('ramp',(0,fast_time),1)
+                seg_sines.setSegmentMarker('sine',(0,marker_duration),1)
+                seg_step.setSegmentMarker('ramp',(0,marker_duration),1)
             else:
-                 seg_sines.setSegmentMarker(f'sine{i+1}',(0,fast_time/2),1)
+                 seg_sines.setSegmentMarker(f'sine{i+1}',(0,marker_duration),1)
 
         seg_sines.setSR(24*10/fast_time)
         seg_step.setSR(24*10/fast_time)
