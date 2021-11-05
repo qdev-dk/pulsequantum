@@ -11,6 +11,7 @@ class AlazarChannelSettings(param.Parameterized):
     buffers_per_acquisition = param.Integer(23)
     num_averages = param.Integer(23)
     records_per_buffer = param.Integer(23)
+    integrate_samples= param.Boolean(False, doc="Intergrade Samples")
 
 
 class AlazarChannelConfig():
@@ -37,13 +38,17 @@ class AlazarChannelConfig():
         # self.controller.sample_per_records.set(self.settings.sample_per_records)
 
         self.channel.alazar_channel.set(self.settings.alazar_channel)
-        #self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
+        self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
         self.channel.num_averages.set(self.settings.num_averages)
         self.channel.records_per_buffer.set(self.settings.records_per_buffer)
         self.channel.prepare_channel()
         self.get_settings()
-        self.aktion(self.settings.records_per_buffer,
-                    self.settings.samples_per_record)
+        if self.settings.integrate_samples:
+            self.aktion(self.settings.records_per_buffer,
+                        self.settings.buffers_per_acquisition)
+        else:
+            self.aktion(self.settings.records_per_buffer,
+                        self.settings.samples_per_record)
 
     def get_settings_event(self, event):
         self.get_settings()
