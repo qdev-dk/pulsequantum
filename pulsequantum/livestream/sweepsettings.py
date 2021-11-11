@@ -88,6 +88,7 @@ class SweepConfig():
         self.video.alazarchansettings.settings.int_time = self.settings.fast_time*0.98 
         self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
         if self.settings.scan_options == 'Sinusoidal':
+            self.video.alazarchansettings.settings.buffers_per_acquisition = self.settings.slow_steps
             self.video.alazarchansettings.settings.integrate_samples = True
             self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
         self.video.alazarchansettings.config()
