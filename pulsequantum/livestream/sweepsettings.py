@@ -82,10 +82,14 @@ class SweepConfig():
         self.settings.slow_range = self.sequencebuilder.slow_range()
         self.settings.fast_time = self.sequencebuilder.fast_time()
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
+        self.settings.marker_duration = self.sequencebuilder.marker_duration()
 
     def update_video(self):
         self.video.alazarchansettings.settings.int_time = self.settings.fast_time*0.98 
         self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
+        if self.settings.scan_options == 'Sinusoidal':
+            self.video.alazarchansettings.settings.integrate_samples = True
+            self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
         self.video.alazarchansettings.config()
 
     def upload_event(self, event):

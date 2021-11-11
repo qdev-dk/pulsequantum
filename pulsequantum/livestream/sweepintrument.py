@@ -128,7 +128,6 @@ class SequenceBuilder(BagOfBeans):
 
     def sweep_sine(self):
         self.seq.empty_sequence()
-        marker_duration = self.marker_duration.get()
         fast_time = self.fast_time.get()
         amplitude = self.fast_range.get()
         freq = 1.0/fast_time
@@ -137,14 +136,19 @@ class SequenceBuilder(BagOfBeans):
         nr_steps = self.slow_steps.get()
         nr_steps_fast = nr_steps
         delta_slow = range_slow/(nr_steps+1)
-        
-        
+        SR = 2400/fast_time
         seg_sines = bb.BluePrint()
         seg_one_sine = bb.BluePrint()
         seg_step = bb.BluePrint()
         seg_one_sine.insertSegment(0, sine, (freq, amplitude/2.0, 0, -np.pi/2), dur=fast_time)
 
         marker_times = np.arccos(np.linspace(-1, 1, nr_steps_fast))*fast_time/(2*np.pi)
+        marker_times.sort()
+        marker_duration_max = np.diff(marker_times).min()/2
+        if self.marker_duration.get() > marker_duration_max:
+            self.marker_duration.set(marker_duration_max)
+        marker_duration = self.marker_duration.get()
+
 
         for i in range(nr_steps):
             seg_step.insertSegment(i, ramp, (v_slow, v_slow), dur=fast_time)
@@ -160,8 +164,8 @@ class SequenceBuilder(BagOfBeans):
             for time in marker_times:
                 seg_sines.marker1.append((time+fast_time*i,marker_duration))
 
-        seg_sines.setSR(24*10/fast_time)
-        seg_step.setSR(24*10/fast_time)
+        seg_sines.setSR(SR)
+        seg_step.setSR(SR)
         elem = bb.Element()
         elem.addBluePrint(self.fast_channel.get(), seg_sines)
         elem.addBluePrint(self.slow_channel.get(), seg_step)
