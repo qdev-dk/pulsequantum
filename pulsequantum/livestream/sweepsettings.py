@@ -148,7 +148,7 @@ class AWGController(SequenceBuilder):
                 self.awg.channels[chan-1].setSequenceTrack('sequence_from_gui', i+1)
                 self.awg.channels[chan-1].state(1)
             print("Sequence uploaded in %s seconds" %(time.time()-start_time))
- 
+
         else:
             print('Choose an AWG model')
 
@@ -161,7 +161,13 @@ class AWGController(SequenceBuilder):
                     chan_state(1)
                 else:
                     chan_state(0)
-            self.awg.run()
+            
+            if self.awg.get_state()=='Idle':
+                self.awg.run()
+                print("AWGs Running")
+            elif self.awg.get_state()=='Running':
+                self.awg.stop()
+                print("AWGs Stopped")
         else:
             seq_chan = self.seq.get().channels
             for i, chan in enumerate(self.awg.channels):
@@ -169,4 +175,12 @@ class AWGController(SequenceBuilder):
                     chan.state(1)
                 else:
                     chan.state(0)
-            self.awg.play()
+            
+            if self.awg.run_state() == 'Running':
+                self.awg.stop()
+                print(self.awg.run_state())
+            elif self.awg.run_state() == 'Waiting for trigger':
+                print(self.awg.run_state())
+            else:
+                self.awg.play()
+                print(self.awg.run_state())
