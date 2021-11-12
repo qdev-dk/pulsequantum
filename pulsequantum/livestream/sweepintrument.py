@@ -125,6 +125,7 @@ class SequenceBuilder(BagOfBeans):
         self.seq.seq.addElement(1,elem)
         self.seq.seq.setSR(24*10/fast_time)
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
+        self.seq.set_all_channel_amplitude_offset(amplitude=1, offset=0)
 
     def sweep_sine(self):
         self.seq.empty_sequence()
