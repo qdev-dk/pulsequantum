@@ -45,7 +45,6 @@ class LiveStream():
         self.refresh_period = refresh_period
         self.data_func = video.videorunningaverage
 
-
         self.pipe = Pipe(data=[])
         self.data = zeros((self.video.y.n_points(),self.video.x.n_points()))
         #self.data = self.data_func.get()
@@ -157,7 +156,6 @@ class LiveStream():
 
         if self.video.dis_tabs:
             self.dis_tabs += self.video.dis_tabs
-
 
         self.video_mode_server = Tabs(*self.dis_tabs,
                                       dynamic=True).show(port=self.port,

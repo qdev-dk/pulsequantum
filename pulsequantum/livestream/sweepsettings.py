@@ -154,6 +154,13 @@ class AWGController(SequenceBuilder):
 
     def runAWG(self):
         if '5014' in str(self.awg.__class__):
+            seq_chan = self.seq.get().channels
+            for i in range(1, 5):
+                chan_state = getattr(self.awg, f'ch{i}_state')
+                if i in seq_chan:
+                    chan_state(1)
+                else:
+                    chan_state(0)
             self.awg.run()
         else:
             seq_chan = self.seq.get().channels
