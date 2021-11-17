@@ -25,7 +25,7 @@ class SweepSettings(param.Parameterized):
 class SweepConfig():
 
     def __init__(self, video, awg=None):
-        self.sequencebuilder = AWGController('ThisName',awg=awg)
+        self.sequencebuilder = AWGController(f'awg{video.name}',awg=awg)
         self.video = video
         self.settings = SweepSettings()
         #self.get_settings()
@@ -121,6 +121,7 @@ class AWGController(SequenceBuilder):
             self.awg.ch2_amp(awg_amp[1])
             self.awg.ch3_amp(awg_amp[2])
             self.awg.ch4_amp(awg_amp[3])
+            self.seq.seq.setSR(1000000000)
             package = self.seq.get().outputForAWGFile()
             start_time = time.time()
             self.awg.make_send_and_load_awg_file(*package[:])
@@ -134,7 +135,6 @@ class AWGController(SequenceBuilder):
                 self.seq.get().setChannelAmplitude(chan, self.awg.channels[chan-1].awg_amplitude())
             self.awg.clearSequenceList()
             self.awg.clearWaveformList()
-            self.awg.sample_rate(self.seq.get().SR)
             self.awg.sample_rate(self.seq.get().SR)
             
             seqx_input = self.seq.get().outputForSEQXFile()
