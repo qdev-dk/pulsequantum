@@ -117,11 +117,11 @@ class AWGController(SequenceBuilder):
         if '5014' in str(self.awg.__class__):
             #for i,  chan in enumerate(self.seq.get().channels):
             #    self.awg.channels[chan].AMP(float(chbox[chan-1].text()))
-            self.awg.ch1_amp(awg_amp[0])
-            self.awg.ch2_amp(awg_amp[1])
-            self.awg.ch3_amp(awg_amp[2])
-            self.awg.ch4_amp(awg_amp[3])
-            self.seq.seq.setSR(1000000000)
+            self.awg.ch1_amp(4.5)
+            self.awg.ch2_amp(4.5)
+            self.awg.ch3_amp(4.5)
+            self.awg.ch4_amp(4.5)
+            self.seq.seq.setSR(1.2e9)
             package = self.seq.get().outputForAWGFile()
             start_time = time.time()
             self.awg.make_send_and_load_awg_file(*package[:])
