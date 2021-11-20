@@ -98,6 +98,11 @@ class SequenceBuilder(BagOfBeans):
                             get_cmd=None,
                             set_cmd=None
                             )
+        self.add_parameter('delay_time',
+                      label='Delay time',
+                      unit='s',
+                      set_cmd= lambda x : x,
+                      vals=vals.Numbers(0,1))   
 
     def sweep_pulse(self):
         self.seq.empty_sequence()
@@ -126,6 +131,40 @@ class SequenceBuilder(BagOfBeans):
         self.seq.seq.setSR(24*10/fast_time)
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
         self.seq.set_all_channel_amplitude_offset(amplitude=1, offset=0)
+
+    def sweep_pulse_pause(self):
+        self.seq.empty_sequence()
+        marker_duration = self.marker_duration.get()
+        fast_time = self.fast_time.get() + self.delay_time.get()
+        delay_time = self.delay_time.get()
+        t_time = self.fast_time.get()
+        delta_fast = self.fast_range.get()/2.0
+        delta_slow = self.slow_range.get()/2.0
+        steps = np.linspace(-delta_slow, delta_slow, self.slow_steps.get())
+        seg_ramp = bb.BluePrint()
+        seg_step = bb.BluePrint()
+        for i, v in enumerate(steps):
+            for j in range(1):
+                seg_ramp.insertSegment(j, ramp, (-delta_fast, delta_fast), dur=t_time)
+                seg_ramp.insertSegment(j+1, ramp, (-delta_fast, -delta_fast), dur=delay_time)
+            seg_step.insertSegment(i, ramp, (v, v), dur=fast_time)
+            if i == 0:
+                seg_step.setSegmentMarker('ramp', (0, marker_duration), 1)
+                seg_ramp.setSegmentMarker('ramp', (0, marker_duration), 1)
+            else:
+                seg_ramp.setSegmentMarker(f'ramp{i+1}', (0, marker_duration), 1)
+            
+
+        seg_ramp.setSR(24*10/fast_time)
+        seg_step.setSR(24*10/fast_time)
+        elem = bb.Element()
+        elem.addBluePrint(self.fast_channel.get(), seg_ramp)
+        elem.addBluePrint(self.slow_channel.get(), seg_step)
+        self.seq.seq.addElement(1,elem)
+        self.seq.seq.setSR(24*10/fast_time)
+        self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
+        self.seq.set_all_channel_amplitude_offset(amplitude=1, offset=0)
+
 
     def sweep_sine(self):
         self.seq.empty_sequence()

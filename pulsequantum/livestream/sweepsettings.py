@@ -8,7 +8,7 @@ from pulsequantum.livestream.sweepintrument import SequenceBuilder
 
 class SweepSettings(param.Parameterized):
 
-    scan_options = param.ObjectSelector(default="Steps", objects=['Steps', 'Triangular', 'Sinusoidal', 'SinusidalOneTri'])
+    scan_options = param.ObjectSelector(default="Steps", objects=['Steps', 'Triangular', 'Sinusoidal', 'SinusidalOneTri','StepsDelay'])
     fast_channel = param.Integer(1)
     slow_channel = param.Integer(2)
     fast_range = param.Parameter(default=3e-2, doc="x range")
@@ -18,6 +18,7 @@ class SweepSettings(param.Parameterized):
     fast_time = param.Parameter(default=3e-3, doc="x time")
     slow_steps = param.Parameter(default=40, doc="y steps")
     marker_duration = param.Parameter(default=1e-5, doc="marker duration")
+    delay_time = param.Parameter(default=1e-4,doc="delay time")
 
 
 
@@ -56,12 +57,15 @@ class SweepConfig():
         self.sequencebuilder.fast_time.set(self.settings.fast_time)
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
         self.sequencebuilder.marker_duration.set(self.settings.marker_duration)
+        self.sequencebuilder.delay_time.set(self.settings.delay_time)
         if self.settings.scan_options  == 'Steps':
             self.sequencebuilder.sweep_pulse()
         elif self.settings.scan_options == 'Sinusoidal':
             self.sequencebuilder.sweep_sine()
         elif self.settings.scan_options == 'SinusidalOneTri':
             self.sequencebuilder.sweep_sineone()
+        elif self.settings.scan_options == 'StepsDelay':
+            self.sequencebuilder.sweep_pulse_pause()
             
                         
         self.fig = plotter(self.sequencebuilder.seq.get())
@@ -83,15 +87,19 @@ class SweepConfig():
         self.settings.fast_time = self.sequencebuilder.fast_time()
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
         self.settings.marker_duration = self.sequencebuilder.marker_duration()
+        self.settings.delay_time = self.sequencebuilder.delay_time()
 
     def update_video(self):
-        self.video.alazarchansettings.settings.int_time = self.settings.fast_time*0.98 
-        self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
-        if self.settings.scan_options == 'Sinusoidal':
-            self.video.alazarchansettings.settings.buffers_per_acquisition = self.settings.slow_steps
-            self.video.alazarchansettings.settings.integrate_samples = True
-            self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
-        self.video.alazarchansettings.config()
+        try:
+            self.video.alazarchansettings.settings.int_time = self.settings.fast_time*0.98 
+            self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
+            if self.settings.scan_options == 'Sinusoidal':
+                self.video.alazarchansettings.settings.buffers_per_acquisition = self.settings.slow_steps
+                self.video.alazarchansettings.settings.integrate_samples = True
+                self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
+            self.video.alazarchansettings.config()
+        except:
+            pass
 
     def upload_event(self, event):
         self.sequencebuilder.uploadToAWG()
