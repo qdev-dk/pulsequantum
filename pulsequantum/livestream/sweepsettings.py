@@ -8,7 +8,7 @@ from pulsequantum.livestream.sweepintrument import SequenceBuilder
 
 class SweepSettings(param.Parameterized):
 
-    scan_options = param.ObjectSelector(default="Steps", objects=['Steps', 'Triangular', 'Sinusoidal', 'SinusidalOneTri','StepsDelay'])
+    scan_options = param.ObjectSelector(default="Steps", objects=['Steps', 'Triangular', 'Sinusoidal', 'SinusidalOneTri'])
     fast_channel = param.Integer(1)
     slow_channel = param.Integer(2)
     fast_range = param.Parameter(default=3e-2, doc="x range")
@@ -64,8 +64,8 @@ class SweepConfig():
             self.sequencebuilder.sweep_sine()
         elif self.settings.scan_options == 'SinusidalOneTri':
             self.sequencebuilder.sweep_sineone()
-        elif self.settings.scan_options == 'StepsDelay':
-            self.sequencebuilder.sweep_pulse_pause()
+        elif self.settings.scan_options == 'Triangular':
+            self.sequencebuilder.sweep_sine_test()
             
                         
         self.fig = plotter(self.sequencebuilder.seq.get())
