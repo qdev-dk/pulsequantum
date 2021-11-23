@@ -19,7 +19,7 @@ class SweepSettings(param.Parameterized):
     slow_steps = param.Parameter(default=40, doc="y steps")
     marker_duration = param.Parameter(default=1e-5, doc="marker duration")
     delay_time = param.Parameter(default=1e-4,doc="delay time")
-
+    awg_sr = param.Parameter(default=1.2e7,doc="AWG sample rate")
 
 
 
@@ -58,14 +58,14 @@ class SweepConfig():
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
         self.sequencebuilder.marker_duration.set(self.settings.marker_duration)
         self.sequencebuilder.delay_time.set(self.settings.delay_time)
+        self.sequencebuilder.awg_sr.set(self.settings.awg_sr)
         if self.settings.scan_options  == 'Steps':
             self.sequencebuilder.sweep_pulse()
         elif self.settings.scan_options == 'Sinusoidal':
             self.sequencebuilder.sweep_sine()
         elif self.settings.scan_options == 'SinusidalOneTri':
             self.sequencebuilder.sweep_sineone()
-        elif self.settings.scan_options == 'Triangular':
-            self.sequencebuilder.sweep_sine_test()
+ 
             
                         
         self.fig = plotter(self.sequencebuilder.seq.get())
@@ -88,6 +88,7 @@ class SweepConfig():
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
         self.settings.marker_duration = self.sequencebuilder.marker_duration()
         self.settings.delay_time = self.sequencebuilder.delay_time()
+        self.settings.awg_sr = self.sequencebuilder.awg_sr()
 
     def update_video(self):
         try:
@@ -130,6 +131,7 @@ class AWGController(SequenceBuilder):
             self.awg.ch3_amp(4.5)
             self.awg.ch4_amp(4.5)
             self.seq.seq.setSR(1.2e9)
+            self.awg.clock_freq(self.awg_sr())
             package = self.seq.get().outputForAWGFile()
             start_time = time.time()
             self.awg.make_send_and_load_awg_file(*package[:])

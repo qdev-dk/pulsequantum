@@ -102,7 +102,12 @@ class SequenceBuilder(BagOfBeans):
                       label='Delay time',
                       unit='s',
                       set_cmd= lambda x : x,
-                      vals=vals.Numbers(0,1))   
+                      vals=vals.Numbers(0,1))
+        self.add_parameter('awg_sr',
+                      label='AWG sample rate',
+                      unit='s',
+                      set_cmd= lambda x : x,
+                      vals=vals.Numbers(1e7,1.2e9))
 
     def sweep_pulse(self):
         self.seq.empty_sequence()
@@ -110,6 +115,7 @@ class SequenceBuilder(BagOfBeans):
         total_time = self.fast_time.get() + self.delay_time.get()
         delay_time = self.delay_time.get()
         fast_time = self.fast_time.get()
+        awg_sr = self.awg_sr.get()
         delta_fast = self.fast_range.get()/2.0
         delta_slow = self.slow_range.get()/2.0
         steps = np.linspace(-delta_slow, delta_slow, self.slow_steps.get())
@@ -127,13 +133,13 @@ class SequenceBuilder(BagOfBeans):
                 seg_ramp.setSegmentMarker(f'ramp{2*i+1}', (0, marker_duration), 1)
             
 
-        seg_ramp.setSR(24*10/total_time)
-        seg_step.setSR(24*10/total_time)
+        seg_ramp.setSR(awg_sr)
+        seg_step.setSR(awg_sr)
         elem = bb.Element()
         elem.addBluePrint(self.fast_channel.get(), seg_ramp)
         elem.addBluePrint(self.slow_channel.get(), seg_step)
         self.seq.seq.addElement(1,elem)
-        self.seq.seq.setSR(24*10/total_time)
+        self.seq.seq.setSR(awg_sr)
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
         self.seq.set_all_channel_amplitude_offset(amplitude=1, offset=0)
 
@@ -142,6 +148,7 @@ class SequenceBuilder(BagOfBeans):
         total_time = self.fast_time.get() + self.delay_time.get()
         delay_time = self.delay_time.get()
         fast_time = self.fast_time.get()
+        awg_sr = self.awg_sr.get()
         amplitude = self.fast_range.get()
         freq = 1.0/fast_time
         range_slow = self.slow_range.get()
@@ -149,7 +156,6 @@ class SequenceBuilder(BagOfBeans):
         nr_steps = self.slow_steps.get()
         nr_steps_fast = nr_steps
         delta_slow = range_slow/(nr_steps+1)
-        SR = 2400/fast_time
         seg_sines = bb.BluePrint()
         seg_one_sine = bb.BluePrint()
         seg_step = bb.BluePrint()
@@ -178,13 +184,13 @@ class SequenceBuilder(BagOfBeans):
                 for time in marker_times:
                     seg_sines.marker1.append((delay_time+time+total_time*i,marker_duration))
 
-        seg_sines.setSR(SR)
-        seg_step.setSR(SR)
+        seg_sines.setSR(awg_sr)
+        seg_step.setSR(awg_sr)
         elem = bb.Element()
         elem.addBluePrint(self.fast_channel.get(), seg_sines)
         elem.addBluePrint(self.slow_channel.get(), seg_step)
         self.seq.seq.addElement(1,elem)
-        self.seq.seq.setSR(24*10/total_time)
+        self.seq.seq.setSR(awg_sr)
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
         self.seq.set_all_channel_amplitude_offset(amplitude=1, offset=0)
 
