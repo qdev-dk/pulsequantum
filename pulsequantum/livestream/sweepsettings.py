@@ -34,9 +34,9 @@ class SweepConfig():
         self.set_button.on_click(self.config_event)
         self.get_button = Button(name='get', button_type='primary')
         self.get_button.on_click(self.get_settings_event)
-        self.run_button = Button(name='Run')
+        self.run_button = Button(name='Run',button_type='default')
         self.run_button.on_click(self.run_event)
-        self.upload_button = Button(name='Upload')
+        self.upload_button = Button(name='Upload',button_type='default')
         self.upload_button.on_click(self.upload_event)
         #self.fig = None #self.sequencebuilder.seq.plot()
         self.figpane = pane.Matplotlib(None, dpi=144)
@@ -103,10 +103,14 @@ class SweepConfig():
             pass
 
     def upload_event(self, event):
+        self.upload_button.button_type = 'danger'
         self.sequencebuilder.uploadToAWG()
+        self.upload_button.button_type = 'success'
 
-    def run_event(self, event):
-        self.sequencebuilder.runAWG()
+
+    def run_event(self, event,button=None):
+        self.sequencebuilder.runAWG(button = self.run_button)
+
 
     def plotpane(self):
         return pane.Matplotlib(plotter(self.sequencebuilder.seq.get()), dpi=144)
@@ -126,10 +130,10 @@ class AWGController(SequenceBuilder):
         if '5014' in str(self.awg.__class__):
             #for i,  chan in enumerate(self.seq.get().channels):
             #    self.awg.channels[chan].AMP(float(chbox[chan-1].text()))
-            self.awg.ch1_amp(4.5)
-            self.awg.ch2_amp(4.5)
-            self.awg.ch3_amp(4.5)
-            self.awg.ch4_amp(4.5)
+            self.awg.ch1_amp(self.channel_1_amp())
+            self.awg.ch2_amp(self.channel_2_amp())
+            self.awg.ch3_amp(self.channel_3_amp())
+            self.awg.ch4_amp(self.channel_4_amp())
             self.seq.seq.setSR(1.2e9)
             self.awg.clock_freq(self.awg_sr())
             package = self.seq.get().outputForAWGFile()
@@ -162,8 +166,10 @@ class AWGController(SequenceBuilder):
         else:
             print('Choose an AWG model')
 
-    def runAWG(self):
+    def runAWG(self,button):
+        self.run_button = button
         if '5014' in str(self.awg.__class__):
+            print('hey we run')
             seq_chan = self.seq.get().channels
             for i in range(1, 5):
                 chan_state = getattr(self.awg, f'ch{i}_state')
@@ -173,9 +179,11 @@ class AWGController(SequenceBuilder):
                     chan_state(0)
             
             if self.awg.get_state()=='Idle':
+                self.run_button.button_type = 'success'
                 self.awg.run()
                 print("AWGs Running")
             elif self.awg.get_state()=='Running':
+                self.run_button.button_type = 'danger'
                 self.awg.stop()
                 print("AWGs Stopped")
         else:

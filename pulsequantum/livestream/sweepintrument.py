@@ -105,10 +105,15 @@ class SequenceBuilder(BagOfBeans):
                       vals=vals.Numbers(0,1))
         self.add_parameter('awg_sr',
                       label='AWG sample rate',
-                      unit='s',
+                      unit='Hz',
                       set_cmd= lambda x : x,
                       vals=vals.Numbers(1e7,1.2e9))
-
+        for i in range(4):
+            self.add_parameter(f'channel_{i+1}_amp',
+                        label='AWG sample rate',
+                        unit='V',
+                        set_cmd= lambda x : x,
+                        vals=vals.Numbers(0,4.5))
     def sweep_pulse(self):
         self.seq.empty_sequence()
         marker_duration = self.marker_duration.get()
