@@ -46,9 +46,14 @@ class SweepConfig():
     def config_event(self, event):
         self.set_button.button_type = 'warning'
         self.set_button.disabled = True
-        self.config()
-        self.set_button.disabled = False
-        self.set_button.button_type = 'primary'
+        try:
+            self.config()
+            self.set_button.disabled = False
+            self.set_button.button_type = 'primary'
+        except:
+            self.set_button.disabled = False
+            self.set_button.button_type = 'primary'
+            self.get_settings()
 
     def config(self):
         """
