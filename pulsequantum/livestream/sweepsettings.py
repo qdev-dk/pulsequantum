@@ -50,7 +50,7 @@ class SweepConfig():
             self.config()
             self.set_button.disabled = False
             self.set_button.button_type = 'primary'
-        except:
+        except Exception as config_ex:
             self.set_button.disabled = False
             self.set_button.button_type = 'primary'
             self.get_settings()
@@ -108,7 +108,7 @@ class SweepConfig():
                 self.video.alazarchansettings.settings.integrate_samples = True
                 self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
             self.video.alazarchansettings.config()
-        except:
+        except Exception as update_video_ex:
             pass
 
     def upload_event(self, event):
