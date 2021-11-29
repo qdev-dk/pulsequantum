@@ -39,7 +39,7 @@ class SweepConfig():
         self.upload_button = Button(name='Upload',button_type='default')
         self.upload_button.on_click(self.upload_event)
         #self.fig = None #self.sequencebuilder.seq.plot()
-        self.figpane = pane.Matplotlib(None, dpi=60)
+        self.figpane = pane.Matplotlib(None, dpi=144)
         self.config()
         self.col = Row(Column(self.settings, self.get_button, self.set_button), Column(self.figpane, self.upload_button, self.run_button))
 
@@ -50,7 +50,7 @@ class SweepConfig():
             self.config()
             self.set_button.disabled = False
             self.set_button.button_type = 'primary'
-        except Exception as configex:
+        except:
             self.set_button.disabled = False
             self.set_button.button_type = 'primary'
             self.get_settings()
@@ -76,6 +76,7 @@ class SweepConfig():
             self.sequencebuilder.sweep_sineone()
  
             
+                        
         self.fig = plotter(self.sequencebuilder.seq.get())
         self.figpane.object = self.fig
         #self.col = Row(Column(self.settings, self.get_button, self.set_button),self.plotpane())
@@ -107,7 +108,7 @@ class SweepConfig():
                 self.video.alazarchansettings.settings.integrate_samples = True
                 self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
             self.video.alazarchansettings.config()
-        except Exception as update_video_ex:
+        except:
             pass
 
     def upload_event(self, event):
