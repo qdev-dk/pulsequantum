@@ -44,7 +44,11 @@ class SweepConfig():
         self.col = Row(Column(self.settings, self.get_button, self.set_button), Column(self.figpane, self.upload_button, self.run_button))
 
     def config_event(self, event):
+        self.set_button.button_type = 'warning'
+        self.set_button.disabled = True
         self.config()
+        self.set_button.disabled = False
+        self.set_button.button_type = 'primary'
 
     def config(self):
         """
