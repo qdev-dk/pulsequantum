@@ -169,7 +169,6 @@ class AWGController(SequenceBuilder):
     def runAWG(self,button):
         self.run_button = button
         if '5014' in str(self.awg.__class__):
-            print('hey we run')
             seq_chan = self.seq.get().channels
             for i in range(1, 5):
                 chan_state = getattr(self.awg, f'ch{i}_state')
