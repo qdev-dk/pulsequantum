@@ -114,6 +114,7 @@ class SequenceBuilder(BagOfBeans):
                         unit='V',
                         set_cmd= lambda x : x,
                         vals=vals.Numbers(0,4.5))
+
     def sweep_pulse(self):
         self.seq.empty_sequence()
         marker_duration = self.marker_duration.get()
