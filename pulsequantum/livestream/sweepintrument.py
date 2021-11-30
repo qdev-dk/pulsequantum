@@ -105,9 +105,15 @@ class SequenceBuilder(BagOfBeans):
                       vals=vals.Numbers(0,1))
         self.add_parameter('awg_sr',
                       label='AWG sample rate',
-                      unit='s',
+                      unit='Hz',
                       set_cmd= lambda x : x,
                       vals=vals.Numbers(1e7,1.2e9))
+        for i in range(4):
+            self.add_parameter(f'channel_{i+1}_amp',
+                        label='AWG sample rate',
+                        unit='V',
+                        set_cmd= lambda x : x,
+                        vals=vals.Numbers(0,4.5))
 
     def sweep_pulse(self):
         self.seq.empty_sequence()
@@ -133,6 +139,7 @@ class SequenceBuilder(BagOfBeans):
                 else:
                     seg_ramp.setSegmentMarker(f'ramp{2*i+1}', (0, marker_duration), 1)
         else:
+            self.delay_time.set(0)
             for i, v in enumerate(steps):
                 seg_ramp.insertSegment(i, ramp, (-delta_fast, delta_fast), dur=fast_time)
                 seg_step.insertSegment(i, ramp, (v, v), dur=fast_time)
@@ -195,6 +202,7 @@ class SequenceBuilder(BagOfBeans):
                     for time in marker_times:
                         seg_sines.marker1.append((delay_time+time+total_time*i,marker_duration))
         else:
+            self.delay_time.set(0)
             seg_one_sine.insertSegment(0, sine, (freq, amplitude/2.0, 0, -np.pi/2), dur=fast_time)
 
             marker_times = np.arccos(np.linspace(-1, 1, nr_steps_fast))*fast_time/(2*np.pi)
