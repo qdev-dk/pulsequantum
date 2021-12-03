@@ -20,7 +20,8 @@ class SweepSettings(param.Parameterized):
     marker_duration = param.Parameter(default=1e-5, doc="marker duration")
     delay_time = param.Parameter(default=1e-4,doc="delay time")
     awg_sr = param.Parameter(default=1.2e7,doc="AWG sample rate")
-
+    applay_inverse_hp_filter = param.Boolean(default=False, doc="applay_inverse_HP_filter")
+    hp_frequency = param.Parameter(default=0.0125e6, doc="frequency of the HP filter")
 
 
 class SweepConfig():
@@ -68,6 +69,8 @@ class SweepConfig():
         self.sequencebuilder.marker_duration.set(self.settings.marker_duration)
         self.sequencebuilder.delay_time.set(self.settings.delay_time)
         self.sequencebuilder.awg_sr.set(self.settings.awg_sr)
+        self.sequencebuilder.applay_inverse_hp_filter.set(self.settings.applay_inverse_hp_filter)
+        self.sequencebuilder.hp_frequency.set(self.settings.hp_frequency)
         if self.settings.scan_options  == 'Steps':
             self.sequencebuilder.sweep_pulse()
         elif self.settings.scan_options == 'Sinusoidal':
@@ -98,6 +101,8 @@ class SweepConfig():
         self.settings.marker_duration = self.sequencebuilder.marker_duration()
         self.settings.delay_time = self.sequencebuilder.delay_time()
         self.settings.awg_sr = self.sequencebuilder.awg_sr()
+        self.settings.applay_inverse_hp_filter = self.sequencebuilder.applay_inverse_hp_filter()
+        self.settings.hp_frequency = self.sequencebuilder.hp_frequency()
 
     def update_video(self):
         try:
