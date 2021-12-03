@@ -13,8 +13,8 @@ class SweepSettings(param.Parameterized):
     slow_channel = param.Integer(2)
     fast_range = param.Parameter(default=3e-2, doc="x range")
     slow_range = param.Parameter(default=3e-2, doc="y range")
-    x_dc_offecet = param.Parameter(default=0, doc="x dc offecet")
-    y_dc_offecet = param.Parameter(default=0, doc="y dc offecet")
+    #x_dc_offecet = param.Parameter(default=0, doc="x dc offecet")
+    #y_dc_offecet = param.Parameter(default=0, doc="y dc offecet")
     fast_time = param.Parameter(default=3e-3, doc="x time")
     slow_steps = param.Parameter(default=40, doc="y steps")
     marker_duration = param.Parameter(default=1e-5, doc="marker duration")
@@ -77,6 +77,12 @@ class SweepConfig():
             self.sequencebuilder.sweep_sine()
         elif self.settings.scan_options == 'SinusidalOneTri':
             self.sequencebuilder.sweep_sineone()
+        self.video.x.V_start.set(-self.settings.fast_range/2)
+        self.video.x.V_stop.set(self.settings.fast_range/2)
+        self.video.x.V_axis.reset()
+        self.video.y.V_start.set(-self.settings.slow_range/2)
+        self.video.y.V_stop.set(self.settings.slow_range/2)
+        self.video.y.V_axis.reset()
  
             
                         
