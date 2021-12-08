@@ -86,10 +86,11 @@ class SweepConfig():
         self.video.x.V_start.set(-self.settings.fast_range/2)
         self.video.x.V_stop.set(self.settings.fast_range/2)
         self.video.x.V_axis.reset()
-        self.video.y.V_start.set(-self.settings.slow_range/2)
-        self.video.y.V_stop.set(self.settings.slow_range/2)
-        self.video.y.V_axis.reset()
- 
+        if hasattr(self.video, 'y'):
+            self.video.y.V_start.set(-self.settings.slow_range/2)
+            self.video.y.V_stop.set(self.settings.slow_range/2)
+            self.video.y.V_axis.reset()
+    
             
                         
         self.fig = plotter(self.sequencebuilder.seq.get())

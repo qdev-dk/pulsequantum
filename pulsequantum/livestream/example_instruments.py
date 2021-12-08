@@ -35,6 +35,14 @@ class DummyArray(ParameterWithSetpoints):
         output = (np.sin(xx+phase_x+random.random()))*np.cos(yy+phase_y)
         return output
 
+class DummyArray1d(ParameterWithSetpoints):
+
+    def get_raw(self):
+        ls_x = self.root_instrument.freq_axis_x.get()
+        phase_x = self.root_instrument.phase_x.get()
+        output = np.sin(ls_x+phase_x+random.random())
+        return output
+
 #Class that creates noise        
 class NoiseArray(ParameterWithSetpoints):
 
@@ -42,6 +50,13 @@ class NoiseArray(ParameterWithSetpoints):
         npointsx = self.root_instrument.n_pointsx.get_latest()
         npointsy = self.root_instrument.n_pointsy.get_latest()
         output = np.asarray([np.random.rand(npointsx) for i in range(npointsy)])
+        return output
+
+class NoiseArray1d(ParameterWithSetpoints):
+
+    def get_raw(self):
+        npointsx = self.root_instrument.n_pointsx.get_latest()
+        output = np.random.rand(npointsx) 
         return output
 
 
@@ -59,6 +74,8 @@ class FilterArray(ParameterWithSetpoints):
         output = (np.sum(np.asarray(self.output_filt), axis=0)/121)-0.5
 
         return output
+    
+
 
 
 class SpectrumNoise(ParameterWithSetpoints):
@@ -70,6 +87,23 @@ class SpectrumNoise(ParameterWithSetpoints):
     def get_raw(self):
         spectrum = self.root_instrument.spectrum()
         spectrum_noise = self.root_instrument.spectrum_noise()
+        return spectrum + spectrum_noise
+
+    def get_data(self):
+        self.data = ((self.nr_average-1)*self.data + self.get_raw())/self.nr_average
+        self.nr_average += 1.0
+        
+        return self.data
+
+class SpectrumNoise1d(ParameterWithSetpoints):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.nr_average = 1
+        self.data = self.root_instrument.spectrum1d()
+
+    def get_raw(self):
+        spectrum = self.root_instrument.spectrum1d()
+        spectrum_noise = self.root_instrument.spectrum_noise1d()
         return spectrum + spectrum_noise
 
     def get_data(self):
@@ -156,6 +190,14 @@ class FilterInstrument(Instrument):
                    label='Spectrum',
                    parameter_class=DummyArray,
                    vals=Arrays(shape=(self.n_pointsy.get_latest,self.n_pointsx.get_latest)))
+
+        self.add_parameter('spectrum1d',
+                   unit='dBm',
+                   setpoints=(self.freq_axis_x,),
+                   label='Spectrum',
+                   parameter_class=DummyArray1d,
+                   vals=Arrays(shape=(self.n_pointsx.get_latest,))
+                   )
                    
         self.add_parameter('spectrum_noise',
                    unit='dBm',
@@ -163,6 +205,8 @@ class FilterInstrument(Instrument):
                    label='Spectrum',
                    parameter_class=NoiseArray,
                    vals=Arrays(shape=(self.n_pointsy.get_latest, self.n_pointsx.get_latest)))
+
+
 
         self.add_parameter('spectrum_filt',
                    unit='dBm',
@@ -177,3 +221,16 @@ class FilterInstrument(Instrument):
                    label='Spectrum',
                    parameter_class=SpectrumNoise,
                    vals=Arrays(shape=(self.n_pointsy.get_latest,self.n_pointsx.get_latest)))
+
+        self.add_parameter('spectrum_noise1d',
+                   unit='dBm',
+                   setpoints=(self.freq_axis_x,),
+                   label='Spectrum',
+                   parameter_class=NoiseArray1d,
+                   vals=Arrays(shape=(self.n_pointsx.get_latest,)))
+        self.add_parameter('spectrum_and_noise1d',
+                   unit='dBm',
+                   setpoints=(self.freq_axis_x,),
+                   label='Spectrum',
+                   parameter_class=SpectrumNoise1d,
+                   vals=Arrays(shape=(self.n_pointsx.get_latest,)))

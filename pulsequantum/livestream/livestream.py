@@ -38,27 +38,36 @@ class LiveStream():
     def __init__(self, video, controllers,
                  dc_controllers: Optional[Tuple] = None,
                  port=0, refresh_period=100,
-                 awg = None
+                 awg = None,
+                 dim = 2
                  ):
         self.video = video
         self.controllers = controllers
         self.port = port
         self.refresh_period = refresh_period
+        self.dim = dim
         self.data_func = video.videorunningaverage
 
         self.pipe = Pipe(data=[])
-        self.data = zeros((self.video.y.n_points(),self.video.x.n_points()))
+        if self.dim == 1:
+            self.data = self.data_func.get()
+        else:
+            self.data = zeros((self.video.y.n_points(),self.video.x.n_points()))
         #self.data = self.data_func.get()
         self.nr_average = 1.0
         self.button_width = 100
         self.nr_average_wiget = TextInput(name='nr_average',
                                           width=self.button_width,
                                           value='None')
-        self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
-        self.image_dmap.opts(cmap='Magma', colorbar=True,
-                             width=400,
-                             height=350,
-                             toolbar='above')
+        if self.dim == 1:
+            self.image_dmap = hv.DynamicMap(hv.Curve,streams=[self.pipe])
+            self.image_dmap.opts(ylim=(0, 20), xlim=(-0.02, 0.02))
+        else:
+            self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
+            self.image_dmap.opts(cmap='Magma', colorbar=True,
+                                width=400,
+                                height=350,
+                                toolbar='above')
 
         self.plotsettings = PlotSettings()
         self.bound_plotsettings = bind(self.setplotsettings,
@@ -67,7 +76,8 @@ class LiveStream():
                                        ylabel=self.plotsettings.param.y_label,
                                        clabel=self.plotsettings.param.c_label,
                                        cmin=self.plotsettings.param.c_min,
-                                       cmax=self.plotsettings.param.c_max)
+                                       cmax=self.plotsettings.param.c_max
+                                       )
 
         #self.set_colobar_scale()
         self.set_labels()
@@ -120,7 +130,10 @@ class LiveStream():
         self.control_widgets = []
         self.control_setget = []
         self.controle_value_widget = []
-        self.axes = (self.video.x, self.video.y)
+        if hasattr(self.video,'y'):
+            self.axes = (self.video.x, self.video.y)
+        else:
+            self.axes = (self.video.x, )
         if dc_controllers:
             for i, key in enumerate(dc_controllers.keys()):
                 self.add_controle_wiget(key, dc_controllers[key],
@@ -179,9 +192,14 @@ class LiveStream():
             self.auto_set_collorbar()
             self.data = self.data_func.get()
             self.nr_average_wiget.value = str(self.data_func.root_instrument.nr_average.get())
-            self.pipe.send((self.data_func.setpoints[1].get(),
-                            self.data_func.setpoints[0].get(),
-                            self.data))
+            if self.dim == 1:
+                self.pipe.send((self.data_func.setpoints[0].get(),
+                                self.data))
+                
+            else:
+                self.pipe.send((self.data_func.setpoints[1].get(),
+                                self.data_func.setpoints[0].get(),
+                                self.data))
 
     def reset_average(self, event):
         self.data_func.reset_average()
@@ -196,9 +214,12 @@ class LiveStream():
         self.video_mode_server.stop()
 
     def set_labels(self):
-        self.plotsettings.x_label = self.data_func.setpoints[1].label + ' ('+self.data_func.setpoints[1].unit + ')'
-        self.plotsettings.y_label = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
-        self.plotsettings.c_label = self.data_func.label + ' (' + self.data_func.unit + ')'
+        if self.dim == 1:
+            self.plotsettings.x_label = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
+        else:
+            self.plotsettings.x_label = self.data_func.setpoints[1].label + ' ('+self.data_func.setpoints[1].unit + ')'
+            self.plotsettings.y_label = self.data_func.setpoints[0].label + ' ('+self.data_func.setpoints[0].unit + ')'
+            self.plotsettings.c_label = self.data_func.label + ' (' + self.data_func.unit + ')'
 
     def set_colobar_scale_event(self, event):
         self.colorbar_button.loading = True
@@ -215,12 +236,16 @@ class LiveStream():
         self.plotsettings.c_min = cmin
         self.plotsettings.c_max = cmax
 
-    def setplotsettings(self, title, xlabel, ylabel, clabel, cmin, cmax):
-        return self.image_dmap.opts(title=title,
-                                    xlabel=xlabel,
-                                    ylabel=ylabel,
-                                    clabel=clabel,
-                                    clim=(cmin, cmax))
+    def setplotsettings(self, title, xlabel, ylabel=None, clabel=None, cmin=None, cmax=None):
+        if self.dim == 1:
+            return self.image_dmap.opts(title=title,
+                                        xlabel=xlabel)
+        else:
+            return self.image_dmap.opts(title=title,
+                                        xlabel=xlabel,
+                                        ylabel=ylabel,
+                                        clabel=clabel,
+                                        clim=(cmin, cmax))
 
     def add_controle_wiget(self, name, controller, controllertype, axis=None):
         control_create = controllertype(displayname=name,
