@@ -11,31 +11,32 @@ class SweepSettings(param.Parameterized):
     scan_options = param.ObjectSelector(default="Steps", objects=['Steps', 'Triangular', 'Sinusoidal', 'SinusidalOneTri'])
     fast_channel = param.Integer(1)
     slow_channel = param.Integer(2)
-    fast_range = param.Parameter(default=3e-2, doc="x range")
-    slow_range = param.Parameter(default=3e-2, doc="y range")
+    fast_range = param.Parameter(label='Fast range (V)', default=3e-2, doc="x range")
+    slow_range = param.Parameter(label='Slow range (V)', default=3e-2, doc="y range")
     #x_dc_offecet = param.Parameter(default=0, doc="x dc offecet")
     #y_dc_offecet = param.Parameter(default=0, doc="y dc offecet")
-    fast_time = param.Parameter(default=3e-3, doc="x time")
-    slow_steps = param.Parameter(default=40, doc="y steps")
-    marker_duration = param.Parameter(default=1e-5, doc="marker duration")
-    delay_time = param.Parameter(default=1e-4,doc="delay time")
-    awg_sr = param.Parameter(default=1.2e7,doc="AWG sample rate")
+    fast_time = param.Parameter(label='Fast time (ms)', default=3, doc="x time")
+    slow_steps = param.Parameter(label='Slow steps (Nr)', default=40, doc="y steps")
+    marker_duration = param.Parameter(label='Marker Duration (ms)', default=1e-2, doc="marker duration")
+    delay_time = param.Parameter(label='Delay time (ms)', default=0, doc="delay time")
+    awg_sr = param.Parameter(label='Samplerate (Hz)', default=1.2e7, doc="AWG sample rate")
     applay_inverse_hp_filter = param.Boolean(default=False, doc="applay_inverse_HP_filter")
-    hp_frequency = param.Parameter(default=0.0125e6, doc="frequency of the HP filter")
+    hp_frequency = param.Parameter(label='HP frequency (Hz)', default=300, doc="frequency of the HP filter")
 
 
 class SweepConfig():
 
-    def __init__(self, video, awg=None):
+    def __init__(self, video, awg=None,  moresettings=None):
         self.sequencebuilder = AWGController(f'awg{video.name}',awg=awg)
         self.video = video
         self.settings = SweepSettings()
+        self.moresettings = moresettings
         #self.get_settings()
         self.set_button = Button(name='set', button_type='primary')
         self.set_button.on_click(self.config_event)
         self.get_button = Button(name='get', button_type='primary')
         self.get_button.on_click(self.get_settings_event)
-        self.run_button = Button(name='Run',button_type='default')
+        self.run_button = Button(name='Run', button_type='default')
         self.run_button.on_click(self.run_event)
         self.upload_button = Button(name='Upload',button_type='default')
         self.upload_button.on_click(self.upload_event)
@@ -64,13 +65,18 @@ class SweepConfig():
         self.sequencebuilder.slow_channel.set(self.settings.slow_channel)
         self.sequencebuilder.fast_range.set(self.settings.fast_range)
         self.sequencebuilder.slow_range.set(self.settings.slow_range)
-        self.sequencebuilder.fast_time.set(self.settings.fast_time)
+        self.sequencebuilder.fast_time.set(self.settings.fast_time*1e-3)
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
-        self.sequencebuilder.marker_duration.set(self.settings.marker_duration)
-        self.sequencebuilder.delay_time.set(self.settings.delay_time)
+        self.sequencebuilder.marker_duration.set(self.settings.marker_duration*1e-3)
+        self.sequencebuilder.delay_time.set(self.settings.delay_time*1e-3)
         self.sequencebuilder.awg_sr.set(self.settings.awg_sr)
         self.sequencebuilder.applay_inverse_hp_filter.set(self.settings.applay_inverse_hp_filter)
         self.sequencebuilder.hp_frequency.set(self.settings.hp_frequency)
+        
+        self.sequencebuilder.awg_amplitude.set(self.moresettings.awg_amplitude)
+        self.sequencebuilder.divider_fast.set(self.moresettings.divider_fast)
+        self.sequencebuilder.divider_slow.set(self.moresettings.divider_slow)
+        
         if self.settings.scan_options  == 'Steps':
             self.sequencebuilder.sweep_pulse()
         elif self.settings.scan_options == 'Sinusoidal':
@@ -102,13 +108,17 @@ class SweepConfig():
         self.settings.slow_channel = self.sequencebuilder.slow_channel()
         self.settings.fast_range = self.sequencebuilder.fast_range()
         self.settings.slow_range = self.sequencebuilder.slow_range()
-        self.settings.fast_time = self.sequencebuilder.fast_time()
+        self.settings.fast_time = self.sequencebuilder.fast_time()*1e3
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
-        self.settings.marker_duration = self.sequencebuilder.marker_duration()
-        self.settings.delay_time = self.sequencebuilder.delay_time()
+        self.settings.marker_duration = self.sequencebuilder.marker_duration()*1e3
+        self.settings.delay_time = self.sequencebuilder.delay_time()*1e3
         self.settings.awg_sr = self.sequencebuilder.awg_sr()
         self.settings.applay_inverse_hp_filter = self.sequencebuilder.applay_inverse_hp_filter()
-        self.settings.hp_frequency = self.sequencebuilder.hp_frequency()
+        self.settings.hp_frequency = self.sequencebuilder.hp_frequency() 
+        
+        self.moresettings.awg_amplitude = self.sequencebuilder.awg_amplitude()
+        self.moresettings.divider_fast = self.sequencebuilder.divider_fast()
+        self.moresettings.divider_slow = self.sequencebuilder.divider_slow()
 
     def update_video(self):
         try:
@@ -146,15 +156,15 @@ class AWGController(SequenceBuilder):
     def __init__(self, name: str, awg=None, **kwargs):
         super().__init__(name, **kwargs)
         self.awg = awg        
-    def uploadToAWG(self, awg_amp: list = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]) -> None:
+    def uploadToAWG(self) -> None:
         if '5014' in str(self.awg.__class__):
             #for i,  chan in enumerate(self.seq.get().channels):
             #    self.awg.channels[chan].AMP(float(chbox[chan-1].text()))
-            self.awg.ch1_amp(self.channel_1_amp())
-            self.awg.ch2_amp(self.channel_2_amp())
-            self.awg.ch3_amp(self.channel_3_amp())
-            self.awg.ch4_amp(self.channel_4_amp())
-            self.seq.seq.setSR(1.2e9)
+            self.awg.ch1_amp(self.awg_amplitude())
+            self.awg.ch2_amp(self.awg_amplitude())
+            self.awg.ch3_amp(self.awg_amplitude())
+            self.awg.ch4_amp(self.awg_amplitude())
+            self.seq.seq.setSR(self.awg_sr())
             self.awg.clock_freq(self.awg_sr())
             package = self.seq.get().outputForAWGFile()
             start_time = time.time()
@@ -165,7 +175,7 @@ class AWGController(SequenceBuilder):
             self.awg.mode('AWG')
             for chan in self.seq.get().channels:
                 self.awg.channels[chan-1].resolution(12)
-                self.awg.channels[chan-1].awg_amplitude(awg_amp[chan-1])
+                self.awg.channels[chan-1].awg_amplitude(self.awg_amplitude())
                 self.seq.get().setChannelAmplitude(chan, self.awg.channels[chan-1].awg_amplitude())
             self.awg.clearSequenceList()
             self.awg.clearWaveformList()

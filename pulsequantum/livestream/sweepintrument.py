@@ -108,12 +108,19 @@ class SequenceBuilder(BagOfBeans):
                       unit='Hz',
                       set_cmd= lambda x : x,
                       vals=vals.Numbers(1e7,1.2e9))
+        
+        self.add_parameter('awg_amplitude',
+                           label='AWG amplitude',
+                           unit='-',
+                           set_cmd=lambda x: x,
+                           vals=vals.Numbers(0, 4.5))
+
         for i in range(4):
             self.add_parameter(f'channel_{i+1}_amp',
-                        label='AWG sample rate',
-                        unit='V',
-                        set_cmd= lambda x : x,
-                        vals=vals.Numbers(0,4.5))
+                               label='AWG sample rate',
+                               unit='V',
+                               set_cmd=lambda x : x,
+                               vals=vals.Numbers(0, 4.5))
         
         self.add_parameter('applay_inverse_hp_filter',
                            initial_value=False,
@@ -125,6 +132,17 @@ class SequenceBuilder(BagOfBeans):
                            unit='Hz',
                            set_cmd= lambda x : x,
                            vals=vals.Numbers(1,1e99))
+        
+        self.add_parameter('divider_fast',
+                           label='Divider fast channel',
+                           unit='-',
+                           set_cmd= lambda x : x,
+                           vals=vals.Numbers(0,20))
+        self.add_parameter('divider_slow',
+                           label='Divider slow channel',
+                           unit='-',
+                           set_cmd= lambda x : x,
+                           vals=vals.Numbers(0,20))
 
 
     def sweep_pulse(self):
@@ -133,8 +151,8 @@ class SequenceBuilder(BagOfBeans):
         delay_time = self.delay_time.get()
         fast_time = self.fast_time.get()
         awg_sr = self.awg_sr.get()
-        delta_fast = self.fast_range.get()/2.0
-        delta_slow = self.slow_range.get()/2.0
+        delta_fast = self.divider_fast.get()*self.fast_range.get()/2.0
+        delta_slow = self.divider_slow.get()*self.slow_range.get()/2.0
         steps = np.linspace(-delta_slow, delta_slow, self.slow_steps.get())
         seg_ramp = bb.BluePrint()
         seg_step = bb.BluePrint()
@@ -173,9 +191,9 @@ class SequenceBuilder(BagOfBeans):
         delay_time = self.delay_time.get()
         fast_time = self.fast_time.get()
         awg_sr = self.awg_sr.get()
-        amplitude = self.fast_range.get()
+        amplitude = self.divider_fast.get()*self.fast_range.get()
         freq = 1.0/fast_time
-        range_slow = self.slow_range.get()
+        range_slow = self.divider_slow.get()*self.slow_range.get()
         v_slow = -range_slow/2
         nr_steps = self.slow_steps.get()
         nr_steps_fast = nr_steps
@@ -245,9 +263,9 @@ class SequenceBuilder(BagOfBeans):
     def sweep_sineupdown(self):
         marker_duration = self.marker_duration.get()
         fast_time = self.fast_time.get()
-        amplitude = self.fast_range.get()
+        amplitude = self.divider_fast.get()*self.fast_range.get()
         freq = 1.0/fast_time
-        range_slow = self.slow_range.get()/2.0
+        range_slow = self.divider_slow.get()*self.slow_range.get()/2.0
         v_slow = -range_slow/2
         nr_steps = self.slow_steps.get()
         nr_steps_fast = nr_steps
@@ -289,9 +307,9 @@ class SequenceBuilder(BagOfBeans):
     def sweep_sineone(self):
         marker_duration = self.marker_duration.get()
         fast_time = 2*self.fast_time.get()
-        amplitude = self.fast_range.get()
+        amplitude = self.divider_fast.get()*self.fast_range.get()
         freq = 1.0/fast_time
-        range_slow = self.slow_range.get()
+        range_slow = self.divider_slow.get()*self.slow_range.get()
         v_slow = -range_slow/2
         nr_steps = self.slow_steps.get()
         nr_steps_fast = nr_steps
@@ -327,7 +345,7 @@ class SequenceBuilder(BagOfBeans):
         self.seq.seq.addElement(1,elem)
         self.seq.seq.setSR(self.awg_sr.get())
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
-        self.seq.set_all_channel_amplitude_offset(amplitude=1, offset=0)
+        self.seq.set_all_channel_amplitude_offset(amplitude=self.awg_amplitude.get(), offset=0)
         if self.applay_inverse_hp_filter():
             self.seq.seq.setChannelFilterCompensation(channel=self.fast_channel.get(),
                                                       kind='HP', order=1,
