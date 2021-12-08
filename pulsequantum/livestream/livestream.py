@@ -12,7 +12,7 @@ from pulsequantum.livestream.plotsettings import PlotSettings
 from pulsequantum.livestream.alazarsettings import AlazarConfig
 from pulsequantum.livestream.alazarchansettings import AlazarChannelConfig
 from pulsequantum.livestream.sweepsettings import SweepConfig
-from pulsequantum.livestream.moresettings import MoreConfig
+from pulsequantum.livestream.moresettings import MoreSettings
 from numpy import zeros
 hv.extension('bokeh')
 
@@ -71,11 +71,15 @@ class LiveStream():
 
         #self.set_colobar_scale()
         self.set_labels()
-        self.sweepsettings = SweepConfig(video=self.video, awg=awg,)
         
-        self.moresttings = MoreConfig(self.sweepsettings.sequencebuilder, self.sweepsettings.video)
+        self.moresttings = MoreSettings()
+        
+        self.sweepsettings = SweepConfig(video=self.video, awg=awg,
+                                         moresettings=self.moresttings)
+        
 
-        self.measure_button = Button(name='Mesaure', button_type='primary',
+
+        self.measure_button = Button(name='Save', button_type='primary',
                                      width=self.button_width)
         self.measure_button.on_click(self.measure)
 
@@ -155,14 +159,14 @@ class LiveStream():
         self.dis_tabs = [('Video', self.gridspec),
                     ('Plot Settings', Row(self.plotsettings, self.bound_plotsettings)),
                     ('Sweep settings', self.sweepsettings.col),
-                    ('More settings', self.moresttings.col)
+                    ('More settings', self.moresttings)
                     ]
 
         if self.video.dis_tabs:
             self.dis_tabs += self.video.dis_tabs
 
         self.video_mode_server = Tabs(*self.dis_tabs,
-                                      dynamic=True).show(port=self.port,
+                                      dynamic=False).show(port=self.port,
                                                          threaded=True)
 
         self.video_mode_callback.start()

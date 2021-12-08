@@ -178,7 +178,7 @@ class VideoAxes(InstrumentChannel):
         self.add_parameter('n_points',
                            unit='',
                            initial_value=n_points,
-                           vals=Numbers(1,2e4),
+                           vals=Numbers(1,2e9),
                            get_cmd=None,
                            set_cmd=None)
             
