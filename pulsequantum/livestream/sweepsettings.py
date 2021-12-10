@@ -1,4 +1,5 @@
 import time
+import numpy as np
 from broadbean import sequence
 from pulsequantum.livestream.seqplot import plotter
 import param
@@ -124,12 +125,21 @@ class SweepConfig():
 
     def update_video(self):
         try:
-            self.video.alazarchansettings.settings.int_time = self.settings.fast_time*0.98 
+            int_time = 1e-3*self.settings.fast_time*0.98
+            min_sr = 2048/int_time
+            allowed_srs = np.asarray(list(self.video.alazarsettings.settings.param.sample_rate.get_range().keys()))[:-2].astype(int)
+            sr = allowed_srs[allowed_srs > min_sr].min()
+            self.video.alazarsettings.settings.sample_rate = sr
+            points = sr*int_time - (sr*int_time%128)
+            int_time = points/sr
+            self.video.alazarchansettings.settings.int_time = int_time*1e3
+
             self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
             if self.settings.scan_options == 'Sinusoidal':
                 self.video.alazarchansettings.settings.buffers_per_acquisition = self.settings.slow_steps
                 self.video.alazarchansettings.settings.integrate_samples = True
                 self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
+            self.video.alazarsettings.config()
             self.video.alazarchansettings.config()
         except Exception as update_video_ex:
             pass
