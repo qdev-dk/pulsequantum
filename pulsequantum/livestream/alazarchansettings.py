@@ -4,13 +4,13 @@ from panel.widgets import Button
 
 
 class AlazarChannelSettings(param.Parameterized):
-    int_delay = param.Number(0, precedence=0)
-    int_time = param.Number(4e-6, precedence=1)
-    samples_per_record = param.Integer(200)
+    int_delay = param.Number(0, precedence=0, label='Int delay (ms)')
+    int_time = param.Number(4e-6, precedence=1, label='Int time (ms)')
+    samples_per_record = param.Integer(200, label='Samples per record (Nr)')
     alazar_channel = param.ObjectSelector(default='A', objects=['A', 'B'])
-    buffers_per_acquisition = param.Integer(23)
-    num_averages = param.Integer(23)
-    records_per_buffer = param.Integer(23)
+    buffers_per_acquisition = param.Integer(23, label='Buffers per acquisition (Nr)')
+    num_averages = param.Integer(23, label='Num averages (Nr)')
+    records_per_buffer = param.Integer(23, label='Records per buffer (Nr)')
     integrate_samples= param.Boolean(False, doc="Intergrade Samples")
 
 
@@ -33,8 +33,8 @@ class AlazarChannelConfig():
         self.config()
 
     def config(self):
-        self.controller.int_delay.set(self.settings.int_delay)
-        self.controller.int_time.set(self.settings.int_time)
+        self.controller.int_delay.set(self.settings.int_delay*1e-3)
+        self.controller.int_time.set(self.settings.int_time*1e-3)
         # self.controller.sample_per_records.set(self.settings.sample_per_records)
 
         self.channel.alazar_channel.set(self.settings.alazar_channel)
@@ -55,8 +55,8 @@ class AlazarChannelConfig():
         self.get_settings()
 
     def get_settings(self):
-        self.settings.int_delay = self.controller.int_delay()
-        self.settings.int_time = self.controller.int_time()
+        self.settings.int_delay = self.controller.int_delay()*1e3
+        self.settings.int_time = self.controller.int_time()*1e3
         self.settings.samples_per_record = self.controller.samples_per_record()
 
         self.settings.alzar_channel = self.channel.alazar_channel() 
