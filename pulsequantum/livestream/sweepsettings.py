@@ -1,4 +1,5 @@
 import time
+import numpy as np
 from broadbean import sequence
 from pulsequantum.livestream.seqplot import plotter
 import param
@@ -11,8 +12,8 @@ class SweepSettings(param.Parameterized):
     scan_options = param.ObjectSelector(default="Steps", objects=['Steps', 'Triangular', 'Sinusoidal', 'SinusidalOneTri'])
     fast_channel = param.Integer(1)
     slow_channel = param.Integer(2)
-    fast_range = param.Parameter(label='Fast range (V)', default=3e-2, doc="x range")
-    slow_range = param.Parameter(label='Slow range (V)', default=3e-2, doc="y range")
+    fast_range = param.Parameter(label='Fast range (mV)', default=30, doc="x range")
+    slow_range = param.Parameter(label='Slow range (mV)', default=30, doc="y range")
     #x_dc_offecet = param.Parameter(default=0, doc="x dc offecet")
     #y_dc_offecet = param.Parameter(default=0, doc="y dc offecet")
     fast_time = param.Parameter(label='Fast time (ms)', default=3, doc="x time")
@@ -63,8 +64,8 @@ class SweepConfig():
         """
         self.sequencebuilder.fast_channel.set(self.settings.fast_channel)
         self.sequencebuilder.slow_channel.set(self.settings.slow_channel)
-        self.sequencebuilder.fast_range.set(self.settings.fast_range)
-        self.sequencebuilder.slow_range.set(self.settings.slow_range)
+        self.sequencebuilder.fast_range.set(self.settings.fast_range*1e-3)
+        self.sequencebuilder.slow_range.set(self.settings.slow_range*1e-3)
         self.sequencebuilder.fast_time.set(self.settings.fast_time*1e-3)
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
         self.sequencebuilder.marker_duration.set(self.settings.marker_duration*1e-3)
@@ -83,22 +84,23 @@ class SweepConfig():
             self.sequencebuilder.sweep_sine()
         elif self.settings.scan_options == 'SinusidalOneTri':
             self.sequencebuilder.sweep_sineone()
-        self.video.x.V_start.set(-self.settings.fast_range/2)
-        self.video.x.V_stop.set(self.settings.fast_range/2)
+        self.video.x.V_start.set(-self.settings.fast_range*1e-3/2)
+        self.video.x.V_stop.set(self.settings.fast_range*1e-3/2)
         self.video.x.V_axis.reset()
         if hasattr(self.video, 'y'):
-            self.video.y.V_start.set(-self.settings.slow_range/2)
-            self.video.y.V_stop.set(self.settings.slow_range/2)
+            self.video.y.V_start.set(-self.settings.slow_range/2*1e-3/2)
+            self.video.y.V_stop.set(self.settings.slow_range/2*1e-3/2)
             self.video.y.V_axis.reset()
     
-            
-                        
-        self.fig = plotter(self.sequencebuilder.seq.get())
-        self.figpane.object = self.fig
-        #self.col = Row(Column(self.settings, self.get_button, self.set_button),self.plotpane())
-
         self.get_settings()
         self.update_video()
+        self.figpane.loading = True      
+        self.fig = plotter(self.sequencebuilder.seq.get())
+        self.figpane.object = self.fig
+        self.figpane.loading = False
+        #self.col = Row(Column(self.settings, self.get_button, self.set_button),self.plotpane())
+
+
         #self.aktion()
 
     def get_settings_event(self, event):
@@ -107,8 +109,8 @@ class SweepConfig():
     def get_settings(self):
         self.settings.fast_channel = self.sequencebuilder.fast_channel()
         self.settings.slow_channel = self.sequencebuilder.slow_channel()
-        self.settings.fast_range = self.sequencebuilder.fast_range()
-        self.settings.slow_range = self.sequencebuilder.slow_range()
+        self.settings.fast_range = self.sequencebuilder.fast_range()*1e3
+        self.settings.slow_range = self.sequencebuilder.slow_range()*1e3
         self.settings.fast_time = self.sequencebuilder.fast_time()*1e3
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
         self.settings.marker_duration = self.sequencebuilder.marker_duration()*1e3
@@ -123,18 +125,28 @@ class SweepConfig():
 
     def update_video(self):
         try:
-            self.video.alazarchansettings.settings.int_time = self.settings.fast_time*0.98 
+            int_time = 1e-3*self.settings.fast_time*0.98
+            min_sr = 2048/int_time
+            allowed_srs = np.asarray(list(self.video.alazarsettings.settings.param.sample_rate.get_range().keys()))[:-2].astype(int)
+            sr = allowed_srs[allowed_srs > min_sr].min()
+            self.video.alazarsettings.settings.sample_rate = sr
+            points = sr*int_time - (sr*int_time%128)
+            int_time = points/sr
+            self.video.alazarchansettings.settings.int_time = int_time*1e3
+
             self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
             if self.settings.scan_options == 'Sinusoidal':
                 self.video.alazarchansettings.settings.buffers_per_acquisition = self.settings.slow_steps
                 self.video.alazarchansettings.settings.integrate_samples = True
                 self.video.alazarchansettings.settings.int_time = self.settings.marker_duration
+            self.video.alazarsettings.config()
             self.video.alazarchansettings.config()
         except Exception as update_video_ex:
             pass
 
     def upload_event(self, event):
         self.upload_button.button_type = 'danger'
+        self.run_button.button_type = 'danger'
         self.sequencebuilder.uploadToAWG()
         self.upload_button.button_type = 'success'
 
