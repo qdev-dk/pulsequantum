@@ -1,6 +1,8 @@
 from typing import Tuple, Union, Dict, List
 
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 from broadbean import Sequence, BluePrint, Element
