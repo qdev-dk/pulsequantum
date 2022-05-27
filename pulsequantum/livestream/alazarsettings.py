@@ -71,8 +71,6 @@ class AlazarSettings(param.Parameterized):
     trigger_delay = param.Integer(0, bounds=(0,255))
     timeout_ticks = param.Integer(0, bounds=(0, 255))
     seqmode = param.Boolean(True, doc="A sample Boolean parameter")
-    apply  = param.Action(lambda x: x, doc="""Record timestamp.""", precedence=0.7)
-
 
 
 class AlazarConfig():
