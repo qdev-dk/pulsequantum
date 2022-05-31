@@ -4,7 +4,7 @@ from panel.widgets import Button
 
 
 class AlazarChannelSettings(param.Parameterized):
-    int_delay = param.Number(0, precedence=0, label='Int delay (ms)')
+    #int_delay = param.Number(0, precedence=0, label='Int delay (ms)')
     int_time = param.Number(4e-6, precedence=1, label='Int time (ms)')
     samples_per_record = param.Integer(200, label='Samples per record (Nr)')
     alazar_channel = param.ObjectSelector(default='A', objects=['A', 'B'])
@@ -16,10 +16,9 @@ class AlazarChannelSettings(param.Parameterized):
 
 class AlazarChannelConfig():
 
-    def __init__(self, controller, channel, aktion):
+    def __init__(self, controller, aktion):
 
         self.controller = controller
-        self.channel = channel
         self.aktion = aktion
         self.settings = AlazarChannelSettings()
         self.get_settings()
@@ -33,18 +32,22 @@ class AlazarChannelConfig():
         self.config()
 
     def config(self):
-        self.controller.int_delay.set(self.settings.int_delay*1e-3)
-        self.controller.int_time.set(self.settings.int_time*1e-3)
-        # self.controller.sample_per_records.set(self.settings.sample_per_records)
+        acquisition_kwargs = {'mode': 'NPT',
+                              'records_per_buffer': self.settings.records_per_buffer,
+                              'buffers_per_acquisition': self.settings.buffers_per_acquisition,
+                              'channel_selection': self.settings.alazar_channel,
+                              'buffer_timeout': 3000,
+                              'interleave_samples': 'ENABLED'}
 
-        self.channel.alazar_channel.set(self.settings.alazar_channel)
-        #self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
-        self.channel.num_averages.set(self.settings.num_averages)
-        self.channel.records_per_buffer.set(self.settings.records_per_buffer)
-        self.channel.prepare_channel()
+        self.controller.setup_acquisition(self.settings.int_time*1e-3,
+                                          self.settings.samples_per_record,
+                                          acquisition_kwargs=acquisition_kwargs,
+                                          alazar_kwargs={})
+
+        #self.controller.int_delay.set(self.settings.int_delay*1e-3)
         self.get_settings()
         if self.settings.integrate_samples:
-            self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
+            #self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
             self.aktion(self.settings.records_per_buffer,
                         self.settings.buffers_per_acquisition)
         else:
@@ -55,11 +58,11 @@ class AlazarChannelConfig():
         self.get_settings()
 
     def get_settings(self):
-        self.settings.int_delay = self.controller.int_delay()*1e3
-        self.settings.int_time = self.controller.int_time()*1e3
-        self.settings.samples_per_record = self.controller.samples_per_record()
+        self.controller.acquisition_config
+        #self.settings.int_delay = self.controller.int_delay()*1e3
+        self.settings.int_time = self.controller.acquisition_time*1e3
+        self.settings.samples_per_record = self.controller.acquisition_config['samples_per_record']
 
-        self.settings.alzar_channel = self.channel.alazar_channel() 
-        self.settings.buffers_per_acquisition = self.channel.buffers_per_acquisition()
-        self.settings.num_averages = self.channel.num_averages()
-        self.settings.records_per_buffer = self.channel.records_per_buffer()
+        self.settings.alzar_channel = self.controller.acquisition_config['channel_selection']
+        self.settings.buffers_per_acquisition = self.controller.acquisition_config['buffers_per_acquisition']
+        self.settings.records_per_buffer = self.controller.acquisition_config['records_per_buffer']

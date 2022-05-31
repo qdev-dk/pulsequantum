@@ -8,19 +8,17 @@ class AlazarVideo(VideoInstrument):
     Args:
         VideoInstrument ([type]): [description]
     """
-    def __init__(self, name, alazar, controller, channel, **kwargs):
+    def __init__(self, name, alazar, controller, **kwargs):
         self.alazar = alazar
         self.controller = controller
-        self.channel = channel
   
 
-        super().__init__(name, data_func=self.channel.data,
-                         n_points=(self.channel.records_per_buffer(),
-                                   self.controller.samples_per_record()),
+        super().__init__(name, data_func=self.controller.dataset_acquisition,
+                         n_points=(self.controller.acquisition_config['records_per_buffer'],
+                                   self.controller.acquisition_config['samples_per_record']),
                          **kwargs)
 
         self.alazarchansettings = AlazarChannelConfig(controller=self.controller,
-                                                      channel=self.channel,
                                                       aktion=self.update_n_points)
         self.alazarsettings = AlazarConfig(self.alazar,
                                            aktion=self.alazarchansettings.config)
