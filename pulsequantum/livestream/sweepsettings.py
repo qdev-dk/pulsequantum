@@ -125,7 +125,7 @@ class SweepConfig():
 
     def update_video(self):
         try:
-            int_time = 1e-3*self.settings.fast_time*0.98
+            int_time = 1e-3*(self.settings.fast_time+self.settings.delay_time*2)*0.98
             min_sr = 2048/int_time
             allowed_srs = np.asarray(list(self.video.alazarsettings.settings.param.sample_rate.get_range().keys()))[:-2].astype(int)
             sr = allowed_srs[allowed_srs > min_sr].min()
