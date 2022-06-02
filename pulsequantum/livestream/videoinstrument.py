@@ -6,6 +6,7 @@ from qcodes.instrument.base import Instrument
 from qcodes.instrument.channel import InstrumentChannel
 from qcodes.instrument.parameter import ParameterWithSetpoints, Parameter
 from typing import Any, Iterable, Tuple, Union
+from pulsequantum.livestream.timeout import timeout
 
 class GeneratedSetPoints(Parameter):
     """
@@ -35,7 +36,8 @@ class Video(ParameterWithSetpoints):
         super().__init__(*args, **kwargs)
         self.data_func = data_func
         self.nr_average = 1
-        
+    
+    @timeout(0.5)    
     def get_raw(self):
 
         return self.data_func()
@@ -52,7 +54,7 @@ class VideoAverage(ParameterWithSetpoints):
         #self.nr_average = self.root_instrument.nr_average.get()
         self.data_func = self.root_instrument.video.get
         #self.data = self.data_func()
-
+    @timeout(0.5)
     def get_raw(self):
         self.nr_average = self.root_instrument.nr_average.get()
         if self.nr_average == 1:
@@ -75,7 +77,7 @@ class VideoRunnigAverage(ParameterWithSetpoints):
         self.data_func = self.root_instrument.video.get
         self.data_array = []
         #self.data = self.data_func()
-
+    @timeout(0.5)
     def get_raw(self):
         self.nr_average = self.root_instrument.nr_average.get()
         if self.nr_average == 1:
@@ -187,4 +189,3 @@ class VideoAxes(InstrumentChannel):
                            label='V Axis '+self.dim,
                            parameter_class=GeneratedSetPoints,
                            vals=Arrays(shape=(self.n_points.get_latest,)))
-        
