@@ -6,6 +6,7 @@ import param
 from panel import Column, Row, pane
 from panel.widgets import Button
 from pulsequantum.livestream.sweepintrument import SequenceBuilder
+from math import ceil
 
 class SweepSettings(param.Parameterized):
 
@@ -21,6 +22,33 @@ class SweepSettings(param.Parameterized):
     marker_duration = param.Parameter(label='Marker Duration (ms)', default=1e-2, doc="marker duration")
     delay_time = param.Parameter(label='Delay time (ms)', default=0, doc="delay time")
     awg_sr = param.Parameter(label='Samplerate (Hz)', default=1.2e7, doc="AWG sample rate")
+    alazar_sample_rate = param.ObjectSelector(label='Alazar Sample Rate', default=200000,
+                                              objects=[1000,
+                                                       2000,
+                                                       5000,
+                                                       10000,
+                                                       20000,
+                                                       50000,
+                                                       100000,
+                                                       200000,
+                                                       500000,
+                                                       1000000,
+                                                       2000000,
+                                                       5000000,
+                                                       10000000,
+                                                       20000000,
+                                                       50000000,
+                                                       100000000,
+                                                       200000000,
+                                                       500000000,
+                                                       800000000,
+                                                       1000000000,
+                                                       1200000000,
+                                                       1500000000,
+                                                       1800000000,
+                                                       'EXTERNAL_CLOCK',
+                                                       'UNDEFINED'])
+
     applay_inverse_hp_filter = param.Boolean(default=False, doc="applay_inverse_HP_filter")
     hp_frequency = param.Parameter(label='HP frequency (Hz)', default=300, doc="frequency of the HP filter")
 
@@ -74,7 +102,8 @@ class SweepConfig():
         self.sequencebuilder.applay_inverse_hp_filter.set(self.settings.applay_inverse_hp_filter)
         self.sequencebuilder.hp_frequency.set(self.settings.hp_frequency)
         
-        self.sequencebuilder.awg_amplitude.set(self.moresettings.awg_amplitude)
+        if self.sequencebuilder.awg:
+            self.sequencebuilder.awg_amplitude.set(self.moresettings.awg_amplitude)
         self.sequencebuilder.divider_fast.set(self.moresettings.divider_fast)
         self.sequencebuilder.divider_slow.set(self.moresettings.divider_slow)
         
@@ -90,7 +119,6 @@ class SweepConfig():
         self.video.y.V_start.set(-self.settings.slow_range*1e-3/2)
         self.video.y.V_stop.set(self.settings.slow_range*1e-3/2)
         self.video.y.V_axis.reset()
- 
             
         self.get_settings()
         self.update_video()
@@ -102,6 +130,11 @@ class SweepConfig():
 
 
         #self.aktion()
+    def get_samples_pr_record(self):
+        time_fast_finished = (self.settings.fast_time + self.settings.delay_time)*1e-3
+        alazar_sample_rate = self.settings.alazar_sample_rate
+        nr = ceil(time_fast_finished*alazar_sample_rate/128)
+        return 128*max(nr, 5)
 
     def get_settings_event(self, event):
         self.get_settings()
