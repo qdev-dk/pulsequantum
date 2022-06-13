@@ -91,10 +91,21 @@ def test_get_samples_pr_record(live):
     sweepconfig.settings.fast_time = 4.8
     sweepconfig.settings.samplingrate_on_alazar = 200000
     sweepconfig.settings.delay_time = 0.75
-    assert sweepconfig.get_samples_pr_record() == 1152
+    sweepconfig.get_samples_pr_record()
+    assert sweepconfig.samples_per_record == 1152
 
     sweepconfig = live.sweepsettings
     sweepconfig.settings.fast_time = 1.8
     sweepconfig.settings.samplingrate_on_alazar = 20000
     sweepconfig.settings.delay_time = 0.75
-    assert sweepconfig.get_samples_pr_record() == 640
+    sweepconfig.get_samples_pr_record()
+    assert sweepconfig.samples_per_record == 640
+
+def test_get_time_delay_end(live):
+    sweepconfig = live.sweepsettings
+    sweepconfig.settings.fast_time = 4.8
+    sweepconfig.settings.delay_time = 0.75
+    sweepconfig.settings.samplingrate_on_alazar = 200000
+    sweepconfig.get_samples_pr_record()
+    sweepconfig.get_time_delay_end()
+    assert sweepconfig.settings.delay_time_end == pytest.approx(0.21, 0.0001)

@@ -21,6 +21,7 @@ class SweepSettings(param.Parameterized):
     slow_steps = param.Parameter(label='Slow steps (Nr)', default=40, doc="y steps")
     marker_duration = param.Parameter(label='Marker Duration (ms)', default=1e-2, doc="marker duration")
     delay_time = param.Parameter(label='Delay time (ms)', default=0, doc="delay time")
+    delay_time_end = param.Parameter(label='Delay time end (ms)', default=0, doc="delay time")
     awg_sr = param.Parameter(label='Samplerate (Hz)', default=1.2e7, doc="AWG sample rate")
     alazar_sample_rate = param.ObjectSelector(label='Alazar Sample Rate', default=200000,
                                               objects=[1000,
@@ -98,6 +99,7 @@ class SweepConfig():
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
         self.sequencebuilder.marker_duration.set(self.settings.marker_duration*1e-3)
         self.sequencebuilder.delay_time.set(self.settings.delay_time*1e-3)
+        self.sequencebuilder.delay_time_end.set(self.settings.delay_time_end*1e-3)
         self.sequencebuilder.awg_sr.set(self.settings.awg_sr)
         self.sequencebuilder.applay_inverse_hp_filter.set(self.settings.applay_inverse_hp_filter)
         self.sequencebuilder.hp_frequency.set(self.settings.hp_frequency)
@@ -130,11 +132,6 @@ class SweepConfig():
 
 
         #self.aktion()
-    def get_samples_pr_record(self):
-        time_fast_finished = (self.settings.fast_time + self.settings.delay_time)*1e-3
-        alazar_sample_rate = self.settings.alazar_sample_rate
-        nr = ceil(time_fast_finished*alazar_sample_rate/128)
-        return 128*max(nr, 5)
 
     def get_settings_event(self, event):
         self.get_settings()
@@ -148,6 +145,7 @@ class SweepConfig():
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
         self.settings.marker_duration = self.sequencebuilder.marker_duration()*1e3
         self.settings.delay_time = self.sequencebuilder.delay_time()*1e3
+        self.settings.delay_time_end = self.sequencebuilder.delay_time_end()*1e3
         self.settings.awg_sr = self.sequencebuilder.awg_sr()
         self.settings.applay_inverse_hp_filter = self.sequencebuilder.applay_inverse_hp_filter()
         self.settings.hp_frequency = self.sequencebuilder.hp_frequency() 
@@ -176,6 +174,18 @@ class SweepConfig():
             self.video.alazarchansettings.config()
         except Exception as update_video_ex:
             pass
+
+    def get_samples_pr_record(self):
+        time_fast_finished = (self.settings.fast_time + self.settings.delay_time)*1e-3
+        alazar_sample_rate = self.settings.alazar_sample_rate
+        nr = ceil(time_fast_finished*alazar_sample_rate/128)
+        self.samples_per_record  = 128*max(nr, 5)
+
+    def get_time_delay_end(self):
+        time_fast_finished = (self.settings.fast_time + self.settings.delay_time)*1e-3
+        alazar_time_pr_record = self.samples_per_record/self.settings.alazar_sample_rate
+        self.settings.delay_time_end = (alazar_time_pr_record-time_fast_finished)*1e3
+
 
     def upload_event(self, event):
         self.upload_button.button_type = 'danger'
