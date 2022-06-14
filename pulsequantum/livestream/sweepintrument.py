@@ -187,12 +187,12 @@ class SequenceBuilder(BagOfBeans):
                     seg_ramp.insertSegment((nr_delay_segs+1)*i+2, ramp, (0, 0), dur=delay_time_end)
                 else:
                     self.delay_time_end.set(0)
-                seg_step.insertSegment(i, ramp, (v, v), dur=fast_time)
+                seg_step.insertSegment(i, ramp, (v, v), dur=fast_time+delay_time_end)
                 if i == 0:
                     seg_step.setSegmentMarker('ramp', (0, marker_duration), 1)
                     seg_ramp.setSegmentMarker('ramp', (0, marker_duration), 1)
                 else:
-                    seg_ramp.setSegmentMarker(f'ramp{i+1}', (0, marker_duration), 1)
+                    seg_ramp.setSegmentMarker(f'ramp{(nr_delay_segs+1)*i+1}', (0, marker_duration), 1)
             
 
         seg_ramp.setSR(awg_sr)
