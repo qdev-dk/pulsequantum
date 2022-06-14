@@ -79,6 +79,8 @@ class SweepConfig():
         self.set_button.button_type = 'warning'
         self.set_button.disabled = True
         try:
+            self.get_samples_pr_record()
+            self.get_time_delay_end()
             self.config()
             self.set_button.disabled = False
             self.set_button.button_type = 'primary'
@@ -156,14 +158,10 @@ class SweepConfig():
 
     def update_video(self):
         try:
-            int_time = 1e-3*(self.settings.fast_time+self.settings.delay_time*2)*0.98
-            min_sr = 2048/int_time
-            allowed_srs = np.asarray(list(self.video.alazarsettings.settings.param.sample_rate.get_range().keys()))[:-2].astype(int)
-            sr = allowed_srs[allowed_srs > min_sr].min()
-            self.video.alazarsettings.settings.sample_rate = sr
-            points = sr*int_time - (sr*int_time%128)
-            int_time = points/sr
-            self.video.alazarchansettings.settings.int_time = int_time*1e3
+            int_time = (self.settings.fast_time+self.settings.delay_time)
+            self.video.alazarsettings.settings.sample_rate = self.settings.alazar_sample_rate
+
+            self.video.alazarchansettings.settings.int_time = int_time
 
             self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
             if self.settings.scan_options == 'Sinusoidal':
@@ -184,7 +182,7 @@ class SweepConfig():
     def get_time_delay_end(self):
         time_fast_finished = (self.settings.fast_time + self.settings.delay_time)*1e-3
         alazar_time_pr_record = self.samples_per_record/self.settings.alazar_sample_rate
-        self.settings.delay_time_end = (alazar_time_pr_record-time_fast_finished)*1e3
+        self.settings.delay_time_end = (alazar_time_pr_record-time_fast_finished)*1e3 + (128/self.settings.alazar_sample_rate)*1e3
 
 
     def upload_event(self, event):
