@@ -4,31 +4,6 @@ from panel.widgets import Button
 
 class AlazarSettings(param.Parameterized):
     clock_source = param.ObjectSelector(objects=['INTERNAL_CLOCK', 'FAST_EXTERNAL_CLOCK', 'EXTERNAL_CLOCK_10MHz_REF'])
-    sample_rate = param.ObjectSelector(objects=[1000,
-                                                2000,
-                                                5000,
-                                                10000,
-                                                20000,
-                                                50000,
-                                                100000,
-                                                200000,
-                                                500000,
-                                                1000000,
-                                                2000000,
-                                                5000000,
-                                                10000000,
-                                                20000000,
-                                                50000000,
-                                                100000000,
-                                                200000000,
-                                                500000000,
-                                                800000000,
-                                                1000000000,
-                                                1200000000,
-                                                1500000000,
-                                                1800000000,
-                                                'EXTERNAL_CLOCK',
-                                                'UNDEFINED'])
     coupling1 = param.ObjectSelector(objects=['DC', 'AC'])
     coupling2 = param.ObjectSelector(objects=['DC', 'AC'])
 
@@ -96,7 +71,6 @@ class AlazarConfig():
         """
         with self.alazar.syncing():
             self.alazar.clock_source(self.settings.clock_source)    
-            self.alazar.sample_rate(self.settings.sample_rate)
             self.alazar.clock_edge(self.settings.clock_edge)
             self.alazar.decimation(self.settings.decimation)
             self.alazar.coupling1(self.settings.coupling1)
@@ -126,7 +100,6 @@ class AlazarConfig():
 
     def get_settings(self):
         self.settings.clock_source = self.alazar.clock_source()
-        self.settings.sample_rate = self.alazar.sample_rate()
         self.settings.clock_edge = self.alazar.clock_edge()
         self.settings.decimation = self.alazar.decimation()
         self.settings.coupling1 = self.alazar.coupling1()

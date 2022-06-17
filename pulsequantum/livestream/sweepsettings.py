@@ -159,7 +159,7 @@ class SweepConfig():
     def update_video(self):
         try:
             int_time = (self.settings.fast_time+self.settings.delay_time)
-            self.video.alazarsettings.settings.sample_rate = self.settings.alazar_sample_rate
+            self.video.alazarchansettings.settings.sample_rate = self.settings.alazar_sample_rate
 
             self.video.alazarchansettings.settings.int_time = int_time
 

@@ -15,6 +15,31 @@ class AlazarChannelSettings(param.Parameterized):
     num_averages = param.Integer(23, label='Num averages (Nr)')
     records_per_buffer = param.Integer(23, label='Records per buffer (Nr)')
     integrate_samples= param.Boolean(False, doc="Intergrade Samples")
+    sample_rate = param.ObjectSelector(objects=[1000,
+                                                2000,
+                                                5000,
+                                                10000,
+                                                20000,
+                                                50000,
+                                                100000,
+                                                200000,
+                                                500000,
+                                                1000000,
+                                                2000000,
+                                                5000000,
+                                                10000000,
+                                                20000000,
+                                                50000000,
+                                                100000000,
+                                                200000000,
+                                                500000000,
+                                                800000000,
+                                                1000000000,
+                                                1200000000,
+                                                1500000000,
+                                                1800000000,
+                                                'EXTERNAL_CLOCK',
+                                                'UNDEFINED'])
 
 
 class AlazarChannelConfig():
@@ -42,8 +67,8 @@ class AlazarChannelConfig():
                               'buffer_timeout': 3000,
                               'interleave_samples': 'ENABLED'}
 
-        self.controller.setup_acquisition(self.settings.int_time*1e-3,
-                                          self.settings.samples_per_record,
+        self.controller.setup_acquisition(samples_per_record=self.settings.samples_per_record,
+                                          sample_rate=self.settings.sample_rate,
                                           acquisition_kwargs=acquisition_kwargs,
                                           alazar_kwargs={})
         self.controller.samples_to_exclude_start(self.settings.samples_to_exclude_start)
