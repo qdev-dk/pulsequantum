@@ -361,7 +361,8 @@ class SequenceBuilder(BagOfBeans):
         self.seq.seq.addElement(1,elem)
         self.seq.seq.setSR(self.awg_sr.get())
         self.seq.seq.setSequencingNumberOfRepetitions(1, 0)
-        self.seq.set_all_channel_amplitude_offset(amplitude=self.awg_amplitude.get(), offset=0)
+        self.amplitude.set(self.awg_amplitude.get())
+        self.seq.set_all_channel_amplitude_offset(offset=0)
         if self.applay_inverse_hp_filter():
             self.seq.seq.setChannelFilterCompensation(channel=self.fast_channel.get(),
                                                       kind='HP', order=1,
