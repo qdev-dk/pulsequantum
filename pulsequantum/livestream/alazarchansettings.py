@@ -1,25 +1,52 @@
 import param
 from panel import Column
 from panel.widgets import Button
+from measfunc.AlazarAcquisitionController import zero_if_none
 
 
 class AlazarChannelSettings(param.Parameterized):
-    int_delay = param.Number(0, precedence=0, label='Int delay (ms)')
+    #int_delay = param.Number(0, precedence=0, label='Int delay (ms)')
     int_time = param.Number(4e-6, precedence=1, label='Int time (ms)')
+    samples_to_exclude_start = param.Integer(0, label='Samples to skip start (Nr)')
+    samples_to_exclude_end = param.Integer(0, label='Samples to skip end (Nr)')
     samples_per_record = param.Integer(200, label='Samples per record (Nr)')
     alazar_channel = param.ObjectSelector(default='A', objects=['A', 'B'])
     buffers_per_acquisition = param.Integer(23, label='Buffers per acquisition (Nr)')
     num_averages = param.Integer(23, label='Num averages (Nr)')
     records_per_buffer = param.Integer(23, label='Records per buffer (Nr)')
     integrate_samples= param.Boolean(False, doc="Intergrade Samples")
+    sample_rate = param.ObjectSelector(objects=[1000,
+                                                2000,
+                                                5000,
+                                                10000,
+                                                20000,
+                                                50000,
+                                                100000,
+                                                200000,
+                                                500000,
+                                                1000000,
+                                                2000000,
+                                                5000000,
+                                                10000000,
+                                                20000000,
+                                                50000000,
+                                                100000000,
+                                                200000000,
+                                                500000000,
+                                                800000000,
+                                                1000000000,
+                                                1200000000,
+                                                1500000000,
+                                                1800000000,
+                                                'EXTERNAL_CLOCK',
+                                                'UNDEFINED'])
 
 
 class AlazarChannelConfig():
 
-    def __init__(self, controller, channel, aktion):
+    def __init__(self, controller, aktion):
 
         self.controller = controller
-        self.channel = channel
         self.aktion = aktion
         self.settings = AlazarChannelSettings()
         self.get_settings()
@@ -33,33 +60,39 @@ class AlazarChannelConfig():
         self.config()
 
     def config(self):
-        self.controller.int_delay.set(self.settings.int_delay*1e-3)
-        self.controller.int_time.set(self.settings.int_time*1e-3)
-        # self.controller.sample_per_records.set(self.settings.sample_per_records)
+        acquisition_kwargs = {'mode': 'NPT',
+                              'records_per_buffer': self.settings.records_per_buffer,
+                              'buffers_per_acquisition': self.settings.buffers_per_acquisition,
+                              'channel_selection': self.settings.alazar_channel,
+                              'buffer_timeout': 3000,
+                              'interleave_samples': 'ENABLED'}
 
-        self.channel.alazar_channel.set(self.settings.alazar_channel)
-        #self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
-        self.channel.num_averages.set(self.settings.num_averages)
-        self.channel.records_per_buffer.set(self.settings.records_per_buffer)
-        self.channel.prepare_channel()
+        self.controller.setup_acquisition(samples_per_record=self.settings.samples_per_record,
+                                          sample_rate=self.settings.sample_rate,
+                                          acquisition_kwargs=acquisition_kwargs,
+                                          alazar_kwargs={})
+        self.controller.samples_to_exclude_start(self.settings.samples_to_exclude_start)
+        self.controller.samples_to_exclude_end(self.settings.samples_to_exclude_end)
+        #self.controller.int_delay.set(self.settings.int_delay*1e-3)
         self.get_settings()
         if self.settings.integrate_samples:
-            self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
+            #self.channel.buffers_per_acquisition.set(self.settings.buffers_per_acquisition)
             self.aktion(self.settings.records_per_buffer,
                         self.settings.buffers_per_acquisition)
         else:
             self.aktion(self.settings.records_per_buffer,
-                        self.settings.samples_per_record)
+                        self.settings.samples_per_record -self.settings.samples_to_exclude_start -self.settings.samples_to_exclude_end)
 
     def get_settings_event(self, event):
         self.get_settings()
 
     def get_settings(self):
-        self.settings.int_delay = self.controller.int_delay()*1e3
-        self.settings.int_time = self.controller.int_time()*1e3
-        self.settings.samples_per_record = self.controller.samples_per_record()
-
-        self.settings.alzar_channel = self.channel.alazar_channel() 
-        self.settings.buffers_per_acquisition = self.channel.buffers_per_acquisition()
-        self.settings.num_averages = self.channel.num_averages()
-        self.settings.records_per_buffer = self.channel.records_per_buffer()
+        self.controller.acquisition_config
+        #self.settings.int_delay = self.controller.int_delay()*1e3
+        self.settings.int_time = self.controller.acquisition_time*1e3
+        self.settings.samples_per_record = self.controller.acquisition_config['samples_per_record']
+        self.settings.samples_to_skip_start = zero_if_none(self.controller.samples_to_exclude_start())
+        self.settings.samples_to_skip_end = zero_if_none(self.controller.samples_to_exclude_end())
+        self.settings.alzar_channel = self.controller.acquisition_config['channel_selection']
+        self.settings.buffers_per_acquisition = self.controller.acquisition_config['buffers_per_acquisition']
+        self.settings.records_per_buffer = self.controller.acquisition_config['records_per_buffer']

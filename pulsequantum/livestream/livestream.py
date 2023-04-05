@@ -14,6 +14,9 @@ from pulsequantum.livestream.alazarchansettings import AlazarChannelConfig
 from pulsequantum.livestream.sweepsettings import SweepConfig
 from pulsequantum.livestream.moresettings import MoreSettings
 from numpy import zeros
+from time import perf_counter
+import functools
+import numpy as np
 hv.extension('bokeh')
 
 
@@ -54,6 +57,9 @@ class LiveStream():
         self.nr_average_wiget = TextInput(name='nr_average',
                                           width=self.button_width,
                                           value='None')
+        self.time_pr_acquisition = TextInput(name='Time per Acquisition',
+                                             width=self.button_width,
+                                             value='Not started yet')
         self.image_dmap = hv.DynamicMap(hv.Image, streams=[self.pipe])
         self.image_dmap.opts(cmap='Magma', colorbar=True,
                              width=400,
@@ -136,7 +142,8 @@ class LiveStream():
                          self.reset_average_button,
                          self.nr_average_wiget,
                          self.colorbar_button,
-                         self.close_button
+                         self.close_button,
+                         self.time_pr_acquisition
                          )
 
         controllersget = Column(*tuple(self.controle_value_widget))
@@ -167,21 +174,28 @@ class LiveStream():
 
         self.video_mode_server = Tabs(*self.dis_tabs,
                                       dynamic=False).show(port=self.port,
-                                                         threaded=True)
+                                                          threaded=True)
 
         self.video_mode_callback.start()
+
 
     @gen.coroutine
     def data_grabber(self):
         for i, func in enumerate(self.control_setget):
             self.controle_value_widget[i].value = str(func.get())
         if self.live_checkbox.value:
-            self.auto_set_collorbar()
-            self.data = self.data_func.get()
-            self.nr_average_wiget.value = str(self.data_func.root_instrument.nr_average.get())
-            self.pipe.send((self.data_func.setpoints[1].get(),
-                            self.data_func.setpoints[0].get(),
-                            self.data))
+            try:
+                start_time = perf_counter()
+                self.auto_set_collorbar()
+                self.data = self.data_func.get()
+                self.nr_average_wiget.value = str(self.data_func.root_instrument.nr_average.get())
+                self.pipe.send((self.data_func.setpoints[1].get(),
+                                self.data_func.setpoints[0].get(),
+                                self.data))
+                self.time_pr_acquisition.value = str(perf_counter()-start_time)
+            except Exception as e:
+                print(e)
+                self.time_pr_acquisition.value = str(e)
 
     def reset_average(self, event):
         self.data_func.reset_average()

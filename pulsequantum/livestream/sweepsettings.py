@@ -6,6 +6,7 @@ import param
 from panel import Column, Row, pane
 from panel.widgets import Button
 from pulsequantum.livestream.sweepintrument import SequenceBuilder
+from math import ceil
 
 class SweepSettings(param.Parameterized):
 
@@ -20,7 +21,35 @@ class SweepSettings(param.Parameterized):
     slow_steps = param.Parameter(label='Slow steps (Nr)', default=40, doc="y steps")
     marker_duration = param.Parameter(label='Marker Duration (ms)', default=1e-2, doc="marker duration")
     delay_time = param.Parameter(label='Delay time (ms)', default=0, doc="delay time")
+    delay_time_end = param.Parameter(label='Delay time end (ms)', default=0, doc="delay time")
     awg_sr = param.Parameter(label='Samplerate (Hz)', default=1.2e7, doc="AWG sample rate")
+    alazar_sample_rate = param.ObjectSelector(label='Alazar Sample Rate', default=200000,
+                                              objects=[1000,
+                                                       2000,
+                                                       5000,
+                                                       10000,
+                                                       20000,
+                                                       50000,
+                                                       100000,
+                                                       200000,
+                                                       500000,
+                                                       1000000,
+                                                       2000000,
+                                                       5000000,
+                                                       10000000,
+                                                       20000000,
+                                                       50000000,
+                                                       100000000,
+                                                       200000000,
+                                                       500000000,
+                                                       800000000,
+                                                       1000000000,
+                                                       1200000000,
+                                                       1500000000,
+                                                       1800000000,
+                                                       'EXTERNAL_CLOCK',
+                                                       'UNDEFINED'])
+
     applay_inverse_hp_filter = param.Boolean(default=False, doc="applay_inverse_HP_filter")
     hp_frequency = param.Parameter(label='HP frequency (Hz)', default=300, doc="frequency of the HP filter")
 
@@ -50,6 +79,8 @@ class SweepConfig():
         self.set_button.button_type = 'warning'
         self.set_button.disabled = True
         try:
+            self.get_samples_pr_record()
+            self.get_time_delay_end()
             self.config()
             self.set_button.disabled = False
             self.set_button.button_type = 'primary'
@@ -70,11 +101,13 @@ class SweepConfig():
         self.sequencebuilder.slow_steps.set(self.settings.slow_steps)
         self.sequencebuilder.marker_duration.set(self.settings.marker_duration*1e-3)
         self.sequencebuilder.delay_time.set(self.settings.delay_time*1e-3)
+        self.sequencebuilder.delay_time_end.set(self.settings.delay_time_end*1e-3)
         self.sequencebuilder.awg_sr.set(self.settings.awg_sr)
         self.sequencebuilder.applay_inverse_hp_filter.set(self.settings.applay_inverse_hp_filter)
         self.sequencebuilder.hp_frequency.set(self.settings.hp_frequency)
         
-        self.sequencebuilder.awg_amplitude.set(self.moresettings.awg_amplitude)
+        if self.sequencebuilder.awg:
+            self.sequencebuilder.awg_amplitude.set(self.moresettings.awg_amplitude)
         self.sequencebuilder.divider_fast.set(self.moresettings.divider_fast)
         self.sequencebuilder.divider_slow.set(self.moresettings.divider_slow)
         
@@ -90,7 +123,6 @@ class SweepConfig():
         self.video.y.V_start.set(-self.settings.slow_range*1e-3/2)
         self.video.y.V_stop.set(self.settings.slow_range*1e-3/2)
         self.video.y.V_axis.reset()
- 
             
         self.get_settings()
         self.update_video()
@@ -115,6 +147,7 @@ class SweepConfig():
         self.settings.slow_steps = self.sequencebuilder.slow_steps()
         self.settings.marker_duration = self.sequencebuilder.marker_duration()*1e3
         self.settings.delay_time = self.sequencebuilder.delay_time()*1e3
+        self.settings.delay_time_end = self.sequencebuilder.delay_time_end()*1e3
         self.settings.awg_sr = self.sequencebuilder.awg_sr()
         self.settings.applay_inverse_hp_filter = self.sequencebuilder.applay_inverse_hp_filter()
         self.settings.hp_frequency = self.sequencebuilder.hp_frequency() 
@@ -125,14 +158,10 @@ class SweepConfig():
 
     def update_video(self):
         try:
-            int_time = 1e-3*self.settings.fast_time*0.98
-            min_sr = 2048/int_time
-            allowed_srs = np.asarray(list(self.video.alazarsettings.settings.param.sample_rate.get_range().keys()))[:-2].astype(int)
-            sr = allowed_srs[allowed_srs > min_sr].min()
-            self.video.alazarsettings.settings.sample_rate = sr
-            points = sr*int_time - (sr*int_time%128)
-            int_time = points/sr
-            self.video.alazarchansettings.settings.int_time = int_time*1e3
+            int_time = (self.settings.fast_time+self.settings.delay_time)
+            self.video.alazarchansettings.settings.sample_rate = self.settings.alazar_sample_rate
+
+            self.video.alazarchansettings.settings.int_time = int_time
 
             self.video.alazarchansettings.settings.records_per_buffer = self.settings.slow_steps
             if self.settings.scan_options == 'Sinusoidal':
@@ -143,6 +172,18 @@ class SweepConfig():
             self.video.alazarchansettings.config()
         except Exception as update_video_ex:
             pass
+
+    def get_samples_pr_record(self):
+        time_fast_finished = (self.settings.fast_time + self.settings.delay_time)*1e-3
+        alazar_sample_rate = self.settings.alazar_sample_rate
+        nr = ceil(time_fast_finished*alazar_sample_rate/128)
+        self.samples_per_record  = 128*max(nr, 5)
+
+    def get_time_delay_end(self):
+        time_fast_finished = (self.settings.fast_time + self.settings.delay_time)*1e-3
+        alazar_time_pr_record = self.samples_per_record/self.settings.alazar_sample_rate
+        self.settings.delay_time_end = (alazar_time_pr_record-time_fast_finished)*1e3 + (128/self.settings.alazar_sample_rate)*1e3
+
 
     def upload_event(self, event):
         self.upload_button.button_type = 'danger'
